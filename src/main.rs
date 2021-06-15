@@ -2,10 +2,16 @@ extern crate gl;
 extern crate sdl2;
 
 use std::ffi::{CString};
+use std::path::Path;
+use crate::resources::Resources;
 
 pub mod render_gl;
+pub mod resources;
 
 fn main() {
+
+    let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
+
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
 
@@ -31,17 +37,7 @@ fn main() {
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
-    let vert_shader = render_gl::Shader::from_vert_source(
-        &CString::new(include_str!("triangle.vert")).unwrap()
-    ).unwrap();
-
-    let frag_shader = render_gl::Shader::from_frag_source(
-        &CString::new(include_str!("triangle.frag")).unwrap()
-    ).unwrap();
-
-    let shader_program = render_gl::Program::from_shaders(
-        &[vert_shader, frag_shader]
-    ).unwrap();
+    let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     shader_program.set_used();
 
 
