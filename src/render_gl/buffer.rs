@@ -1,25 +1,30 @@
-pub struct ArrayBuffer {
-    vbo: gl::types::GLuint,
+pub trait BufferType {
+    const BUFFER_TYPE: gl::types::GLuint;
 }
 
-impl ArrayBuffer {
-    pub fn new() -> ArrayBuffer {
+pub struct Buffer<B> where B: BufferType {
+    vbo: gl::types::GLuint,
+    _marker: ::std::marker::PhantomData<B>,
+}
+
+impl<B> Buffer<B> where B: BufferType {
+    pub fn new() -> Buffer<B> {
         let mut vbo: gl::types::GLuint = 0;
         unsafe {
             gl::GenBuffers(1, &mut vbo);
         }
-        ArrayBuffer { vbo }
+        Buffer { vbo, _marker: ::std::marker::PhantomData}
     }
 
     pub fn bind(&self) {
         unsafe {
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
+            gl::BindBuffer(B::BUFFER_TYPE, self.vbo);
         }
     }
 
     pub fn unbind(&self) {
         unsafe {
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindBuffer(B::BUFFER_TYPE, 0);
         }
     }
 
@@ -35,13 +40,26 @@ impl ArrayBuffer {
     }
 }
 
-impl Drop for ArrayBuffer {
+impl<B> Drop for Buffer<B> where B: BufferType {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteBuffers(1, &mut self.vbo);
         }
     }
 }
+
+pub struct BufferTypeArray;
+impl BufferType for BufferTypeArray {
+    const BUFFER_TYPE: gl::types::GLuint = gl::ARRAY_BUFFER;
+}
+
+pub struct BufferTypeElementArray;
+impl BufferType for BufferTypeElementArray {
+    const BUFFER_TYPE: gl::types::GLuint = gl::ELEMENT_ARRAY_BUFFER;
+}
+
+pub type ArrayBuffer = Buffer<BufferTypeArray>;
+pub type ElementArrayBuffer = Buffer<BufferTypeElementArray>;
 
 pub struct VertexArray {
     vao: gl::types::GLuint
