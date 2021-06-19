@@ -2,6 +2,7 @@ use std::ffi::{CString};
 use std::path::Path;
 use crate::resources::Resources;
 use render_gl::data;
+use render_gl::buffer;
 
 pub mod render_gl;
 pub mod resources;
@@ -22,7 +23,6 @@ impl Vertex {
         unsafe {
             data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
         }
-
 
         let location = 1; // layout (location = 1)
         let offset = offset + std::mem::size_of::<data::f32_f32_f32>(); // offset of the first component
@@ -70,31 +70,17 @@ fn main() {
         Vertex { pos: (0.0,  0.5, 0.0).into(),  clr: (0.0, 0.0, 1.0).into() }  // top
     ];
 
+    let vbo = buffer::ArrayBuffer::new();
+    vbo.bind();
+    vbo.static_draw_data(&vertices);
+    vbo.unbind();
 
-    let mut vbo: gl::types::GLuint = 0;
-    unsafe {
-        gl::GenBuffers(1, &mut vbo);
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl::BufferData(
-            gl::ARRAY_BUFFER, // target
-            (vertices.len() * std::mem::size_of::<Vertex>()) as gl::types::GLsizeiptr, // size of data in bytes
-            vertices.as_ptr() as *const gl::types::GLvoid, // pointer to data
-            gl::STATIC_DRAW, // usage
-        );
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0); // unbind the buffer
-    }
-
-    let mut vao: gl::types::GLuint = 0;
-    unsafe {
-        gl::GenVertexArrays(1, &mut vao);
-        gl::BindVertexArray(vao);
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-
-        Vertex::vertex_attrib_pointers();
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-        gl::BindVertexArray(0);
-    }
-
+    let vao = render_gl::buffer::VertexArray::new();
+    vao.bind();
+    vbo.bind();
+    Vertex::vertex_attrib_pointers();
+    vbo.unbind();
+    vao.unbind();
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -108,8 +94,8 @@ fn main() {
             }
 
             shader_program.set_used();
+            vao.bind();
             unsafe {
-                gl::BindVertexArray(vao);
                 gl::DrawArrays(
                     gl::TRIANGLES, // mode
                     0,             // starting index in the enabled arrays
