@@ -18,7 +18,6 @@ impl From<io::Error> for Error {
 
 pub struct Resources {
     root_path: PathBuf,
-
 }
 
 impl Resources {
