@@ -16,8 +16,8 @@ pub mod triangle;
 pub mod opengl_context;
 
 fn main() {
-
     let context = OpenglContext::init();
+    let mut event_pump = context.sdl.event_pump().unwrap();
 
     let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
@@ -39,7 +39,26 @@ fn main() {
     renderer.add_object_render(Box::new(triangle));
     renderer.add_object_render(Box::new(triangle2));
 
-    renderer.render();
+
+
+
+
+    'main: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                sdl2::event::Event::Quit { .. } => break 'main,
+                sdl2::event::Event::Window {
+                    win_event: sdl2::event::WindowEvent::Resized(w, h),
+                    ..
+                } => {
+                    renderer.resize_viewport(w, h);
+                }
+                _ => {}
+            }
+        }
+
+        renderer.render();
+    }
 
 }
 
