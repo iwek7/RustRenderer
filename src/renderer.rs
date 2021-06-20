@@ -6,14 +6,13 @@ use crate::render_gl::buffer;
 use crate::resources::Resources;
 use crate::triangle::{ObjectRender, Triangle};
 
-pub struct Renderer<'a> {
+pub struct Renderer {
     context: OpenglContext,
-    viewport: render_gl::Viewport,
-    objects: Vec<Box<dyn ObjectRender + 'a>>,
+    viewport: render_gl::Viewport
 }
 
-impl<'a> Renderer<'a> {
-    pub fn new(context: OpenglContext) -> Renderer<'a> {
+impl Renderer{
+    pub fn new(context: OpenglContext) -> Renderer {
         let mut viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();
         unsafe {
@@ -24,25 +23,19 @@ impl<'a> Renderer<'a> {
 
         Renderer {
             context,
-            viewport,
-            objects: vec![],
+            viewport
         }
     }
 
-    pub fn render(&mut self) {
+    pub fn render(&mut self, objects: &[&dyn ObjectRender]) {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
-        for obj_render in self.objects.iter() {
+        for obj_render in objects.iter() {
             obj_render.render();
         }
         self.context.window.gl_swap_window();
-    }
-
-
-    pub fn add_object_render(&mut self, object_render: Box<dyn ObjectRender + 'a>) {
-        self.objects.push(object_render);
     }
 
     pub fn resize_viewport(&mut self, w: i32, h: i32) {

@@ -7,12 +7,13 @@ use crate::render_gl::buffer::{ArrayBuffer, VertexArray};
 pub struct Triangle<'a> {
     pub program: &'a render_gl::Program,
     pub vbo: ArrayBuffer,
-    pub vao: VertexArray
+    pub vao: VertexArray,
+    vertices: Vec<Vertex>
+
 }
 
 impl<'a> Triangle<'a> {
     pub fn new(v1: Vertex, v2: Vertex, v3: Vertex, program: &render_gl::Program) -> Triangle {
-
         let vertices = vec![v1, v2, v3];
 
         let vbo = buffer::ArrayBuffer::new();
@@ -30,9 +31,21 @@ impl<'a> Triangle<'a> {
         Triangle {
             program,
             vbo,
-            vao
+            vao,
+            vertices
         }
     }
+
+    // some algebra lib?
+    pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
+        for vertex in self.vertices.iter_mut() {
+            vertex.transpose(x, y, z);
+        }
+        self.vbo.bind();
+        self.vbo.static_draw_data(&self.vertices);
+        self.vbo.unbind();
+    }
+
 }
 
 impl<'a> ObjectRender for Triangle<'a> {

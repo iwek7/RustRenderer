@@ -1,12 +1,14 @@
 use std::ffi::CString;
 use std::path::Path;
 
+use sdl2::keyboard::Keycode;
+
 use render_gl::buffer;
 use render_gl::data;
 
-use crate::resources::Resources;
-use crate::triangle::Triangle;
 use crate::opengl_context::OpenglContext;
+use crate::resources::Resources;
+use crate::triangle::{ObjectRender, Triangle};
 
 pub mod render_gl;
 pub mod resources;
@@ -28,6 +30,7 @@ fn main() {
         vertex::Vertex { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() }, // bottom left
         vertex::Vertex { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
         &shader_program);
+    let mut player = Player::new(triangle);
 
     let triangle2 = Triangle::new(
         vertex::Vertex { pos: (-1.0, -0.9, 0.0).into(), clr: (1.0, 0.0, 0.0).into() }, // bottom right
@@ -36,12 +39,6 @@ fn main() {
         &shader_program);
 
     let mut renderer = renderer::Renderer::new(context);
-    renderer.add_object_render(Box::new(triangle));
-    renderer.add_object_render(Box::new(triangle2));
-
-
-
-
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -53,12 +50,52 @@ fn main() {
                 } => {
                     renderer.resize_viewport(w, h);
                 }
+                sdl2::event::Event::KeyDown {
+                    keycode,
+                    ..
+                } => {
+                    player.handle_input(keycode.unwrap());
+                }
                 _ => {}
             }
         }
 
-        renderer.render();
+        renderer.render(&[&triangle2, &player]);
     }
-
 }
 
+
+struct Player<'a> {
+    pub triangle: Triangle<'a>,
+}
+
+impl<'a> Player<'a> {
+    fn new(triangle: Triangle) -> Player {
+        Player { triangle }
+    }
+
+    fn handle_input(&mut self, keycode: Keycode) {
+        let move_speed: f32 = 0.1;
+        match keycode {
+            sdl2::keyboard::Keycode::Left => {
+                self.triangle.move_by(-move_speed, 0.0, 0.0)
+            }
+            sdl2::keyboard::Keycode::Right => {
+                self.triangle.move_by(move_speed, 0.0, 0.0)
+            }
+            sdl2::keyboard::Keycode::Up => {
+                self.triangle.move_by(0.0, move_speed, 0.0)
+            }
+            sdl2::keyboard::Keycode::Down => {
+                self.triangle.move_by(0.0, -move_speed, 0.0)
+            }
+            _ => {}
+        }
+    }
+}
+
+impl<'a> ObjectRender for Player<'a> {
+    fn render(&self) {
+        self.triangle.render();
+    }
+}

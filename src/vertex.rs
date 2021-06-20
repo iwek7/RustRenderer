@@ -23,4 +23,9 @@ impl Vertex {
             data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
         }
     }
+
+    pub fn transpose(&mut self, x: f32, y: f32, z: f32) {
+        self.pos = (self.pos.d0 + x, self.pos.d1 + y, self.pos.d2 + z).into()
+    }
+
 }
