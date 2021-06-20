@@ -8,7 +8,7 @@ pub struct Renderer {
     window: sdl2::video::Window,
     event_pump: sdl2::EventPump,
     gl_context: sdl2::video::GLContext,
-
+    viewport: render_gl::Viewport,
 }
 
 impl Renderer {
@@ -31,15 +31,19 @@ impl Renderer {
         let gl_context = window.gl_create_context().unwrap();
         let gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
+        let mut viewport = render_gl::Viewport::for_window(900, 700);
+
         Renderer {
             sdl,
             window,
             event_pump,
             gl_context,
+            viewport
         }
     }
 
     pub fn render(&mut self) {
+        self.viewport.set_used();
         unsafe {
             gl::Viewport(0, 0, 900, 700);
             gl::ClearColor(0.3, 0.3, 0.5, 1.0);
@@ -72,6 +76,13 @@ impl Renderer {
             for event in self.event_pump.poll_iter() {
                 match event {
                     sdl2::event::Event::Quit { .. } => break 'main,
+                    sdl2::event::Event::Window {
+                        win_event: sdl2::event::WindowEvent::Resized(w, h),
+                        ..
+                    } => {
+                        self.viewport.update_size(w, h);
+                        self.viewport.set_used();
+                    }
                     _ => {}
                 }
 

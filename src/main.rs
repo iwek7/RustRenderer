@@ -10,6 +10,7 @@ pub mod render_gl;
 pub mod resources;
 pub mod renderer;
 pub mod vertex;
+mod triangle;
 
 fn main() {
     let mut renderer = renderer::Renderer::new();
