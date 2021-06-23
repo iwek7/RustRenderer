@@ -8,10 +8,10 @@ use crate::triangle::{ObjectRender, Triangle};
 
 pub struct Renderer {
     context: OpenglContext,
-    viewport: render_gl::Viewport
+    viewport: render_gl::Viewport,
 }
 
-impl Renderer{
+impl Renderer {
     pub fn new(context: OpenglContext) -> Renderer {
         let mut viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();
@@ -23,7 +23,7 @@ impl Renderer{
 
         Renderer {
             context,
-            viewport
+            viewport,
         }
     }
 
@@ -42,5 +42,4 @@ impl Renderer{
         self.viewport.update_size(w, h);
         self.viewport.set_used();
     }
-
 }
