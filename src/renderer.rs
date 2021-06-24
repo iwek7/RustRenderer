@@ -1,10 +1,6 @@
-use std::path::Path;
-
-use crate::{render_gl, vertex};
+use crate::{render_gl};
 use crate::opengl_context::OpenglContext;
-use crate::render_gl::buffer;
-use crate::resources::Resources;
-use crate::triangle::{ObjectRender, Triangle};
+use crate::shapes::{Drawable};
 
 pub struct Renderer {
     context: OpenglContext,
@@ -13,7 +9,7 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new(context: OpenglContext) -> Renderer {
-        let mut viewport = render_gl::Viewport::for_window(900, 700);
+        let viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();
         unsafe {
             gl::Viewport(0, 0, 900, 700);
@@ -27,7 +23,7 @@ impl Renderer {
         }
     }
 
-    pub fn render(&mut self, objects: &[&dyn ObjectRender]) {
+    pub fn render(&mut self, objects: &[&dyn Drawable]) {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }

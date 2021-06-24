@@ -3,6 +3,8 @@ use std::fs;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 
+use image::{DynamicImage, GenericImageView, RgbaImage};
+
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
@@ -14,6 +16,12 @@ impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
         Error::Io(other)
     }
+}
+
+pub struct ImageData {
+    pub image: RgbaImage,
+    pub width: u32,
+    pub height: u32,
 }
 
 pub struct Resources {
@@ -44,6 +52,27 @@ impl Resources {
         }
 
         Ok(unsafe { ffi::CString::from_vec_unchecked(buffer) })
+    }
+
+    pub fn load_image(&self, resource_name: &str) -> ImageData {
+        let path = resource_name_to_path(&self.root_path, resource_name);
+        match image::open(&path) {
+            Err(err) => panic!("Could not load image {}: {}", path.as_os_str().to_str().unwrap(), err),
+            Ok(img) => {
+                println!("Dimensions of image are {:?}", img.dimensions());
+                let (width, height) = img.dimensions();
+
+                let img = match img {
+                    DynamicImage::ImageRgba8(img) => img,
+                    img => img.to_rgba8()
+                };
+                return ImageData {
+                    image: img,
+                    width,
+                    height,
+                };
+            }
+        }
     }
 }
 

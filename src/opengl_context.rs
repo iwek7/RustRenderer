@@ -1,7 +1,7 @@
 pub struct OpenglContext {
     pub sdl: sdl2::Sdl,
     pub window: sdl2::video::Window,
-    gl_context: sdl2::video::GLContext
+    gl_context: sdl2::video::GLContext,
 }
 
 
@@ -28,7 +28,7 @@ impl OpenglContext {
         OpenglContext {
             sdl,
             window,
-            gl_context
+            gl_context,
         }
     }
 }
