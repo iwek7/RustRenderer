@@ -26,13 +26,14 @@ fn main() {
     let texture = Texture::from_image(chessboard_data);
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
-    shader_program.set_used();
+    let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
 
     let triangle = Triangle::new(
         vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
         &shader_program,
+        None,
     );
     let mut player = Player::new(triangle);
 
@@ -41,14 +42,16 @@ fn main() {
         vertex::VertexColored { pos: (-0.7, -0.9, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.85, -0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
         &shader_program,
+        None,
     );
 
     let quad = Quadrangle::new(
-        vertex::VertexColored { pos: (0.5, 0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
-        vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 1.0, 0.0).into() },
-        vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 1.0).into() },
-        vertex::VertexColored { pos: (-0.5, 0.5, 0.0).into(), clr: (0.0, 1.0, 1.0).into() },
-        &shader_program
+        vertex::VertexTextured { pos: (0.7, 0.7, 0.0).into(), clr: (1.0, 0.0, 0.0).into(), tx_coords: (1.0, 1.0).into() },
+        vertex::VertexTextured { pos: (0.7, -0.7, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (1.0, 0.0).into() },
+        vertex::VertexTextured { pos: (-0.7, -0.7, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 1.0).into() },
+        vertex::VertexTextured { pos: (-0.7, 0.7, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
+        &tx_shader_program,
+        Some(texture),
     );
 
     let mut renderer = renderer::Renderer::new(context);
@@ -74,9 +77,10 @@ fn main() {
         }
 
         renderer.render(&[
-            //&triangle2,
-            //&player,
-            &quad]);
+            &triangle2,
+            &player,
+            &quad
+        ]);
     }
 }
 

@@ -1,4 +1,5 @@
 use std::ffi::c_void;
+
 use crate::resources::ImageData;
 
 pub struct Texture {
@@ -12,11 +13,10 @@ impl Texture {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
 
-            // todo: why gl:: can't be here? it should be used as everywhere...
-            // gl::TexParameteri(gl::GL_TEXTURE_2D, gl::GL_TEXTURE_WRAP_S, gl::GL_REPEAT);
-            // gl::TexParameteri(gl::GL_TEXTURE_2D, gl::GL_TEXTURE_WRAP_T, gl::GL_REPEAT);
-            // gl::TexParameteri(gl::GL_TEXTURE_2D, gl::GL_TEXTURE_MIN_FILTER, gl::GL_LINEAR);
-            // gl::TexParameteri(gl::GL_TEXTURE_2D, gl::GL_TEXTURE_MAG_FILTER, gl::GL_LINEAR);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
         }
         let img_raw = img_data.image.as_raw();
         let img_ptr: *const c_void = img_raw.as_ptr() as *const _ as *const c_void;
@@ -30,8 +30,10 @@ impl Texture {
                            0,
                            gl::RGBA,
                            gl::UNSIGNED_BYTE,
-                           img_ptr);
+                           img_ptr,
+            );
             gl::GenerateMipmap(gl::TEXTURE_2D);
+            gl::BindTexture(gl::TEXTURE_2D, 0);
         }
 
         return Texture {
@@ -39,5 +41,16 @@ impl Texture {
         };
     }
 
+    pub fn bind(&self) {
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.texture_id);
+        }
+    }
+
+    pub fn unbind(&self) {
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, 0);
+        }
+    }
     // todo drop
 }

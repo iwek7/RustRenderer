@@ -1,6 +1,7 @@
 use crate::{render_gl, vertex};
 use crate::render_gl::buffer;
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
+use crate::texture::Texture;
 use crate::vertex::VertexDataSetter;
 
 pub struct Triangle<'a, T: VertexDataSetter> {
@@ -10,10 +11,11 @@ pub struct Triangle<'a, T: VertexDataSetter> {
     pub ebo: ElementArrayBuffer,
     vertices: Vec<T>,
     indices: [i32; 3],
+    texture: Option<Texture>,
 }
 
 impl<'a, T: VertexDataSetter> Triangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, program: &render_gl::Program) -> Triangle<T> {
+    pub fn new(v1: T, v2: T, v3: T, program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
         let vertices = vec![v1, v2, v3];
         let indices = [0, 1, 2];
 
@@ -44,6 +46,7 @@ impl<'a, T: VertexDataSetter> Triangle<'a, T> {
             ebo,
             vertices,
             indices,
+            texture
         }
     }
 
@@ -62,16 +65,17 @@ impl<'a, T: VertexDataSetter> Drawable for Triangle<'a, T> {
     fn render(&self) {
         self.program.set_used();
         self.vao.bind();
+        self.ebo.bind(); // is this needed? as per https://stackoverflow.com/questions/24876647/understanding-glvertexattribpointer yes
         unsafe {
             gl::DrawElements(
                 gl::TRIANGLES,
                 self.indices.len() as i32,
                 gl::UNSIGNED_INT,
-                0 as *const gl::types::GLvoid
+                0 as *const gl::types::GLvoid,
             );
-
         }
         self.vao.unbind();
+        self.ebo.unbind();
     }
 }
 
@@ -83,13 +87,14 @@ pub struct Quadrangle<'a, T> where T: VertexDataSetter {
     pub ebo: ElementArrayBuffer,
     vertices: Vec<T>,
     indices: [i32; 6],
+    texture: Option<Texture>,
 }
 
 impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, v4: T, program: &render_gl::Program) -> Quadrangle<T> {
+    pub fn new(v1: T, v2: T, v3: T, v4: T, program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
         let vertices = vec![v1, v2, v3, v4];
         // todo indices should be function param
-        let indices =  [0, 1, 3, 1, 2, 3];
+        let indices = [0, 1, 3, 1, 2, 3];
 
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
@@ -116,6 +121,7 @@ impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
             ebo,
             vertices,
             indices,
+            texture,
         }
     }
 
@@ -134,15 +140,23 @@ impl<'a, T: VertexDataSetter> Drawable for Quadrangle<'a, T> {
     fn render(&self) {
         self.program.set_used();
         self.vao.bind();
+        self.ebo.bind();
         unsafe {
+            if self.texture.is_some() {
+                self.texture.as_ref().unwrap().bind();
+            }
             gl::DrawElements(
                 gl::TRIANGLES,
                 self.indices.len() as i32,
                 gl::UNSIGNED_INT,
-                0 as *const gl::types::GLvoid
+                0 as *const gl::types::GLvoid,
             );
+            if self.texture.is_some() {
+                self.texture.as_ref().unwrap().unbind();
+            }
         }
         self.vao.unbind();
+        self.ebo.unbind();
     }
 }
 
