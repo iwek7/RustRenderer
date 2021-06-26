@@ -4,7 +4,7 @@ use sdl2::keyboard::Keycode;
 
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
-use crate::shapes::{Drawable, Triangle};
+use crate::shapes::{Drawable, Quadrangle, Triangle};
 use crate::texture::Texture;
 use crate::vertex::VertexDataSetter;
 
@@ -29,18 +29,26 @@ fn main() {
     shader_program.set_used();
 
     let triangle = Triangle::new(
-        vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() }, // bottom right
-        vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() }, // bottom left
+        vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
+        vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
         &shader_program,
     );
     let mut player = Player::new(triangle);
 
     let triangle2 = Triangle::new(
-        vertex::VertexColored { pos: (-1.0, -0.9, 0.0).into(), clr: (1.0, 0.0, 0.0).into() }, // bottom right
-        vertex::VertexColored { pos: (-0.7, -0.9, 0.0).into(), clr: (0.0, 1.0, 0.0).into() }, // bottom left
+        vertex::VertexColored { pos: (-1.0, -0.9, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
+        vertex::VertexColored { pos: (-0.7, -0.9, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.85, -0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
         &shader_program,
+    );
+
+    let quad = Quadrangle::new(
+        vertex::VertexColored { pos: (0.5, 0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
+        vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 1.0, 0.0).into() },
+        vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 1.0).into() },
+        vertex::VertexColored { pos: (-0.5, 0.5, 0.0).into(), clr: (0.0, 1.0, 1.0).into() },
+        &shader_program
     );
 
     let mut renderer = renderer::Renderer::new(context);
@@ -65,7 +73,10 @@ fn main() {
             }
         }
 
-        renderer.render(&[&triangle2, &player]);
+        renderer.render(&[
+            //&triangle2,
+            //&player,
+            &quad]);
     }
 }
 

@@ -9,11 +9,11 @@ pub struct Buffer<B> where B: BufferType {
 
 impl<B> Buffer<B> where B: BufferType {
     pub fn new() -> Buffer<B> {
-        let mut vbo: gl::types::GLuint = 0;
+        let mut buffer_object: gl::types::GLuint = 0;
         unsafe {
-            gl::GenBuffers(1, &mut vbo);
+            gl::GenBuffers(1, &mut buffer_object);
         }
-        Buffer { vbo, _marker: ::std::marker::PhantomData}
+        Buffer { vbo: buffer_object, _marker: ::std::marker::PhantomData}
     }
 
     pub fn bind(&self) {
@@ -28,10 +28,10 @@ impl<B> Buffer<B> where B: BufferType {
         }
     }
 
-    pub fn static_draw_data<T>(&self, data: &[T]) {
+    pub fn bind_buffer_data<T>(&self, data: &[T]) {
         unsafe {
             gl::BufferData(
-                gl::ARRAY_BUFFER, // target
+                B::BUFFER_TYPE, // target
                 (data.len() * std::mem::size_of::<T>()) as gl::types::GLsizeiptr, // size of data in bytes
                 data.as_ptr() as *const gl::types::GLvoid, // pointer to data
                 gl::STATIC_DRAW, // usage
