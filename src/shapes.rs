@@ -15,9 +15,8 @@ pub struct Triangle<'a, T: VertexDataSetter> {
 }
 
 impl<'a, T: VertexDataSetter> Triangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
+    pub fn new(v1: T, v2: T, v3: T, indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
         let vertices = vec![v1, v2, v3];
-        let indices = [0, 1, 2];
 
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
@@ -91,10 +90,8 @@ pub struct Quadrangle<'a, T> where T: VertexDataSetter {
 }
 
 impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, v4: T, program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
+    pub fn new(v1: T, v2: T, v3: T, v4: T, indices : [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
         let vertices = vec![v1, v2, v3, v4];
-        // todo indices should be function param
-        let indices = [0, 1, 3, 1, 2, 3];
 
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();

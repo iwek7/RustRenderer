@@ -32,6 +32,7 @@ fn main() {
         vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
+        [0, 1, 2],
         &shader_program,
         None,
     );
@@ -41,6 +42,7 @@ fn main() {
         vertex::VertexColored { pos: (-1.0, -0.9, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.7, -0.9, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.85, -0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
+        [0, 1, 2],
         &shader_program,
         None,
     );
@@ -50,6 +52,7 @@ fn main() {
         vertex::VertexTextured { pos: (0.7, -0.7, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (0.0, 1.0).into() },
         vertex::VertexTextured { pos: (-0.7, -0.7, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
         vertex::VertexTextured { pos: (-0.7, 0.7, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (1.0, 0.0).into() },
+        [0, 1, 3, 1, 2, 3],
         &tx_shader_program,
         Some(texture),
     );
@@ -59,6 +62,7 @@ fn main() {
         vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (1.0, 1.0, 0.0).into() },
         vertex::VertexColored { pos: (-0.1, -0.1, 0.0).into(), clr: (1.0, 0.0, 1.0).into() },
         vertex::VertexColored { pos: (-0.1, 0.1, 0.0).into(), clr: (0.0, 1.0, 1.0).into() },
+        [0, 1, 3, 1, 2, 3],
         &shader_program,
         None,
     );
