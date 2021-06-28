@@ -3,15 +3,16 @@ use std::ffi::{CStr, CString};
 
 use gl;
 
-use crate::resources::Resources;
 use crate::resources;
+use crate::resources::Resources;
 
 pub struct Program {
     id: gl::types::GLuint,
+    name: String,
 }
 
 impl Program {
-    pub fn from_shaders(shaders: &[Shader]) -> Result<Program, Error> {
+    pub fn from_shaders(shaders: &[Shader], name: &str) -> Result<Program, Error> {
         let program_id = unsafe { gl::CreateProgram() };
 
         for shader in shaders {
@@ -43,7 +44,6 @@ impl Program {
             }
 
             return Err(Error::CanNotLinkProgram { message: error.to_string_lossy().into_owned() });
-
         }
 
         // continue with error handling here
@@ -52,7 +52,7 @@ impl Program {
             unsafe { gl::DetachShader(program_id, shader.id()); }
         }
 
-        Ok(Program { id: program_id })
+        Ok(Program { id: program_id , name: name.parse().unwrap() })
     }
 
     pub fn id(&self) -> gl::types::GLuint {
@@ -77,7 +77,7 @@ impl Program {
             })
             .collect::<Result<Vec<Shader>, Error>>()?;
 
-        Program::from_shaders(&shaders[..])
+        Program::from_shaders(&shaders[..], name)
     }
 }
 

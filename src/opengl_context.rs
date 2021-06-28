@@ -25,6 +25,10 @@ impl OpenglContext {
         let gl_context = window.gl_create_context().unwrap();
         let gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
+        unsafe {
+            gl::Enable(gl::TEXTURE_2D);
+            gl::Disable(gl::BLEND);
+        }
         OpenglContext {
             sdl,
             window,

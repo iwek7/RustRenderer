@@ -12,14 +12,10 @@ impl Texture {
         unsafe {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
-
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
         }
-        let img_raw = img_data.image.as_raw();
-        let img_ptr: *const c_void = img_raw.as_ptr() as *const _ as *const c_void;
+        // let img_raw = img_data.image.into_raw();
+        // let img_ptr: *const c_void = img_raw.as_ptr() as *const _ as *const c_void;
+
         // todo: of course not always RGBA
         unsafe {
             gl::TexImage2D(gl::TEXTURE_2D,
@@ -30,9 +26,13 @@ impl Texture {
                            0,
                            gl::RGBA,
                            gl::UNSIGNED_BYTE,
-                           img_ptr,
+                           img_data.image.into_raw().as_ptr() as *const _ as *const c_void,
             );
             gl::GenerateMipmap(gl::TEXTURE_2D);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
             gl::BindTexture(gl::TEXTURE_2D, 0);
         }
 

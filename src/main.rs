@@ -47,11 +47,20 @@ fn main() {
 
     let quad = Quadrangle::new(
         vertex::VertexTextured { pos: (0.7, 0.7, 0.0).into(), clr: (1.0, 0.0, 0.0).into(), tx_coords: (1.0, 1.0).into() },
-        vertex::VertexTextured { pos: (0.7, -0.7, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (1.0, 0.0).into() },
-        vertex::VertexTextured { pos: (-0.7, -0.7, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 1.0).into() },
-        vertex::VertexTextured { pos: (-0.7, 0.7, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
+        vertex::VertexTextured { pos: (0.7, -0.7, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (0.0, 1.0).into() },
+        vertex::VertexTextured { pos: (-0.7, -0.7, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
+        vertex::VertexTextured { pos: (-0.7, 0.7, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (1.0, 0.0).into() },
         &tx_shader_program,
         Some(texture),
+    );
+
+    let quad2 = Quadrangle::new(
+        vertex::VertexColored { pos: (0.1, 0.1, 0.0).into(), clr: (1.0, 0.0, 0.0).into()},
+        vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (1.0, 1.0, 0.0).into() },
+        vertex::VertexColored { pos: (-0.1, -0.1, 0.0).into(), clr: (1.0, 0.0, 1.0).into() },
+        vertex::VertexColored { pos: (-0.1, 0.1, 0.0).into(), clr: (0.0, 1.0, 1.0).into() },
+        &shader_program,
+        None,
     );
 
     let mut renderer = renderer::Renderer::new(context);
@@ -79,7 +88,8 @@ fn main() {
         renderer.render(&[
             &triangle2,
             &player,
-            &quad
+            &quad,
+            &quad2
         ]);
     }
 }
