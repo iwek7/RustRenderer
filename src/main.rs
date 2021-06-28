@@ -4,17 +4,19 @@ use sdl2::keyboard::Keycode;
 
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
-use crate::shapes::{Drawable, Quadrangle, Triangle};
+use crate::shape_triangle::{Drawable, Triangle};
 use crate::texture::Texture;
 use crate::vertex::VertexDataSetter;
+use crate::shape_quadrangle::Quadrangle;
 
 pub mod render_gl;
 pub mod resources;
 pub mod renderer;
 pub mod vertex;
-pub mod shapes;
+pub mod shape_triangle;
 pub mod opengl_context;
 pub mod texture;
+mod shape_quadrangle;
 
 fn main() {
     let context = OpenglContext::init();
