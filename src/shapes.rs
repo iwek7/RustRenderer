@@ -9,14 +9,13 @@ pub struct Triangle<'a, T: VertexDataSetter> {
     pub vbo: ArrayBuffer,
     pub vao: VertexArray,
     pub ebo: ElementArrayBuffer,
-    vertices: Vec<T>,
+    vertices: [T; 3],
     indices: [i32; 3],
     texture: Option<Texture>,
 }
 
 impl<'a, T: VertexDataSetter> Triangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
-        let vertices = vec![v1, v2, v3];
+    pub fn new(vertices: [T; 3], indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
 
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
@@ -84,15 +83,13 @@ pub struct Quadrangle<'a, T> where T: VertexDataSetter {
     pub vbo: ArrayBuffer,
     pub vao: VertexArray,
     pub ebo: ElementArrayBuffer,
-    vertices: Vec<T>,
+    vertices: [T; 4],
     indices: [i32; 6],
     texture: Option<Texture>,
 }
 
 impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
-    pub fn new(v1: T, v2: T, v3: T, v4: T, indices : [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
-        let vertices = vec![v1, v2, v3, v4];
-
+    pub fn new(vertices: [T; 4], indices : [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
