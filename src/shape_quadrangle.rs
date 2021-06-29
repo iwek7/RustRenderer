@@ -1,12 +1,12 @@
-use crate::vertex::VertexDataSetter;
-use crate::shape_triangle::Drawable;
+use crate::vertex::VertexShaderDataSetter;
+use crate::shape_triangle::{Drawable, Area, is_point_within_convex_polygon};
 use crate::texture::Texture;
 use crate::render_gl::buffer::{ElementArrayBuffer, VertexArray, ArrayBuffer};
 use crate::render_gl;
 use crate::render_gl::buffer;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
-pub struct Quadrangle<'a, T> where T: VertexDataSetter {
+pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
     pub program: &'a render_gl::Program,
     pub vbo: ArrayBuffer,
     pub vao: VertexArray,
@@ -16,7 +16,7 @@ pub struct Quadrangle<'a, T> where T: VertexDataSetter {
     texture: Option<Texture>,
 }
 
-impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
+impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     pub fn new(vertices: [T; 4], indices : [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
@@ -58,7 +58,7 @@ impl<'a, T: VertexDataSetter> Quadrangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexDataSetter> Drawable for Quadrangle<'a, T> {
+impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
     fn render(&self) {
         self.program.set_used();
         self.vao.bind();
@@ -79,5 +79,23 @@ impl<'a, T: VertexDataSetter> Drawable for Quadrangle<'a, T> {
         }
         self.vao.unbind();
         self.ebo.unbind();
+    }
+}
+
+impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
+    fn contains(&self, point: &(f32, f32)) -> bool {
+        return is_point_within_convex_polygon(point,
+                                              &self.vertices.iter()
+                                                  .map(|v| -> (f32, f32){ v.get_pos() })
+                                                  .collect(), )
+        ;
+    }
+
+    fn area(&self) -> f32 {
+        return 1.0
+    }
+
+    fn num_vertices(&self) -> usize {
+        return self.vertices.len()
     }
 }

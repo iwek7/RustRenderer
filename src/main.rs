@@ -4,10 +4,10 @@ use sdl2::keyboard::Keycode;
 
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
-use crate::shape_triangle::{Drawable, Triangle};
-use crate::texture::Texture;
-use crate::vertex::VertexDataSetter;
 use crate::shape_quadrangle::Quadrangle;
+use crate::shape_triangle::{Area, Drawable, Triangle};
+use crate::texture::Texture;
+use crate::vertex::VertexShaderDataSetter;
 
 pub mod render_gl;
 pub mod resources;
@@ -77,7 +77,7 @@ fn main() {
         None,
     );
 
-    let mut renderer = renderer::Renderer::new(context);
+    let mut renderer = renderer::Renderer::new(&context);
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -99,6 +99,18 @@ fn main() {
             }
         }
 
+        // println!("Mouse coords {:?} {:?}",
+        //          event_pump.mouse_state().x(),
+        //          event_pump.mouse_state().y());
+
+        let mouse_pos_in_window = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+        let opengl_coords = context.window_to_opengl_space(mouse_pos_in_window);
+
+
+        println!("{:}?",
+                 quad2.contains(&opengl_coords)
+        );
+
         renderer.render(&[
             &triangle2,
             &player,
@@ -109,11 +121,11 @@ fn main() {
 }
 
 
-struct Player<'a, T: VertexDataSetter> {
+struct Player<'a, T: VertexShaderDataSetter> {
     pub triangle: Triangle<'a, T>,
 }
 
-impl<'a, T: VertexDataSetter> Player<'a, T> {
+impl<'a, T: VertexShaderDataSetter> Player<'a, T> {
     fn new(triangle: Triangle<T>) -> Player<T> {
         Player { triangle }
     }
@@ -138,7 +150,7 @@ impl<'a, T: VertexDataSetter> Player<'a, T> {
     }
 }
 
-impl<'a, T: VertexDataSetter> Drawable for Player<'a, T> {
+impl<'a, T: VertexShaderDataSetter> Drawable for Player<'a, T> {
     fn render(&self) {
         self.triangle.render();
     }

@@ -7,7 +7,8 @@ pub struct VertexColored {
     pub clr: data::f32_f32_f32,
 }
 
-impl VertexDataSetter for VertexColored {
+
+impl VertexShaderDataSetter for VertexColored {
     fn set_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
@@ -27,8 +28,17 @@ impl VertexDataSetter for VertexColored {
     fn transpose(&mut self, x: f32, y: f32, z: f32) {
         self.pos = (self.pos.d0 + x, self.pos.d1 + y, self.pos.d2 + z).into()
     }
-}
 
+    fn get_pos(&self) -> (f32, f32) {
+        // im am afraid to return f32_f32_f32 as it is packed
+        // so I return tuple but this is stack allocation...
+        return match self.pos {
+            val => (val.d0, val.d1)
+        }
+    }
+
+
+}
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)] // todo: why packed?
@@ -38,7 +48,7 @@ pub struct VertexTextured {
     pub tx_coords: data::f32_f32,
 }
 
-impl VertexDataSetter for VertexTextured {
+impl VertexShaderDataSetter for VertexTextured {
     fn set_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
@@ -64,10 +74,17 @@ impl VertexDataSetter for VertexTextured {
     fn transpose(&mut self, x: f32, y: f32, z: f32) {
         self.pos = (self.pos.d0 + x, self.pos.d1 + y, self.pos.d2 + z).into()
     }
+
+    fn get_pos(&self) -> (f32, f32) {
+        // im am afraid to return f32_f32_f32 as it is packed and references work weird with it
+        // this https://github.com/rust-lang/rust/issues/27060
+        // so I return tuple but this is stack allocation... and all those clones
+        return (self.pos.d0.clone(), self.pos.d1.clone())
+    }
 }
 
-
-pub trait VertexDataSetter {
+pub trait VertexShaderDataSetter {
     fn set_vertex_shader_data();
     fn transpose(&mut self, x: f32, y: f32, z: f32);
+    fn get_pos(&self) -> (f32, f32);
 }

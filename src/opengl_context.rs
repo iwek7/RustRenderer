@@ -1,6 +1,7 @@
 pub struct OpenglContext {
     pub sdl: sdl2::Sdl,
     pub window: sdl2::video::Window,
+    // todo: make those private
     gl_context: sdl2::video::GLContext,
 }
 
@@ -29,10 +30,19 @@ impl OpenglContext {
             gl::Enable(gl::TEXTURE_2D);
             gl::Disable(gl::BLEND);
         }
+
         OpenglContext {
             sdl,
             window,
             gl_context,
         }
+    }
+
+    pub fn window_to_opengl_space(&self, pos: &(i32, i32)) -> (f32, f32) {
+        let win_size = self.window.size();
+        return (
+            2.0 * pos.0 as f32 / win_size.0 as f32 - 1.0,
+            2.0 * pos.1 as f32 / win_size.1 as f32 - 1.0,
+        );
     }
 }

@@ -2,13 +2,13 @@ use crate::{render_gl};
 use crate::opengl_context::OpenglContext;
 use crate::shape_triangle::{Drawable};
 
-pub struct Renderer {
-    context: OpenglContext,
+pub struct Renderer<'a> {
+    context: &'a OpenglContext,
     viewport: render_gl::Viewport,
 }
 
-impl Renderer {
-    pub fn new(context: OpenglContext) -> Renderer {
+impl<'a> Renderer<'a>{
+    pub fn new(context: &OpenglContext) -> Renderer {
         let viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();
         unsafe {
