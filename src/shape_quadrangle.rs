@@ -1,9 +1,9 @@
-use crate::vertex::VertexShaderDataSetter;
-use crate::shape_triangle::{Drawable, Area, is_point_within_convex_polygon};
-use crate::texture::Texture;
-use crate::render_gl::buffer::{ElementArrayBuffer, VertexArray, ArrayBuffer};
-use crate::render_gl;
+use crate::{Draggable, render_gl};
+use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
+use crate::shape_triangle::{Area, Drawable, is_point_within_convex_polygon};
+use crate::texture::Texture;
+use crate::vertex::VertexShaderDataSetter;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
@@ -14,10 +14,11 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
     vertices: [T; 4],
     indices: [i32; 6],
     texture: Option<Texture>,
+    is_dragged: bool, // todo: it should not be here
 }
 
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
-    pub fn new(vertices: [T; 4], indices : [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
+    pub fn new(vertices: [T; 4], indices: [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
@@ -44,6 +45,7 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
             vertices,
             indices,
             texture,
+            is_dragged: false,
         }
     }
 
@@ -83,7 +85,7 @@ impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
 }
 
 impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
-    fn contains(&self, point: &(f32, f32)) -> bool {
+    fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32){ v.get_pos() })
@@ -92,10 +94,30 @@ impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
     }
 
     fn area(&self) -> f32 {
-        return 1.0
+        return 1.0;
     }
 
     fn num_vertices(&self) -> usize {
-        return self.vertices.len()
+        return self.vertices.len();
+    }
+}
+
+impl<'a, T: VertexShaderDataSetter> Draggable for Quadrangle<'a, T> {
+    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
+        self.contains_point(mouse_pos)
+    }
+
+    fn handle_start_drag(&mut self) {
+        self.is_dragged = true
+    }
+
+    fn handle_drop(&mut self) {
+        self.is_dragged = true
+    }
+
+    fn handle_drag_pointer_move(&mut self, offset: &(f32, f32)) {
+        if self.is_dragged {
+            self.move_by(offset.0, offset.1, 0.0)
+        }
     }
 }

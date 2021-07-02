@@ -1,3 +1,4 @@
+use std::ops::DerefMut;
 use std::path::Path;
 
 use sdl2::keyboard::Keycode;
@@ -29,6 +30,8 @@ fn main() {
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
+
+    let mut mouse_drag_controller = MouseDragController::new();
 
     let triangle = Triangle::new(
         [
@@ -65,7 +68,7 @@ fn main() {
         Some(texture),
     );
 
-    let quad2 = Quadrangle::new(
+    let mut quad2 = Quadrangle::new(
         [
             vertex::VertexColored { pos: (0.1, 0.1, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
             vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (1.0, 1.0, 0.0).into() },
@@ -80,6 +83,9 @@ fn main() {
     let mut renderer = renderer::Renderer::new(&context);
 
     'main: loop {
+        let window_mouse_coords = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+        let opengl_coords_mouse_coords = context.window_to_opengl_space(window_mouse_coords);
+
         for event in event_pump.poll_iter() {
             match event {
                 sdl2::event::Event::Quit { .. } => break 'main,
@@ -97,19 +103,8 @@ fn main() {
                 }
                 _ => {}
             }
+            mouse_drag_controller.handle_event(&event, &opengl_coords_mouse_coords, &mut [&mut quad2])
         }
-
-        // println!("Mouse coords {:?} {:?}",
-        //          event_pump.mouse_state().x(),
-        //          event_pump.mouse_state().y());
-
-        let mouse_pos_in_window = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-        let opengl_coords = context.window_to_opengl_space(mouse_pos_in_window);
-
-
-        println!("{:}?",
-                 quad2.contains(&opengl_coords)
-        );
 
         renderer.render(&[
             &triangle2,
@@ -154,4 +149,51 @@ impl<'a, T: VertexShaderDataSetter> Drawable for Player<'a, T> {
     fn render(&self) {
         self.triangle.render();
     }
+}
+
+struct MouseDragController<> {
+    prev_mouse_pos: (f32, f32),
+}
+
+impl<> MouseDragController<> {
+    pub fn new() -> MouseDragController<> {
+        return MouseDragController {
+            prev_mouse_pos: (0.0, 0.0)
+        };
+    }
+
+    pub fn handle_event(&mut self, event: &sdl2::event::Event,
+                        mouse_pos: &(f32, f32),
+                        objects: &mut [&mut dyn Draggable]) {
+        match event {
+            sdl2::event::Event::MouseButtonDown { .. } => {
+                for obj in objects.iter_mut() {
+                    if obj.is_mouse_over(mouse_pos) {
+                        obj.handle_start_drag()
+                    }
+                }
+            }
+            sdl2::event::Event::MouseButtonUp { .. } => {
+                objects.iter_mut().for_each(|it| { it.handle_drop() })
+            }
+            sdl2::event::Event::MouseMotion { .. } => {
+                objects.iter_mut()
+                    .for_each(|it| {
+                        it.handle_drag_pointer_move(&(
+                            mouse_pos.0 - self.prev_mouse_pos.0,
+                            mouse_pos.1 - self.prev_mouse_pos.1
+                        ))
+                    });
+            }
+            _ => {}
+        }
+        self.prev_mouse_pos = mouse_pos.clone()
+    }
+}
+
+trait Draggable {
+    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool;
+    fn handle_start_drag(&mut self);
+    fn handle_drop(&mut self);
+    fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32));
 }

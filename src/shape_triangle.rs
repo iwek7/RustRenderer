@@ -1,4 +1,4 @@
-use crate::render_gl;
+use crate::{render_gl, Draggable};
 use crate::render_gl::buffer;
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::shape_triangle::Side::{LEFT, NONE, RIGHT};
@@ -13,6 +13,7 @@ pub struct Triangle<'a, T: VertexShaderDataSetter> {
     vertices: [T; 3],
     indices: [i32; 3],
     texture: Option<Texture>,
+    is_dragged: bool // todo it should not be here ...
 }
 
 impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
@@ -45,6 +46,7 @@ impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
             vertices,
             indices,
             texture,
+            is_dragged: false
         }
     }
 
@@ -78,12 +80,11 @@ impl<'a, T: VertexShaderDataSetter> Drawable for Triangle<'a, T> {
 }
 
 impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
-    fn contains(&self, point: &(f32, f32)) -> bool {
+    fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32){ v.get_pos() })
-                                                  .collect(), )
-        ;
+                                                  .collect(), );
     }
 
     fn area(&self) -> f32 {
@@ -95,17 +96,35 @@ impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
     }
 }
 
+impl<'a, T: VertexShaderDataSetter + Clone> Draggable for Triangle<'a, T> {
+    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
+        self.contains_point(mouse_pos)
+    }
+
+    fn handle_start_drag(&mut self) {
+        // nothing
+    }
+
+    fn handle_drop(&mut self) {
+        // nothing
+    }
+
+    fn handle_drag_pointer_move(&mut self, offset: &(f32, f32)) {
+        self.move_by(offset.0, offset.1, 0.0)
+    }
+}
+
+
 // todo: to separate file
 pub trait Drawable {
     fn render(&self);
 }
 
 pub trait Area {
-    fn contains(&self, point: &(f32, f32)) -> bool;
+    fn contains_point(&self, point: &(f32, f32)) -> bool;
     fn area(&self) -> f32;
     fn num_vertices(&self) -> usize;
 }
-
 
 pub fn is_point_within_convex_polygon(point: &(f32, f32), vertices: &Vec<(f32, f32)>) -> bool {
     let mut previous_side: Side = Side::NONE;
