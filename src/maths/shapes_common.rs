@@ -1,4 +1,10 @@
-use crate::maths::shapes_common::Side::{LEFT, RIGHT, NONE};
+use crate::maths::shapes_common::Side::{LEFT, NONE, RIGHT};
+use crate::maths::vertex::VertexShaderDataSetter;
+use crate::render_gl;
+use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
+use crate::render_gl::buffer;
+use crate::texture::Texture;
+use std::marker::PhantomData;
 
 pub trait Area {
     fn contains_point(&self, point: &(f32, f32)) -> bool;
@@ -63,5 +69,75 @@ impl Side {
     // wtf is this
     fn cosine_sign(v1: &(f32, f32), v2: &(f32, f32)) -> f32 {
         return v1.0 * v2.1 - v1.1 * v2.0;
+    }
+}
+
+// todo: this should be moved away from maths package to opengl package
+pub struct OpenGlShapeContext<'a, T> where T: VertexShaderDataSetter {
+    vbo: ArrayBuffer,
+    vao: VertexArray,
+    ebo: ElementArrayBuffer,
+    texture: Option<Texture>,
+    program: &'a render_gl::Program,
+    _marker: PhantomData<T>
+}
+
+impl<'a, T: VertexShaderDataSetter> OpenGlShapeContext<'a, T> {
+    pub fn init(vertices: &[T], indices: &[i32],
+                texture: Option<Texture>, program: &'a render_gl::Program) -> OpenGlShapeContext<'a, T> {
+        let vbo = buffer::ArrayBuffer::new();
+        let vao = render_gl::buffer::VertexArray::new();
+        let ebo = buffer::ElementArrayBuffer::new();
+
+        vao.bind();
+        // bind buffer object and set pointer to data
+        vbo.bind();
+        vbo.bind_buffer_data(&vertices);
+
+        // bind indices
+        ebo.bind();
+        ebo.bind_buffer_data(&indices);
+        T::set_vertex_shader_data();
+
+        // unbind everything
+        vbo.unbind(); // vao must be unbind before ebo else ebo does not get saved!
+        vao.unbind();
+        ebo.unbind();
+        OpenGlShapeContext {
+            vbo,
+            vao,
+            ebo,
+            texture,
+            program,
+            _marker: ::std::marker::PhantomData
+        }
+    }
+
+    pub fn bind_data(&self, vertices: &[T]) {
+        self.vbo.bind();
+        self.vbo.bind_buffer_data(vertices);
+        self.vbo.unbind();
+    }
+
+    pub fn render(&self, num_indices: i32) {
+        self.program.set_used();
+        self.vao.bind();
+        self.ebo.bind();
+        unsafe {
+            if self.texture.is_some() {
+                self.texture.as_ref().unwrap().bind();
+            }
+            gl::DrawElements(
+                gl::TRIANGLES,
+                num_indices,
+                gl::UNSIGNED_INT,
+                0 as *const gl::types::GLvoid,
+            );
+            if self.texture.is_some() {
+                self.texture.as_ref().unwrap().unbind();
+            }
+        }
+        self.vao.unbind();
+        self.ebo.unbind();
     }
 }

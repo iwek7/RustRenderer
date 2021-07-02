@@ -1,51 +1,29 @@
 use crate::{Draggable, render_gl};
-use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
-use crate::render_gl::buffer;
+use crate::maths::shape_triangle::Drawable;
+use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, OpenGlShapeContext};
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
-use crate::maths::shape_triangle::{Drawable};
-use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
-    pub program: &'a render_gl::Program,
-    pub vbo: ArrayBuffer,
-    pub vao: VertexArray,
-    pub ebo: ElementArrayBuffer,
+    open_gl_context: OpenGlShapeContext<'a, T>,
     vertices: [T; 4],
     indices: [i32; 6],
-    texture: Option<Texture>,
     is_dragged: bool, // todo: it should not be here
 }
 
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     pub fn new(vertices: [T; 4], indices: [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
-        let vbo = buffer::ArrayBuffer::new();
-        let vao = render_gl::buffer::VertexArray::new();
-        let ebo = buffer::ElementArrayBuffer::new();
-
-        vao.bind();
-        // bind buffer object and set pointer to data
-        vbo.bind();
-        vbo.bind_buffer_data(&vertices);
-
-        // bind indices
-        ebo.bind();
-        ebo.bind_buffer_data(&indices);
-        T::set_vertex_shader_data();
-
-        // unbind everything
-        vbo.unbind(); // vao must be unbind before ebo else ebo does not get saved!
-        vao.unbind();
-        ebo.unbind();
-        Quadrangle {
+        let open_gl_context = OpenGlShapeContext::init(
+            &vertices,
+            &indices,
+            texture,
             program,
-            vbo,
-            vao,
-            ebo,
+        );
+        Quadrangle {
+            open_gl_context,
             vertices,
             indices,
-            texture,
             is_dragged: false,
         }
     }
@@ -55,33 +33,13 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
         for vertex in self.vertices.iter_mut() {
             vertex.transpose(x, y, z);
         }
-        self.vbo.bind();
-        self.vbo.bind_buffer_data(&self.vertices);
-        self.vbo.unbind();
+        self.open_gl_context.bind_data(&self.vertices)
     }
 }
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
     fn render(&self) {
-        self.program.set_used();
-        self.vao.bind();
-        self.ebo.bind();
-        unsafe {
-            if self.texture.is_some() {
-                self.texture.as_ref().unwrap().bind();
-            }
-            gl::DrawElements(
-                gl::TRIANGLES,
-                self.indices.len() as i32,
-                gl::UNSIGNED_INT,
-                0 as *const gl::types::GLvoid,
-            );
-            if self.texture.is_some() {
-                self.texture.as_ref().unwrap().unbind();
-            }
-        }
-        self.vao.unbind();
-        self.ebo.unbind();
+        self.open_gl_context.render(self.indices.len() as i32)
     }
 }
 
