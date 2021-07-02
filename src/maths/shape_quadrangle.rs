@@ -1,9 +1,10 @@
 use crate::{Draggable, render_gl};
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
-use crate::shape_triangle::{Area, Drawable, is_point_within_convex_polygon};
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
+use crate::maths::shape_triangle::{Drawable};
+use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {

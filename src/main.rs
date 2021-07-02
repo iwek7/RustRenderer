@@ -1,23 +1,22 @@
-use std::ops::DerefMut;
 use std::path::Path;
 
 use sdl2::keyboard::Keycode;
 
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
-use crate::shape_quadrangle::Quadrangle;
-use crate::shape_triangle::{Area, Drawable, Triangle};
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
+use crate::maths::vertex;
+use crate::maths::shape_triangle::{Triangle, Drawable};
+use crate::maths::shape_quadrangle::{Quadrangle};
 
 pub mod render_gl;
 pub mod resources;
 pub mod renderer;
-pub mod vertex;
-pub mod shape_triangle;
 pub mod opengl_context;
 pub mod texture;
-mod shape_quadrangle;
+
+mod maths;
 
 fn main() {
     let context = OpenglContext::init();
