@@ -84,7 +84,7 @@ fn main() {
 
     'main: loop {
         let window_mouse_coords = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-        let opengl_coords_mouse_coords = context.window_to_opengl_space(window_mouse_coords);
+        let mouse_opengl_coords = context.window_to_opengl_space(window_mouse_coords);
 
         for event in event_pump.poll_iter() {
             match event {
@@ -103,8 +103,10 @@ fn main() {
                 }
                 _ => {}
             }
-            mouse_drag_controller.handle_event(&event, &opengl_coords_mouse_coords, &mut [&mut quad2])
+            mouse_drag_controller.handle_event(&event, &mouse_opengl_coords, &mut [&mut quad2])
         }
+
+        // println!("{:}?", quad2.is_mouse_over(&mouse_opengl_coords));
 
         renderer.render(&[
             &triangle2,
@@ -162,6 +164,11 @@ impl<> MouseDragController<> {
         };
     }
 
+    /**
+    iterating over all those draggables is veeery inefficient
+    but I can't hold reference to currently dragged object here
+    as it violates only one mutable ref rule
+     **/
     pub fn handle_event(&mut self, event: &sdl2::event::Event,
                         mouse_pos: &(f32, f32),
                         objects: &mut [&mut dyn Draggable]) {

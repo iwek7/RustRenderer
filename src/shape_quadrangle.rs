@@ -112,7 +112,7 @@ impl<'a, T: VertexShaderDataSetter> Draggable for Quadrangle<'a, T> {
     }
 
     fn handle_drop(&mut self) {
-        self.is_dragged = true
+        self.is_dragged = false
     }
 
     fn handle_drag_pointer_move(&mut self, offset: &(f32, f32)) {
