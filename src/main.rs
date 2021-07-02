@@ -2,13 +2,14 @@ use std::path::Path;
 
 use sdl2::keyboard::Keycode;
 
+use crate::maths::line::Segment;
+use crate::maths::quadrangle::Quadrangle;
+use crate::maths::triangle::{Drawable, Triangle};
+use crate::maths::vertex;
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
-use crate::maths::vertex;
-use crate::maths::shape_triangle::{Triangle, Drawable};
-use crate::maths::shape_quadrangle::{Quadrangle};
 
 pub mod render_gl;
 pub mod resources;
@@ -79,6 +80,15 @@ fn main() {
         None,
     );
 
+    let mut segment = Segment::new(
+        [
+            vertex::VertexColored { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
+            vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
+        ],
+        [0, 1],
+        &shader_program
+    );
+
     let mut renderer = renderer::Renderer::new(&context);
 
     'main: loop {
@@ -111,7 +121,8 @@ fn main() {
             &triangle2,
             &player,
             &quad,
-            &quad2
+            &quad2,
+            &segment
         ]);
     }
 }

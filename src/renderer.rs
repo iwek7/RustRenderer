@@ -1,6 +1,6 @@
 use crate::{render_gl};
 use crate::opengl_context::OpenglContext;
-use crate::maths::shape_triangle::Drawable;
+use crate::maths::triangle::Drawable;
 
 pub struct Renderer<'a> {
     context: &'a OpenglContext,

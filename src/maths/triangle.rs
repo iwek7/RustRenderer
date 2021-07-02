@@ -1,10 +1,10 @@
 use crate::{Draggable, render_gl};
-use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, OpenGlShapeContext};
+use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, ShapeDrawingComponent};
 use crate::vertex::VertexShaderDataSetter;
 use crate::texture::Texture;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
-    open_gl_context: OpenGlShapeContext<'a, T>,
+    open_gl_context: ShapeDrawingComponent<'a, T>,
     vertices: [T; 3],
     indices: [i32; 3],
     is_dragged: bool, // todo it should not be here ...
@@ -12,7 +12,7 @@ pub struct Triangle<'a, T: VertexShaderDataSetter> {
 
 impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
     pub fn new(vertices: [T; 3], indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
-        let open_gl_context = OpenGlShapeContext::init(
+        let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,
             texture,
@@ -38,7 +38,7 @@ impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Triangle<'a, T> {
     fn render(&self) {
-        self.open_gl_context.render(self.indices.len() as i32)
+        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES)
     }
 }
 

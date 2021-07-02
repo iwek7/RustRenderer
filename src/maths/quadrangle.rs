@@ -1,27 +1,28 @@
 use crate::{Draggable, render_gl};
-use crate::maths::shape_triangle::Drawable;
-use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, OpenGlShapeContext};
+use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, ShapeDrawingComponent};
+use crate::maths::triangle::Drawable;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
-    open_gl_context: OpenGlShapeContext<'a, T>,
+    drawing_component: ShapeDrawingComponent<'a, T>,
     vertices: [T; 4],
     indices: [i32; 6],
     is_dragged: bool, // todo: it should not be here
 }
 
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
-    pub fn new(vertices: [T; 4], indices: [i32; 6], program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
-        let open_gl_context = OpenGlShapeContext::init(
+    pub fn new(vertices: [T; 4], indices: [i32; 6],
+               program: &render_gl::Program, texture: Option<Texture>) -> Quadrangle<T> {
+        let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
             texture,
             program,
         );
         Quadrangle {
-            open_gl_context,
+            drawing_component,
             vertices,
             indices,
             is_dragged: false,
@@ -33,13 +34,13 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
         for vertex in self.vertices.iter_mut() {
             vertex.transpose(x, y, z);
         }
-        self.open_gl_context.bind_data(&self.vertices)
+        self.drawing_component.bind_data(&self.vertices)
     }
 }
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
     fn render(&self) {
-        self.open_gl_context.render(self.indices.len() as i32)
+        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES)
     }
 }
 
@@ -48,8 +49,8 @@ impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32){ v.get_pos() })
-                                                  .collect(), )
-        ;
+                                                  .collect(),
+        );
     }
 
     fn area(&self) -> f32 {

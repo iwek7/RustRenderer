@@ -1,5 +1,7 @@
 use crate::render_gl::data;
 
+// todo: split geometry and opengl logic
+
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
 pub struct VertexColored {

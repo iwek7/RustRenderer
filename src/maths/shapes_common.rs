@@ -1,10 +1,11 @@
+use std::marker::PhantomData;
+
 use crate::maths::shapes_common::Side::{LEFT, NONE, RIGHT};
 use crate::maths::vertex::VertexShaderDataSetter;
 use crate::render_gl;
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
 use crate::texture::Texture;
-use std::marker::PhantomData;
 
 pub trait Area {
     fn contains_point(&self, point: &(f32, f32)) -> bool;
@@ -73,18 +74,18 @@ impl Side {
 }
 
 // todo: this should be moved away from maths package to opengl package
-pub struct OpenGlShapeContext<'a, T> where T: VertexShaderDataSetter {
+pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataSetter {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
     texture: Option<Texture>,
     program: &'a render_gl::Program,
-    _marker: PhantomData<T>
+    _marker: PhantomData<T>,
 }
 
-impl<'a, T: VertexShaderDataSetter> OpenGlShapeContext<'a, T> {
-    pub fn init(vertices: &[T], indices: &[i32],
-                texture: Option<Texture>, program: &'a render_gl::Program) -> OpenGlShapeContext<'a, T> {
+impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
+    pub fn new(vertices: &[T], indices: &[i32],
+               texture: Option<Texture>, program: &'a render_gl::Program) -> ShapeDrawingComponent<'a, T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
@@ -103,13 +104,13 @@ impl<'a, T: VertexShaderDataSetter> OpenGlShapeContext<'a, T> {
         vbo.unbind(); // vao must be unbind before ebo else ebo does not get saved!
         vao.unbind();
         ebo.unbind();
-        OpenGlShapeContext {
+        ShapeDrawingComponent {
             vbo,
             vao,
             ebo,
             texture,
             program,
-            _marker: ::std::marker::PhantomData
+            _marker: ::std::marker::PhantomData,
         }
     }
 
@@ -119,7 +120,7 @@ impl<'a, T: VertexShaderDataSetter> OpenGlShapeContext<'a, T> {
         self.vbo.unbind();
     }
 
-    pub fn render(&self, num_indices: i32) {
+    pub fn render(&self, num_indices: i32, mode: gl::types::GLenum) {
         self.program.set_used();
         self.vao.bind();
         self.ebo.bind();
@@ -128,7 +129,7 @@ impl<'a, T: VertexShaderDataSetter> OpenGlShapeContext<'a, T> {
                 self.texture.as_ref().unwrap().bind();
             }
             gl::DrawElements(
-                gl::TRIANGLES,
+                mode,
                 num_indices,
                 gl::UNSIGNED_INT,
                 0 as *const gl::types::GLvoid,
