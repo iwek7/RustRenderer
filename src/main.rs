@@ -58,10 +58,10 @@ fn main() {
 
     let quad = Quadrangle::new(
         [
-            vertex::VertexTextured { pos: (0.7, 0.7, 0.0).into(), clr: (1.0, 0.0, 0.0).into(), tx_coords: (1.0, 1.0).into() },
-            vertex::VertexTextured { pos: (0.7, -0.7, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (0.0, 1.0).into() },
-            vertex::VertexTextured { pos: (-0.7, -0.7, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
-            vertex::VertexTextured { pos: (-0.7, 0.7, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (1.0, 0.0).into() },
+            vertex::VertexTextured { pos: (1.0, 1.0, 0.0).into(), clr: (1.0, 0.0, 0.0).into(), tx_coords: (1.0, 1.0).into() },
+            vertex::VertexTextured { pos: (1.0, -1.0, 0.0).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (0.0, 1.0).into() },
+            vertex::VertexTextured { pos: (-1.0, -1.0, 0.0).into(), clr: (1.0, 0.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
+            vertex::VertexTextured { pos: (-1.0, 1.0, 0.0).into(), clr: (0.0, 1.0, 1.0).into(), tx_coords: (1.0, 0.0).into() },
         ],
         [0, 1, 3, 1, 2, 3],
         &tx_shader_program,
