@@ -1,8 +1,8 @@
 use crate::{Draggable, render_gl};
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
-use crate::vertex::VertexShaderDataSetter;
-use crate::texture::Texture;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::texture::Texture;
+use crate::vertex::VertexShaderDataSetter;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
@@ -13,7 +13,7 @@ pub struct Triangle<'a, T: VertexShaderDataSetter> {
 
 // todo: pass reference of texture here
 impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], program: &'a render_gl::Program, texture: Option<&'a Texture>) -> Triangle<'a, T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,

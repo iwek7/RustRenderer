@@ -2,8 +2,8 @@ use std::path::Path;
 
 use sdl2::keyboard::Keycode;
 
-use crate::maths::segment::Segment;
 use crate::maths::quadrangle::Quadrangle;
+use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
 use crate::maths::vertex::VertexTextured;
@@ -27,10 +27,10 @@ fn main() {
     let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
 
     let chessboard_data = res.load_image("textures/chessboard.png");
-    let pieces = res.load_image("textures/chessboard.png");
+    let pieces = res.load_image("textures/pieces.png");
 
-    let texture = Texture::from_image(chessboard_data);
-    let texture2 = Texture::from_image(pieces);
+    let chessboard_texture = Texture::from_image(chessboard_data);
+    let pieces_texture = Texture::from_image(pieces);
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
@@ -69,7 +69,7 @@ fn main() {
         ],
         [0, 1, 3, 1, 2, 3],
         &tx_shader_program,
-        Some(texture),
+        Some(&chessboard_texture),
     );
 
     let mut quad2 = Quadrangle::new(
@@ -97,7 +97,7 @@ fn main() {
         create_rect_coords_in_opengl_space(&context, (50, 100, 0), (300, 300)),
         [0, 1, 3, 1, 2, 3],
         &tx_shader_program,
-        Some(texture2)
+        Some(&pieces_texture)
     );
 
     let mut renderer = renderer::Renderer::new(&context);

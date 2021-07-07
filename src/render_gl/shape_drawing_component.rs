@@ -1,23 +1,24 @@
-use crate::render_gl::buffer::{ArrayBuffer, VertexArray, ElementArrayBuffer};
-use crate::maths::vertex::VertexShaderDataSetter;
-use crate::texture::Texture;
-use crate::render_gl;
 use std::marker::PhantomData;
+
+use crate::maths::vertex::VertexShaderDataSetter;
+use crate::render_gl;
+use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
+use crate::texture::Texture;
 
 // todo: this should be moved away from maths package to opengl package
 pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataSetter {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
-    texture: Option<Texture>,
+    texture: Option<&'a Texture>,
     program: &'a render_gl::Program,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Texture>, program: &'a render_gl::Program) -> ShapeDrawingComponent<'a, T> {
+               texture: Option<&'a Texture>, program: &'a render_gl::Program) -> ShapeDrawingComponent<'a, T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();

@@ -1,11 +1,4 @@
-use std::marker::PhantomData;
-
 use crate::maths::shapes_common::Side::{LEFT, NONE, RIGHT};
-use crate::maths::vertex::VertexShaderDataSetter;
-use crate::render_gl;
-use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
-use crate::render_gl::buffer;
-use crate::texture::Texture;
 
 pub trait Area {
     fn contains_point(&self, point: &(f32, f32)) -> bool;
