@@ -10,6 +10,7 @@ pub struct Triangle<'a, T: VertexShaderDataSetter> {
     is_dragged: bool, // todo it should not be here ...
 }
 
+// todo: pass reference of texture here
 impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
     pub fn new(vertices: [T; 3], indices: [i32; 3], program: &render_gl::Program, texture: Option<Texture>) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(

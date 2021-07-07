@@ -6,6 +6,7 @@ use crate::maths::line::Segment;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
+use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::Texture;
@@ -26,7 +27,10 @@ fn main() {
     let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
 
     let chessboard_data = res.load_image("textures/chessboard.png");
+    let pieces = res.load_image("textures/chessboard.png");
+
     let texture = Texture::from_image(chessboard_data);
+    let texture2 = Texture::from_image(pieces);
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
@@ -86,14 +90,21 @@ fn main() {
             vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
         ],
         [0, 1],
-        &shader_program
+        &shader_program,
+    );
+
+    let mut piece = Quadrangle::new(
+        create_rect_coords_in_opengl_space(&context, (50, 100, 0), (300, 300)),
+        [0, 1, 3, 1, 2, 3],
+        &tx_shader_program,
+        Some(texture2)
     );
 
     let mut renderer = renderer::Renderer::new(&context);
 
     'main: loop {
         let window_mouse_coords = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-        let mouse_opengl_coords = context.window_to_opengl_space(window_mouse_coords);
+        let mouse_opengl_coords = context.sdl_window_to_opengl_space(window_mouse_coords);
 
         for event in event_pump.poll_iter() {
             match event {
@@ -115,14 +126,13 @@ fn main() {
             mouse_drag_controller.handle_event(&event, &mouse_opengl_coords, &mut [&mut quad2])
         }
 
-        // println!("{:}?", quad2.is_mouse_over(&mouse_opengl_coords));
-
         renderer.render(&[
             &triangle2,
             &player,
             &quad,
             &quad2,
-            &segment
+            &segment,
+            &piece
         ]);
     }
 }
@@ -213,4 +223,16 @@ trait Draggable {
     fn handle_start_drag(&mut self);
     fn handle_drop(&mut self);
     fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32));
+}
+
+
+// some random function
+fn create_rect_coords_in_opengl_space(
+    context: &OpenglContext, pos: (i32, i32, i32), size: (i32, i32)) -> [VertexTextured; 4] {
+    return [
+        vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0 + size.0, pos.1 + size.1, pos.2)).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (1.0, 1.0).into() },
+        vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0 + size.0, pos.1, pos.2)).into(), clr: (1.0, 1.0, 0.0).into(), tx_coords: (0.0, 1.0).into() },
+        vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0, pos.1, pos.2)).into(), clr: (1.0, 1.0, 1.0).into(), tx_coords: (0.0, 0.0).into() },
+        vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0, pos.1 + size.1, pos.2)).into(), clr: (1.0, 1.0, 1.0).into(), tx_coords: (1.0, 0.0).into() },
+    ];
 }
