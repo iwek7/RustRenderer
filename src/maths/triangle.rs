@@ -1,7 +1,8 @@
 use crate::{Draggable, render_gl};
-use crate::maths::shapes_common::{Area, is_point_within_convex_polygon, ShapeDrawingComponent};
+use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::vertex::VertexShaderDataSetter;
 use crate::texture::Texture;
+use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,

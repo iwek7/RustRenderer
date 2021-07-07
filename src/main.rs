@@ -2,7 +2,7 @@ use std::path::Path;
 
 use sdl2::keyboard::Keycode;
 
-use crate::maths::line::Segment;
+use crate::maths::segment::Segment;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
@@ -224,7 +224,6 @@ trait Draggable {
     fn handle_drop(&mut self);
     fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32));
 }
-
 
 // some random function
 fn create_rect_coords_in_opengl_space(

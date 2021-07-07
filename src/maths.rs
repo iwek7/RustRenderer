@@ -1,5 +1,5 @@
 pub mod vertex;
 pub mod triangle;
 pub mod quadrangle;
-pub mod line;
+pub mod segment;
 mod shapes_common;

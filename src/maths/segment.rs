@@ -1,7 +1,7 @@
-use crate::maths::shapes_common::ShapeDrawingComponent;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexShaderDataSetter;
 use crate::render_gl;
+use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 
 pub struct Segment<'a, T> where T: VertexShaderDataSetter {
     drawing_component: ShapeDrawingComponent<'a, T>,

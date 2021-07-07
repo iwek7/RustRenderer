@@ -1,14 +1,12 @@
 use crate::render_gl::data;
 
 // todo: split geometry and opengl logic
-
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
 pub struct VertexColored {
     pub pos: data::f32_f32_f32,
     pub clr: data::f32_f32_f32,
 }
-
 
 impl VertexShaderDataSetter for VertexColored {
     fn set_vertex_shader_data() {
