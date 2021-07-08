@@ -15,8 +15,10 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
 }
 
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
-    pub fn new(vertices: [T; 4], indices: [i32; 6],
-               program: &'a render_gl::Program, texture: Option<&'a Texture>) -> Quadrangle<'a, T> {
+    pub fn new(vertices: [T; 4],
+               indices: [i32; 6],
+               program: &'a render_gl::Program,
+               texture: Option<&'a Texture>) -> Quadrangle<'a, T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,

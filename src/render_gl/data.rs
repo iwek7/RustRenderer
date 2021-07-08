@@ -51,7 +51,7 @@ impl f32_f32 {
         }
     }
 
-    //todo: move it from here, why is it event here
+    //todo: move it from here, why is it even here
     pub unsafe fn vertex_attrib_pointer(stride: usize, location: usize, offset: usize) {
         gl::EnableVertexAttribArray(location as gl::types::GLuint);
         gl::VertexAttribPointer(

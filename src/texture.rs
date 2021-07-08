@@ -1,20 +1,25 @@
 use std::ffi::c_void;
 
+use crate::opengl_context::OpenglContext;
 use crate::resources::ImageData;
+use crate::texture::SpriteSheetError::TopologyMismatch;
 
 pub struct Texture {
     texture_id: gl::types::GLuint,
+    pub topology: SpriteSheetTopology,
 }
 
 impl Texture {
     pub fn from_image(img_data: ImageData) -> Texture {
+        return Texture::spritesheet_from_image(img_data, (1, 1));
+    }
+
+    pub fn spritesheet_from_image(img_data: ImageData, spritesheet_dim: (u32, u32)) -> Texture {
         let mut texture_id: gl::types::GLuint = 0;
         unsafe {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
         }
-        // let img_raw = img_data.image.into_raw();
-        // let img_ptr: *const c_void = img_raw.as_ptr() as *const _ as *const c_void;
 
         // todo: of course not always RGBA
         unsafe {
@@ -37,7 +42,8 @@ impl Texture {
         }
 
         return Texture {
-            texture_id
+            texture_id,
+            topology: SpriteSheetTopology { spritesheet_size: (img_data.width, img_data.height), spritesheet_dim },
         };
     }
 
@@ -54,3 +60,38 @@ impl Texture {
     }
     // todo drop
 }
+
+pub struct SpriteSheetTopology {
+    spritesheet_size: (u32, u32),
+    spritesheet_dim: (u32, u32),
+}
+
+impl SpriteSheetTopology {
+    pub fn get_sprite_coords(&self, row: u32, col: u32) -> Result<SpriteCoords, SpriteSheetError> {
+        if row >= self.spritesheet_dim.0 || col >= self.spritesheet_dim.1 {
+            return Err(SpriteSheetError::TopologyMismatch { message: format!("Max allowed dim is {} : {}", self.spritesheet_dim.0, self.spritesheet_dim.1) });
+        }
+        // todo: cache in member variable
+        let single_sprite_size = (self.spritesheet_size.0 as f32 / self.spritesheet_dim.0 as f32, self.spritesheet_size.1 as f32 / self.spritesheet_dim.1 as f32);
+        return Ok(SpriteCoords {
+            top_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
+            bottom_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32) / self.spritesheet_size.1 as f32),
+            bottom_left: ((single_sprite_size.0 * row as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32) / self.spritesheet_size.1 as f32),
+            top_left: ((single_sprite_size.0 * row as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
+        });
+    }
+}
+
+#[derive(Debug)]
+pub enum SpriteSheetError {
+    TopologyMismatch { message: String },
+}
+
+
+pub struct SpriteCoords {
+    pub top_right: (f32, f32),
+    pub bottom_right: (f32, f32),
+    pub bottom_left: (f32, f32),
+    pub top_left: (f32, f32),
+}
+
