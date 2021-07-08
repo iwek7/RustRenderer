@@ -65,7 +65,7 @@ impl VertexShaderDataSetter for VertexTextured {
         }
 
         let location = 2;
-        let offset = offset + std::mem::size_of::<data::f32_f32>(); // offset of the first component
+        let offset = offset + std::mem::size_of::<data::f32_f32_f32>(); // offset of the first component
         unsafe {
             data::f32_f32::vertex_attrib_pointer(stride, location, offset);
         }

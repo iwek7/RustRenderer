@@ -11,10 +11,10 @@ pub struct Texture {
 
 impl Texture {
     pub fn from_image(img_data: ImageData) -> Texture {
-        return Texture::spritesheet_from_image(img_data, (1, 1));
+        return Texture::spritesheet_from_image(img_data, 1, 1);
     }
 
-    pub fn spritesheet_from_image(img_data: ImageData, spritesheet_dim: (u32, u32)) -> Texture {
+    pub fn spritesheet_from_image(img_data: ImageData, n_rows: u32, n_cols: u32) -> Texture {
         let mut texture_id: gl::types::GLuint = 0;
         unsafe {
             gl::GenTextures(1, &mut texture_id);
@@ -43,7 +43,7 @@ impl Texture {
 
         return Texture {
             texture_id,
-            topology: SpriteSheetTopology { spritesheet_size: (img_data.width, img_data.height), spritesheet_dim },
+            topology: SpriteSheetTopology { spritesheet_size: (img_data.width, img_data.height), n_rows, n_cols },
         };
     }
 
@@ -63,16 +63,17 @@ impl Texture {
 
 pub struct SpriteSheetTopology {
     spritesheet_size: (u32, u32),
-    spritesheet_dim: (u32, u32),
+    n_rows: u32,
+    n_cols: u32
 }
 
 impl SpriteSheetTopology {
     pub fn get_sprite_coords(&self, row: u32, col: u32) -> Result<SpriteCoords, SpriteSheetError> {
-        if row >= self.spritesheet_dim.0 || col >= self.spritesheet_dim.1 {
-            return Err(SpriteSheetError::TopologyMismatch { message: format!("Max allowed dim is {} : {}", self.spritesheet_dim.0, self.spritesheet_dim.1) });
+        if row >= self.n_rows || col >= self.n_cols {
+            return Err(SpriteSheetError::TopologyMismatch { message: format!("Max allowed dim is {} : {}", self.n_rows, self.n_cols) });
         }
         // todo: cache in member variable
-        let single_sprite_size = (self.spritesheet_size.0 as f32 / self.spritesheet_dim.0 as f32, self.spritesheet_size.1 as f32 / self.spritesheet_dim.1 as f32);
+        let single_sprite_size = (self.spritesheet_size.0 as f32 / self.n_cols as f32, self.spritesheet_size.1 as f32 / self.n_rows as f32);
         return Ok(SpriteCoords {
             top_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
             bottom_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32) / self.spritesheet_size.1 as f32),
