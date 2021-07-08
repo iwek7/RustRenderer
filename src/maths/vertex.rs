@@ -44,7 +44,7 @@ impl VertexShaderDataSetter for VertexColored {
 #[repr(C, packed)] // todo: why packed?
 pub struct VertexTextured {
     pub pos: data::f32_f32_f32,
-    pub clr: data::f32_f32_f32,
+    pub clr: data::f32_f32_f32_f32,
     pub tx_coords: data::f32_f32,
 }
 
@@ -59,13 +59,13 @@ impl VertexShaderDataSetter for VertexTextured {
         }
 
         let location = 1;
-        let offset = offset + std::mem::size_of::<data::f32_f32_f32>(); // offset of the first component
+        let offset = offset + std::mem::size_of::<data::f32_f32_f32>();
         unsafe {
-            data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
+            data::f32_f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
         }
 
         let location = 2;
-        let offset = offset + std::mem::size_of::<data::f32_f32_f32>(); // offset of the first component
+        let offset = offset + std::mem::size_of::<data::f32_f32_f32_f32>();
         unsafe {
             data::f32_f32::vertex_attrib_pointer(stride, location, offset);
         }

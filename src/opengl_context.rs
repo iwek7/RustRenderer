@@ -28,7 +28,8 @@ impl OpenglContext {
 
         unsafe {
             gl::Enable(gl::TEXTURE_2D);
-            gl::Disable(gl::BLEND);
+            gl::Enable(gl::BLEND);
+            gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
         }
 
         OpenglContext {
