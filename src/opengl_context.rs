@@ -28,6 +28,7 @@ impl OpenglContext {
 
         unsafe {
             gl::Enable(gl::TEXTURE_2D);
+            // todo: this should be moved to texture rendering code and disabled afterwards
             gl::Enable(gl::BLEND);
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
         }
