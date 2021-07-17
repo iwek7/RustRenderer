@@ -7,11 +7,11 @@ use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
 use crate::maths::vertex::VertexTextured;
+use crate::mouse_drag_controller::MouseDragController;
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
-use crate::texture::{Texture, SpriteCoords, SpriteSheetTopology};
+use crate::texture::{SpriteCoords, Texture};
 use crate::vertex::VertexShaderDataSetter;
-use crate::mouse_drag_controller::MouseDragController;
 
 pub mod render_gl;
 pub mod resources;
@@ -28,29 +28,14 @@ fn main() {
 
     let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
 
-    let chessboard_data = res.load_image("textures/chessboard.png");
-    let pieces = res.load_image("textures/pieces.png");
-
-    let chessboard_texture = Texture::from_image(chessboard_data);
-    let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
-
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
 
     let mut mouse_drag_controller = MouseDragController::new();
 
-    let triangle = Triangle::new(
-        [
-            vertex::VertexColored { pos: (0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
-            vertex::VertexColored { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
-            vertex::VertexColored { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
-        ],
-        [0, 1, 2],
-        &shader_program,
-        None,
-    );
-
-    let mut player = Player::new(triangle);
+    let chessboard_data = res.load_image("textures/chessboard.png");
+    let chessboard_texture = Texture::from_image(chessboard_data);
+    let chessboard = Chessboard::new(&chessboard_texture, &res, &context, &tx_shader_program);
 
     let triangle2 = Triangle::new(
         [
@@ -63,20 +48,6 @@ fn main() {
         None,
     );
 
-    let quad = Quadrangle::new(
-        create_rect_coords_in_opengl_space(&context, (100, 0, 0), (700, 700), &chessboard_texture.topology.get_sprite_coords(0,0).unwrap()),
-        [0, 1, 3, 1, 2, 3],
-        &tx_shader_program,
-        Some(&chessboard_texture),
-    );
-
-    let mut quad2 = Quadrangle::new(
-        create_rect_coords_in_opengl_space(&context, (500, 100, 0), (300, 300), &chessboard_texture.topology.get_sprite_coords(0,0).unwrap()),
-        [0, 1, 3, 1, 2, 3],
-        &shader_program,
-        None,
-    );
-
     let segment = Segment::new(
         [
             vertex::VertexColored { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
@@ -84,13 +55,6 @@ fn main() {
         ],
         [0, 1],
         &shader_program,
-    );
-
-    let mut piece = Quadrangle::new(
-        create_rect_coords_in_opengl_space(&context, (50, 100, 0), (300, 300), &pieces_texture.topology.get_sprite_coords(1,1).unwrap()),
-        [0, 1, 3, 1, 2, 3],
-        &tx_shader_program,
-        Some(&pieces_texture)
     );
 
     let mut renderer = renderer::Renderer::new(&context);
@@ -111,21 +75,20 @@ fn main() {
                 sdl2::event::Event::KeyDown {
                     keycode,
                     ..
-                } => {
-                    // player.handle_input(keycode.unwrap());
-                }
+                } => {}
                 _ => {}
             }
-            mouse_drag_controller.handle_event(&event, &mouse_opengl_coords, &mut [&mut piece])
+            // mouse_drag_controller.handle_event(&event, &mouse_opengl_coords, &mut [&mut piece])
         }
 
         renderer.render(&[
-            &triangle2,
-            &player,
-            &quad,
-            &quad2,
-            &segment,
-            &piece
+            // &triangle2,
+            // &player,
+            // &quad,
+            // &quad2,
+            // &segment,
+            // &piece
+            &chessboard
         ]);
     }
 }
@@ -179,5 +142,108 @@ fn create_rect_coords_in_opengl_space(
 }
 
 pub struct SpriteSheet {
-    sprite_sheet: Texture
+    sprite_sheet: Texture,
+}
+
+pub struct Piece<'a> {
+    piece_type: PieceType,
+    quad: Quadrangle<'a, VertexTextured>,
+    move_component: Box<dyn PieceMoveComponent>,
+}
+
+
+pub struct PieceFactory<'a> {
+    pieces_sheet: Texture,
+    shader: &'a render_gl::Program,
+    opengl_context: &'a OpenglContext,
+}
+
+impl<'a> PieceFactory<'a> {
+    pub fn new(pieces_sheet: Texture, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> PieceFactory<'a> {
+        return PieceFactory {
+            pieces_sheet,
+            shader,
+            opengl_context,
+        };
+    }
+
+    pub fn init_piece(&self, piece_type: PieceType) -> Piece<'a> {
+        let quad = Quadrangle::new(
+            create_rect_coords_in_opengl_space(&self.opengl_context, (50, 100, 0), (300, 300), &self.pieces_sheet.topology.get_sprite_coords(1, 1).unwrap()),
+            [0, 1, 3, 1, 2, 3],
+            self.shader,
+            Some(&self.pieces_sheet),
+        );
+        let move_component = PawnMoveComponent {};
+        return Piece {
+            piece_type,
+            quad,
+            move_component: Box::new(move_component),
+        };
+    }
+}
+
+pub enum PieceType {
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KIND,
+}
+
+
+impl<'a> Drawable for Piece<'a> {
+    fn render(&self) {
+        self.quad.render()
+    }
+}
+
+
+pub trait PieceMoveComponent {}
+
+pub struct PawnMoveComponent {}
+
+impl PieceMoveComponent for PawnMoveComponent {}
+
+
+pub struct Chessboard<'a> {
+    board: Quadrangle<'a, VertexTextured>,
+    pieces: Vec<Piece<'a>>,
+    piece_factory: PieceFactory<'a>,
+    tx: &'a Texture,
+}
+
+impl<'a> Drawable for Chessboard<'a> {
+    fn render(&self) {
+        self.board.render();
+        self.pieces.iter().for_each(|piece| { piece.render() })
+    }
+}
+
+impl<'a> Chessboard<'a> {
+    pub fn new(chessboard_texture: &'a Texture, res: &Resources, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> Chessboard<'a> {
+        let quad = Quadrangle::new(
+            create_rect_coords_in_opengl_space(&opengl_context, (100, 0, 0), (700, 700), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
+            [0, 1, 3, 1, 2, 3],
+            &shader,
+            Some(&chessboard_texture),
+        );
+        let pieces = res.load_image("textures/pieces.png");
+        let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
+        let piece_factory = PieceFactory::new(pieces_texture, opengl_context, shader);
+
+        return Chessboard {
+            board: quad,
+            pieces: vec!(),
+            piece_factory,
+            tx: chessboard_texture,
+        };
+
+    }
+
+    pub fn init_pieces(&mut self) {
+        let piece = self.piece_factory.init_piece(PieceType::PAWN);
+        self.pieces.push(piece);
+    }
 }
