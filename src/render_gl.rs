@@ -1,4 +1,4 @@
-pub use self::shader::{ShaderError, Program, Shader};
+pub use self::shader::{Program, Shader, ShaderError};
 pub use self::viewport::Viewport;
 
 mod shader;

@@ -1,8 +1,6 @@
 use std::ffi::c_void;
 
-use crate::opengl_context::OpenglContext;
 use crate::resources::ImageData;
-use crate::texture::SpriteSheetError::TopologyMismatch;
 
 pub struct Texture {
     texture_id: gl::types::GLuint,

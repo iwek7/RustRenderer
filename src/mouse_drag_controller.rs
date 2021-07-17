@@ -1,4 +1,4 @@
-use crate::Piece;
+use crate::chess::Piece;
 
 pub struct MouseDragController<> {
     prev_mouse_pos: (f32, f32),
