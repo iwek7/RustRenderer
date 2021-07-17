@@ -8,7 +8,7 @@ use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
 use crate::maths::vertex::VertexTextured;
-use crate::mouse_drag_controller::MouseDragController;
+use crate::mouse_drag_controller::{MouseDragController, Draggable};
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::{SpriteCoords, Texture};
@@ -31,8 +31,6 @@ fn main() {
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
-
-    let mut mouse_drag_controller = MouseDragController::new();
 
     let chessboard_data = res.load_image("textures/chessboard.png");
     let chessboard_texture = Texture::from_image(chessboard_data);
@@ -82,7 +80,8 @@ fn main() {
                 } => {}
                 _ => {}
             }
-            // mouse_drag_controller.handle_event(&event, &mouse_opengl_coords, &mut [&mut piece])
+
+            chessboard.handle_event(&event, &mouse_opengl_coords)
         }
 
         renderer.render(&[
@@ -145,6 +144,16 @@ fn create_rect_coords_in_opengl_space(
     ];
 }
 
+
+static BLACK_ROW: u32 = 0;
+static WHITE_ROW: u32 = 1;
+static PAWN_COL: u32 = 0;
+static ROOK_COL: u32 = 1;
+static KNIGHT_COL: u32 = 2;
+static BISHOP_COL: u32 = 3;
+static QUEEN_COL: u32 = 4;
+static KING_COL: u32 = 5;
+
 pub struct SpriteSheet {
     sprite_sheet: Texture,
 }
@@ -153,6 +162,24 @@ pub struct Piece<'a> {
     piece_type: PieceType,
     quad: Quadrangle<'a, VertexTextured>,
     move_component: Box<dyn PieceMoveComponent>,
+}
+
+impl<'a> Draggable for Piece<'a> {
+    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
+        self.quad.is_mouse_over(mouse_pos)
+    }
+
+    fn handle_start_drag(&mut self) {
+        self.quad.handle_start_drag()
+    }
+
+    fn handle_drop(&mut self) {
+        self.quad.handle_drop()
+    }
+
+    fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
+        self.quad.handle_drag_pointer_move(drag_offset)
+    }
 }
 
 
@@ -220,6 +247,7 @@ pub struct Chessboard<'a> {
     pieces: Vec<Piece<'a>>,
     piece_factory: PieceFactory<'a>,
     tx: &'a Texture,
+    mouse_drag_controller: MouseDragController,
 }
 
 impl<'a> Drawable for Chessboard<'a> {
@@ -231,6 +259,7 @@ impl<'a> Drawable for Chessboard<'a> {
 
 impl<'a> Chessboard<'a> {
     pub fn new(chessboard_texture: &'a Texture, res: &Resources, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> Chessboard<'a> {
+        let mut mouse_drag_controller = MouseDragController::new();
         let quad = Quadrangle::new(
             create_rect_coords_in_opengl_space(&opengl_context, (100, 0, 0), (700, 700), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
@@ -245,11 +274,16 @@ impl<'a> Chessboard<'a> {
             pieces: vec!(),
             piece_factory,
             tx: chessboard_texture,
+            mouse_drag_controller,
         };
     }
 
-    pub fn init_pieces(&mut self,  pieces_sheet: &'a Texture) {
+    pub fn init_pieces(&mut self, pieces_sheet: &'a Texture) {
         let piece = self.piece_factory.init_piece(PieceType::PAWN, pieces_sheet);
         self.pieces.push(piece);
+    }
+
+    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_pos: &(f32, f32)) {
+        self.mouse_drag_controller.handle_event(event, mouse_pos, &mut self.pieces)
     }
 }

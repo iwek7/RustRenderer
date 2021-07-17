@@ -1,3 +1,4 @@
+use crate::Piece;
 
 pub struct MouseDragController<> {
     prev_mouse_pos: (f32, f32),
@@ -17,7 +18,7 @@ impl<> MouseDragController<> {
      **/
     pub fn handle_event(&mut self, event: &sdl2::event::Event,
                         mouse_pos: &(f32, f32),
-                        objects: &mut [&mut dyn Draggable]) {
+                        objects: &mut Vec<Piece>) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
                 for obj in objects.iter_mut() {
