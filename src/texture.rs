@@ -88,7 +88,7 @@ pub enum SpriteSheetError {
     TopologyMismatch { message: String },
 }
 
-
+#[derive(Copy, Clone)]
 pub struct SpriteCoords {
     pub top_right: (f32, f32),
     pub bottom_right: (f32, f32),

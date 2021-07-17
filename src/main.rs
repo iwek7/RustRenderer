@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::path::Path;
 
 use sdl2::keyboard::Keycode;
@@ -35,7 +36,10 @@ fn main() {
 
     let chessboard_data = res.load_image("textures/chessboard.png");
     let chessboard_texture = Texture::from_image(chessboard_data);
-    let chessboard = Chessboard::new(&chessboard_texture, &res, &context, &tx_shader_program);
+    let mut chessboard = Chessboard::new(&chessboard_texture, &res, &context, &tx_shader_program);
+    let pieces = res.load_image("textures/pieces.png");
+    let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
+    chessboard.init_pieces(&pieces_texture);
 
     let triangle2 = Triangle::new(
         [
@@ -153,27 +157,31 @@ pub struct Piece<'a> {
 
 
 pub struct PieceFactory<'a> {
-    pieces_sheet: Texture,
     shader: &'a render_gl::Program,
     opengl_context: &'a OpenglContext,
 }
 
 impl<'a> PieceFactory<'a> {
-    pub fn new(pieces_sheet: Texture, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> PieceFactory<'a> {
+    pub fn new(opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> PieceFactory<'a> {
         return PieceFactory {
-            pieces_sheet,
             shader,
             opengl_context,
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType) -> Piece<'a> {
+    pub fn init_piece(&self, piece_type: PieceType, pieces_sheet: &'a Texture) -> Piece<'a> {
         let quad = Quadrangle::new(
-            create_rect_coords_in_opengl_space(&self.opengl_context, (50, 100, 0), (300, 300), &self.pieces_sheet.topology.get_sprite_coords(1, 1).unwrap()),
+            create_rect_coords_in_opengl_space(
+                &self.opengl_context,
+                (50, 100, 0),
+                (300, 300),
+                pieces_sheet.topology.get_sprite_coords(1, 1).unwrap().clone().borrow(),
+            ),
             [0, 1, 3, 1, 2, 3],
             self.shader,
-            Some(&self.pieces_sheet),
+            Some(pieces_sheet),
         );
+
         let move_component = PawnMoveComponent {};
         return Piece {
             piece_type,
@@ -229,9 +237,8 @@ impl<'a> Chessboard<'a> {
             &shader,
             Some(&chessboard_texture),
         );
-        let pieces = res.load_image("textures/pieces.png");
-        let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
-        let piece_factory = PieceFactory::new(pieces_texture, opengl_context, shader);
+
+        let piece_factory = PieceFactory::new(opengl_context, shader);
 
         return Chessboard {
             board: quad,
@@ -239,11 +246,10 @@ impl<'a> Chessboard<'a> {
             piece_factory,
             tx: chessboard_texture,
         };
-
     }
 
-    pub fn init_pieces(&mut self) {
-        let piece = self.piece_factory.init_piece(PieceType::PAWN);
+    pub fn init_pieces(&mut self,  pieces_sheet: &'a Texture) {
+        let piece = self.piece_factory.init_piece(PieceType::PAWN, pieces_sheet);
         self.pieces.push(piece);
     }
 }
