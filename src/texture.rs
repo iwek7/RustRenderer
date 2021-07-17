@@ -73,10 +73,10 @@ impl SpriteSheetTopology {
         // todo: cache in member variable
         let single_sprite_size = (self.spritesheet_size.0 as f32 / self.n_cols as f32, self.spritesheet_size.1 as f32 / self.n_rows as f32);
         return Ok(SpriteCoords {
-            top_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
-            bottom_right: ((single_sprite_size.0 * row as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32) / self.spritesheet_size.1 as f32),
-            bottom_left: ((single_sprite_size.0 * row as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32) / self.spritesheet_size.1 as f32),
-            top_left: ((single_sprite_size.0 * row as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * col as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
+            top_right: ((single_sprite_size.0 * col as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * row as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
+            bottom_right: ((single_sprite_size.0 * col as f32 + single_sprite_size.0) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * row as f32) / self.spritesheet_size.1 as f32),
+            bottom_left: ((single_sprite_size.0 * col as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * row as f32) / self.spritesheet_size.1 as f32),
+            top_left: ((single_sprite_size.0 * col as f32) / self.spritesheet_size.0 as f32, (single_sprite_size.1 * row as f32 + single_sprite_size.1) / self.spritesheet_size.1 as f32),
         });
     }
 }

@@ -61,7 +61,7 @@ impl Resources {
             Ok(img) => {
                 println!("Dimensions of image are {:?}", img.dimensions());
                 let (width, height) = img.dimensions();
-                let flipped = img.rotate180();
+                let flipped = img.rotate180().fliph();
 
                 let flipped = match flipped {
                     DynamicImage::ImageRgba8(flipped) => flipped,

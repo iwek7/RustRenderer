@@ -7,7 +7,6 @@ use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
 use crate::maths::vertex::VertexTextured;
-use crate::mouse_drag_controller::{Draggable};
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::{SpriteCoords, Texture};
@@ -34,7 +33,7 @@ fn main() {
 
     let chessboard_data = res.load_image("textures/chessboard.png");
     let chessboard_texture = Texture::from_image(chessboard_data);
-    let mut chessboard = Chessboard::new(&chessboard_texture, &context, &tx_shader_program, 106.0);
+    let mut chessboard = Chessboard::new(&chessboard_texture, &context, &tx_shader_program);
     let pieces = res.load_image("textures/pieces.png");
     let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
     chessboard.init_pieces(&pieces_texture);
@@ -95,6 +94,8 @@ fn main() {
         ]);
     }
 }
+
+
 
 
 struct Player<'a, T: VertexShaderDataSetter> {
