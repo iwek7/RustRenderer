@@ -63,6 +63,10 @@ impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
     fn num_vertices(&self) -> usize {
         return self.vertices.len();
     }
+
+    fn get_pos(&self) -> (f32, f32, f32) {
+        todo!()
+    }
 }
 
 // todo: to separate file

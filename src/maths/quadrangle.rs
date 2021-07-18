@@ -13,6 +13,9 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
     indices: [i32; 6],
 }
 
+
+const REFERENCE_INDEX: usize = 3;
+
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
@@ -43,7 +46,7 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     // moves first vertex
     // does not support rotation
     pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
-        let current_pos = self.vertices[3].get_pos();
+        let current_pos = self.vertices[REFERENCE_INDEX].get_pos();
         self.move_by(
             final_pos.0 - current_pos.0,
             final_pos.1 - current_pos.1,
@@ -76,5 +79,9 @@ impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
 
     fn num_vertices(&self) -> usize {
         return self.vertices.len();
+    }
+
+    fn get_pos(&self) -> (f32, f32, f32) {
+        self.vertices[REFERENCE_INDEX].get_pos()
     }
 }

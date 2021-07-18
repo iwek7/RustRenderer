@@ -2,11 +2,11 @@ use std::borrow::Borrow;
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::maths::quadrangle::Quadrangle;
+use crate::maths::shapes_common::Area;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::maths::shapes_common::Area;
 
 pub struct SpriteSheet {
     sprite_sheet: Texture,
@@ -17,6 +17,7 @@ pub struct Piece<'a> {
     quad: Quadrangle<'a, VertexTextured>,
     move_component: Box<dyn PieceMoveComponent>,
     is_dragged: bool,
+    initial_drag_pos_opengl: (f32, f32, f32),
 }
 
 impl<'a> Draggable for Piece<'a> {
@@ -25,13 +26,18 @@ impl<'a> Draggable for Piece<'a> {
     }
 
     fn handle_start_drag(&mut self) {
-        self.is_dragged = true
+        self.is_dragged = true;
+        let pos = self.quad.get_pos();
+        self.initial_drag_pos_opengl = self.quad.get_pos();
     }
 
     fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
         if self.is_dragged {
             match final_pos {
-                None => {} //comeback
+                None => {
+                    self.quad.move_to(&self.initial_drag_pos_opengl);
+                    self.is_dragged = false
+                } //comeback
                 Some(_) => {
                     let unwr = final_pos.unwrap();
                     self.quad.move_to(&(unwr.0, unwr.1, 0.0));
@@ -82,6 +88,7 @@ impl<'a> PieceFactory<'a> {
             quad,
             move_component: Box::new(move_component),
             is_dragged: false,
+            initial_drag_pos_opengl: (0.0, 0.0, 0.0),
         };
     }
 
@@ -206,7 +213,6 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("G2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("H2"), piece_size));
 
-
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_position("A8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_position("B8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_position("C8"), piece_size));
@@ -246,6 +252,7 @@ impl<'a> Chessboard<'a> {
             }
             sdl2::event::Event::MouseButtonUp { .. } => {
                 let final_pos = match self.get_field_coords_by_point(mouse_coords_px) {
+                    // out of bounds of chessboard, set to initial file
                     None => { None }
                     Some(coords) => {
                         let final_pos_opengl = context.sdl_window_to_opengl_space(
