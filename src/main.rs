@@ -19,7 +19,6 @@ pub mod opengl_context;
 pub mod texture;
 
 mod maths;
-mod mouse_drag_controller;
 mod chess;
 
 fn main() {
@@ -61,8 +60,8 @@ fn main() {
     let mut renderer = renderer::Renderer::new(&context);
 
     'main: loop {
-        let window_mouse_coords = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-        let mouse_opengl_coords = context.sdl_window_to_opengl_space(window_mouse_coords);
+        let mouse_coords_px = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+        let mouse_opengl_coords = context.sdl_window_to_opengl_space(mouse_coords_px);
 
         for event in event_pump.poll_iter() {
             match event {
@@ -80,7 +79,7 @@ fn main() {
                 _ => {}
             }
 
-            chessboard.handle_event(&event, &mouse_opengl_coords)
+            chessboard.handle_event(&event, mouse_coords_px, &mouse_opengl_coords, &context)
         }
 
         renderer.render(&[

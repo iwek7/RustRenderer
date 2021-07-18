@@ -1,9 +1,9 @@
 use crate::render_gl;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
-use crate::mouse_drag_controller::Draggable;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
+use crate::chess::Draggable;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
@@ -49,7 +49,10 @@ impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
-                                                  .map(|v| -> (f32, f32){ v.get_pos() })
+                                                  .map(|v| -> (f32, f32) {
+                                                     let p = v.get_pos();
+                                                      (p.0, p.1)
+                                                  })
                                                   .collect(), );
     }
 
@@ -64,19 +67,24 @@ impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
 
 impl<'a, T: VertexShaderDataSetter + Clone> Draggable for Triangle<'a, T> {
     fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
-        self.contains_point(mouse_pos)
+        // self.contains_point(mouse_pos)
+        false
     }
 
     fn handle_start_drag(&mut self) {
         // nothing
     }
 
-    fn handle_drop(&mut self) {
+    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
         // nothing
     }
 
     fn handle_drag_pointer_move(&mut self, offset: &(f32, f32)) {
         self.move_by(offset.0, offset.1, 0.0)
+    }
+
+    fn is_dragged(&mut self) -> bool {
+        false
     }
 }
 

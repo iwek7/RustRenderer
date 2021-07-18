@@ -1,7 +1,7 @@
-use crate::render_gl;
+use crate::chess::Draggable;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::maths::triangle::Drawable;
-use crate::mouse_drag_controller::Draggable;
+use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
@@ -34,11 +34,23 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     }
 
     // some algebra lib?
+    // opengl coords :(
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
         for vertex in self.vertices.iter_mut() {
             vertex.transpose(x, y, z);
         }
         self.drawing_component.bind_data(&self.vertices)
+    }
+
+    // moves first vertex
+    // does not support rotation
+    pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
+        let current_pos = self.vertices[3].get_pos();
+        self.move_by(
+            final_pos.0 - current_pos.0,
+            final_pos.1 - current_pos.1,
+            final_pos.2 - current_pos.2,
+        );
     }
 }
 
@@ -52,7 +64,10 @@ impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
-                                                  .map(|v| -> (f32, f32){ v.get_pos() })
+                                                  .map(|v| -> (f32, f32){
+                                                      let p = v.get_pos();
+                                                      (p.0, p.1)
+                                                  })
                                                   .collect(),
         );
     }
@@ -66,6 +81,7 @@ impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
     }
 }
 
+// todo: move everything here away from here to pawn
 impl<'a, T: VertexShaderDataSetter> Draggable for Quadrangle<'a, T> {
     fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
         self.contains_point(mouse_pos)
@@ -75,7 +91,11 @@ impl<'a, T: VertexShaderDataSetter> Draggable for Quadrangle<'a, T> {
         self.is_dragged = true
     }
 
-    fn handle_drop(&mut self) {
+    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
+        // todo: move this control to piece
+        let unwr = final_pos.unwrap();
+        println!("kappa {} {}", unwr.0, unwr.1);
+        self.move_to(&(unwr.0, unwr.1, 0.0));
         self.is_dragged = false
     }
 
@@ -83,5 +103,9 @@ impl<'a, T: VertexShaderDataSetter> Draggable for Quadrangle<'a, T> {
         if self.is_dragged {
             self.move_by(offset.0, offset.1, 0.0)
         }
+    }
+
+    fn is_dragged(&mut self) -> bool {
+        self.is_dragged
     }
 }

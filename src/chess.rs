@@ -4,7 +4,6 @@ use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
-use crate::mouse_drag_controller::{Draggable, MouseDragController};
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
 
@@ -16,23 +15,33 @@ pub struct Piece<'a> {
     piece_type: PieceType,
     quad: Quadrangle<'a, VertexTextured>,
     move_component: Box<dyn PieceMoveComponent>,
+    is_dragged: bool,
 }
 
 impl<'a> Draggable for Piece<'a> {
-    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
-        self.quad.is_mouse_over(mouse_pos)
+    fn is_mouse_over(&self, mouse_coords_opengl: &(f32, f32)) -> bool {
+        let v = self.quad.is_mouse_over(mouse_coords_opengl);
+        println!("test {}", v);
+        v
     }
 
     fn handle_start_drag(&mut self) {
         self.quad.handle_start_drag()
     }
 
-    fn handle_drop(&mut self) {
-        self.quad.handle_drop()
+    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
+        match final_pos {
+            None => {} //comeback
+            Some(_) => { self.quad.handle_drop(final_pos) }
+        }
     }
 
     fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
         self.quad.handle_drag_pointer_move(drag_offset)
+    }
+
+    fn is_dragged(&mut self) -> bool {
+        self.quad.is_dragged()
     }
 }
 
@@ -69,6 +78,7 @@ impl<'a> PieceFactory<'a> {
             piece_type,
             quad,
             move_component: Box::new(move_component),
+            is_dragged: false,
         };
     }
 
@@ -134,9 +144,10 @@ pub struct Chessboard<'a> {
     pieces: Vec<Piece<'a>>,
     piece_factory: PieceFactory<'a>,
     tx: &'a Texture,
-    mouse_drag_controller: MouseDragController,
     field_size: u32,
+    board_size: u32,
     position: (i32, i32, i32),
+    prev_mouse_pos: (f32, f32),
 }
 
 impl<'a> Drawable for Chessboard<'a> {
@@ -148,11 +159,11 @@ impl<'a> Drawable for Chessboard<'a> {
 
 impl<'a> Chessboard<'a> {
     pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> Chessboard<'a> {
-        let mut mouse_drag_controller = MouseDragController::new();
         let field_size = 87;
+        let board_size = field_size * 8;
         let position = (100, 0, 0);
         let quad = Quadrangle::new(
-            create_rect_coords_in_opengl_space(&opengl_context, position.clone(), (87 * 8, 87 * 8), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
+            create_rect_coords_in_opengl_space(&opengl_context, position.clone(), (board_size, board_size), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             &shader,
             Some(&chessboard_texture),
@@ -165,9 +176,10 @@ impl<'a> Chessboard<'a> {
             pieces: vec!(),
             piece_factory,
             tx: chessboard_texture,
-            mouse_drag_controller,
-            field_size,
+            field_size: field_size as u32,
+            board_size: board_size as u32,
             position,
+            prev_mouse_pos: (0.0, 0.0),
         };
     }
 
@@ -209,12 +221,59 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("F7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("G7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("H7"), piece_size));
-
     }
 
-    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_pos: &(f32, f32)) {
-        self.mouse_drag_controller.handle_event(event, mouse_pos, &mut self.pieces)
+    /**
+    iterating over all those draggables is veeery inefficient
+    but I can't hold reference to currently dragged object here
+    as it violates only one mutable ref rule
+     **/
+    // todo holy shit we operate in both coordinate systems at the same time...
+    // todo even context is needed here to translate them...
+    // todo horror
+    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+        let prev_mouse_pos = self.prev_mouse_pos.clone();
+        match event {
+            sdl2::event::Event::MouseButtonDown { .. } => {
+                for obj in self.pieces.iter_mut() {
+                    if obj.is_mouse_over(mouse_coords_opengl) {
+                        obj.handle_start_drag()
+                    }
+                }
+            }
+            sdl2::event::Event::MouseButtonUp { .. } => {
+                let final_pos = match self.get_field_coords_by_point(mouse_coords_px) {
+                    None => { None }
+                    Some(coords) => {
+                        let final_pos_opengl = context.sdl_window_to_opengl_space(
+                            &(
+                                coords.0 as i32 * self.field_size as i32 + self.position.0,
+                                coords.1 as i32 * self.field_size as i32 + self.position.1,
+                            )
+                        );
+                        Some((final_pos_opengl.0, final_pos_opengl.1))
+                    }
+                };
+                self.pieces.iter_mut().for_each(|piece| {
+                    if piece.is_dragged() {
+                        piece.handle_drop(final_pos);
+                    }
+                })
+            }
+            sdl2::event::Event::MouseMotion { .. } => {
+                let drag_offset = &(
+                    (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
+                    (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
+                );
+                self.pieces.iter_mut()
+                    .for_each(|it| { it.handle_drag_pointer_move(drag_offset) });
+            }
+
+            _ => {}
+        }
+        self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
+
 
     fn get_field_position(&self, field_str: &str) -> (i32, i32, i32) {
         let pos = Chessboard::parse_field_name(field_str);
@@ -223,6 +282,21 @@ impl<'a> Chessboard<'a> {
             pos.1 as i32 * self.field_size as i32 + self.position.1,
             0
         )
+    }
+
+    fn get_field_coords_by_point(&self, point: &(i32, i32)) -> Option<(u32, u32)> {
+        if point.0 < self.position.0 ||
+            point.0 as i32 > self.position.0 + self.board_size as i32 ||
+            point.1 < self.position.1 ||
+            point.1 as i32 > self.position.1 + self.board_size as i32 {
+            return None;
+        }
+        return Some(
+            (
+                ((point.0 as i32 - self.position.0) / self.field_size as i32) as u32,
+                ((point.1 as i32 - self.position.1) / self.field_size as i32) as u32
+            )
+        );
     }
 
     fn parse_field_name(field_str: &str) -> (u32, u32) {
@@ -240,4 +314,14 @@ impl<'a> Chessboard<'a> {
         let row = field_str.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
         (col, row)
     }
+}
+
+pub trait Draggable {
+    // todo: this really should not accept opengl coords, all should happen in world coord space
+    fn is_mouse_over(&self, mouse_pos_opengl: &(f32, f32)) -> bool;
+    fn handle_start_drag(&mut self);
+    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>);
+
+    fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32));
+    fn is_dragged(&mut self) -> bool;
 }
