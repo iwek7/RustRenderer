@@ -65,30 +65,6 @@ impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataSetter + Clone> Draggable for Triangle<'a, T> {
-    fn is_mouse_over(&self, mouse_pos: &(f32, f32)) -> bool {
-        // self.contains_point(mouse_pos)
-        false
-    }
-
-    fn handle_start_drag(&mut self) {
-        // nothing
-    }
-
-    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
-        // nothing
-    }
-
-    fn handle_drag_pointer_move(&mut self, offset: &(f32, f32)) {
-        self.move_by(offset.0, offset.1, 0.0)
-    }
-
-    fn is_dragged(&mut self) -> bool {
-        false
-    }
-}
-
-
 // todo: to separate file
 pub trait Drawable {
     fn render(&self);

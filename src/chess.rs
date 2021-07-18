@@ -6,6 +6,7 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use crate::maths::shapes_common::Area;
 
 pub struct SpriteSheet {
     sprite_sheet: Texture,
@@ -20,28 +21,30 @@ pub struct Piece<'a> {
 
 impl<'a> Draggable for Piece<'a> {
     fn is_mouse_over(&self, mouse_coords_opengl: &(f32, f32)) -> bool {
-        let v = self.quad.is_mouse_over(mouse_coords_opengl);
-        println!("test {}", v);
-        v
+        self.quad.contains_point(mouse_coords_opengl)
     }
 
     fn handle_start_drag(&mut self) {
-        self.quad.handle_start_drag()
+        self.is_dragged = true
     }
 
     fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
-        match final_pos {
-            None => {} //comeback
-            Some(_) => { self.quad.handle_drop(final_pos) }
+        if self.is_dragged {
+            match final_pos {
+                None => {} //comeback
+                Some(_) => {
+                    let unwr = final_pos.unwrap();
+                    self.quad.move_to(&(unwr.0, unwr.1, 0.0));
+                    self.is_dragged = false
+                }
+            }
         }
     }
 
     fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
-        self.quad.handle_drag_pointer_move(drag_offset)
-    }
-
-    fn is_dragged(&mut self) -> bool {
-        self.quad.is_dragged()
+        if self.is_dragged {
+            self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
+        }
     }
 }
 
@@ -255,9 +258,7 @@ impl<'a> Chessboard<'a> {
                     }
                 };
                 self.pieces.iter_mut().for_each(|piece| {
-                    if piece.is_dragged() {
-                        piece.handle_drop(final_pos);
-                    }
+                    piece.handle_drop(final_pos);
                 })
             }
             sdl2::event::Event::MouseMotion { .. } => {
@@ -323,5 +324,4 @@ pub trait Draggable {
     fn handle_drop(&mut self, final_pos: Option<(f32, f32)>);
 
     fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32));
-    fn is_dragged(&mut self) -> bool;
 }
