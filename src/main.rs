@@ -2,7 +2,6 @@ use std::path::Path;
 
 use sdl2::keyboard::Keycode;
 
-use crate::chess::Chessboard;
 use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
@@ -11,6 +10,7 @@ use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::{SpriteCoords, Texture};
 use crate::vertex::VertexShaderDataSetter;
+use crate::chess::chessboard::Chessboard;
 
 pub mod render_gl;
 pub mod resources;
@@ -94,9 +94,6 @@ fn main() {
     }
 }
 
-
-
-
 struct Player<'a, T: VertexShaderDataSetter> {
     pub triangle: Triangle<'a, T>,
 }
@@ -132,7 +129,6 @@ impl<'a, T: VertexShaderDataSetter> Drawable for Player<'a, T> {
     }
 }
 
-
 // todo: this should be encapsulated into shapes
 fn create_rect_coords_in_opengl_space(
     context: &OpenglContext, pos: (i32, i32, i32), size: (i32, i32), sprite_coords: &SpriteCoords) -> [VertexTextured; 4] {
@@ -142,5 +138,10 @@ fn create_rect_coords_in_opengl_space(
         vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0, pos.1, pos.2)).into(), clr: (1.0, 1.0, 1.0, 1.0).into(), tx_coords: sprite_coords.bottom_left.into() },
         vertex::VertexTextured { pos: context.engine_to_opengl_space(&(pos.0, pos.1 + size.1, pos.2)).into(), clr: (1.0, 1.0, 1.0, 1.0).into(), tx_coords: sprite_coords.top_left.into() },
     ];
+}
+
+// todo: should not be here
+pub struct SpriteSheet {
+    sprite_sheet: Texture,
 }
 

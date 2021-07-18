@@ -1,4 +1,3 @@
-use crate::chess::Draggable;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::maths::triangle::Drawable;
 use crate::render_gl;

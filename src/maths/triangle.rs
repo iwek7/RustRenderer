@@ -3,7 +3,6 @@ use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
-use crate::chess::Draggable;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
