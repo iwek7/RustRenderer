@@ -121,9 +121,31 @@ impl<'a> PieceFactory<'a> {
     }
 }
 
-pub trait PieceMoveComponent {}
+pub struct Field {
+    col: String,
+    row: String,
+}
 
-pub struct PawnMoveComponent {}
+pub struct ChessboardState {
 
-impl PieceMoveComponent for PawnMoveComponent {}
+}
+
+pub trait PieceMoveComponent {
+    fn is_move_allowed(state: ChessboardState, target_field: Field) -> bool;
+    fn get_all_allowed_moves(state: ChessboardState) -> Vec<Field>;
+}
+
+pub struct PawnMoveComponent {
+
+}
+
+impl PieceMoveComponent for PawnMoveComponent {
+    fn is_move_allowed(state: ChessboardState, target_field: Field) -> bool {
+        true
+    }
+
+    fn get_all_allowed_moves(state: ChessboardState) -> Vec<Field> {
+        vec!()
+    }
+}
 
