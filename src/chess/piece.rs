@@ -1,12 +1,15 @@
-use crate::{render_gl, create_rect_coords_in_opengl_space};
-use crate::opengl_context::OpenglContext;
-use crate::maths::quadrangle::Quadrangle;
-use crate::texture::Texture;
 use std::borrow::Borrow;
-use crate::maths::vertex::VertexTextured;
-use crate::maths::triangle::Drawable;
+
+use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::infrastructure::{Draggable, PieceType, Side};
+use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
+use crate::maths::triangle::Drawable;
+use crate::maths::vertex::VertexTextured;
+use crate::opengl_context::OpenglContext;
+use crate::texture::Texture;
+use crate::chess::field::Field;
+use crate::chess::chessboard::ChessboardState;
 
 pub struct Piece<'a> {
     piece_type: PieceType,
@@ -121,9 +124,23 @@ impl<'a> PieceFactory<'a> {
     }
 }
 
-pub trait PieceMoveComponent {}
+
+
+
+pub trait PieceMoveComponent {
+    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool;
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field>;
+}
 
 pub struct PawnMoveComponent {}
 
-impl PieceMoveComponent for PawnMoveComponent {}
+impl PieceMoveComponent for PawnMoveComponent {
+    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool {
+        true
+    }
+
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field> {
+        vec!()
+    }
+}
 
