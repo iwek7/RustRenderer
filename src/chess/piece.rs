@@ -122,8 +122,27 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub struct Field {
+    str: String
     col: String,
     row: String,
+}
+
+impl Field {
+    fn ofString(str: &str) {
+        let col = match field_str.chars().nth(0).unwrap() {
+            'A' => 0,
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            _ => panic!(format!("Unparsable chess field number {}", field_str))
+        } as u32;
+        let row = field_str.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
+
+    }
 }
 
 pub struct ChessboardState {
