@@ -1,11 +1,11 @@
-use crate::texture::Texture;
-use crate::opengl_context::OpenglContext;
-use crate::{render_gl, create_rect_coords_in_opengl_space};
+use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::chess::infrastructure::{Draggable, PieceType, Side};
+use crate::chess::piece::{Field, Piece, PieceFactory};
 use crate::maths::quadrangle::Quadrangle;
-use crate::chess::piece::{PieceFactory, Piece};
-use crate::maths::vertex::VertexTextured;
 use crate::maths::triangle::Drawable;
-use crate::chess::infrastructure::{Side, Draggable, PieceType};
+use crate::maths::vertex::VertexTextured;
+use crate::opengl_context::OpenglContext;
+use crate::texture::Texture;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, VertexTextured>,
@@ -53,41 +53,41 @@ impl<'a> Chessboard<'a> {
 
     pub fn init_pieces(&mut self, pieces_sheet: &'a Texture) {
         let piece_size = (self.field_size as i32, self.field_size as i32);
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_position("A1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_position("B1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_position("C1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, pieces_sheet, self.get_field_position("D1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, pieces_sheet, self.get_field_position("E1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_position("F1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_position("G1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_position("H1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("A1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("B1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("C1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("D1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("E1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("F1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("G1")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("H1")), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("A2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("B2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("C2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("D2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("E2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("F2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("G2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position("H2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("A2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("B2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("C2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("D2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("E2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("F2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("G2")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_position(&Field::of_string("H2")), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_position("A8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_position("B8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_position("C8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, pieces_sheet, self.get_field_position("D8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, pieces_sheet, self.get_field_position("E8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_position("F8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_position("G8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_position("H8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("A8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("B8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("C8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("D8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("E8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("F8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("G8")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("H8")), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("A7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("B7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("C7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("D7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("E7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("F7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("G7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position("H7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("A7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("B7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("C7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("D7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("E7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("F7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("G7")), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_position(&Field::of_string("H7")), piece_size));
     }
 
     /**
@@ -140,12 +140,11 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
 
-
-    fn get_field_position(&self, field_str: &str) -> (i32, i32, i32) {
-        let pos = Chessboard::parse_field_name(field_str);
+    // todo: we should have 64 fields and this should be attribute of each to call Field.get_position()
+    fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
         (
-            pos.0 as i32 * self.field_size as i32 + self.position.0,
-            pos.1 as i32 * self.field_size as i32 + self.position.1,
+            field.col as i32 * self.field_size as i32 + self.position.0,
+            field.row as i32 * self.field_size as i32 + self.position.1,
             0
         )
     }
@@ -163,21 +162,5 @@ impl<'a> Chessboard<'a> {
                 ((point.1 as i32 - self.position.1) / self.field_size as i32) as u32
             )
         );
-    }
-
-    fn parse_field_name(field_str: &str) -> (u32, u32) {
-        let col = match field_str.chars().nth(0).unwrap() {
-            'A' => 0,
-            'B' => 1,
-            'C' => 2,
-            'D' => 3,
-            'E' => 4,
-            'F' => 5,
-            'G' => 6,
-            'H' => 7,
-            _ => panic!(format!("Unparsable chess field number {}", field_str))
-        } as u32;
-        let row = field_str.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
-        (col, row)
     }
 }

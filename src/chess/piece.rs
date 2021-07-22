@@ -122,14 +122,14 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub struct Field {
-    str: String
-    col: String,
-    row: String,
+    pub str: String,
+    pub col: u32,
+    pub row: u32,
 }
 
 impl Field {
-    fn ofString(str: &str) {
-        let col = match field_str.chars().nth(0).unwrap() {
+    pub fn of_string(str: &str) -> Field {
+        let col = match str.chars().nth(0).unwrap() {
             'A' => 0,
             'B' => 1,
             'C' => 2,
@@ -138,10 +138,14 @@ impl Field {
             'F' => 5,
             'G' => 6,
             'H' => 7,
-            _ => panic!(format!("Unparsable chess field number {}", field_str))
+            _ => panic!(format!("Unparsable chess field number {}", str))
         } as u32;
-        let row = field_str.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
-
+        let row = str.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
+        Field {
+            str: String::from(str),
+            col,
+            row
+        }
     }
 }
 
@@ -150,8 +154,8 @@ pub struct ChessboardState {
 }
 
 pub trait PieceMoveComponent {
-    fn is_move_allowed(state: ChessboardState, target_field: Field) -> bool;
-    fn get_all_allowed_moves(state: ChessboardState) -> Vec<Field>;
+    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool;
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field>;
 }
 
 pub struct PawnMoveComponent {
@@ -159,11 +163,11 @@ pub struct PawnMoveComponent {
 }
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn is_move_allowed(state: ChessboardState, target_field: Field) -> bool {
+    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool {
         true
     }
 
-    fn get_all_allowed_moves(state: ChessboardState) -> Vec<Field> {
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field> {
         vec!()
     }
 }
