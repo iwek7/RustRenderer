@@ -124,7 +124,6 @@ impl<'a> Chessboard<'a> {
     // todo even context is needed here to translate them...
     // todo horror
     pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
-        let prev_mouse_pos = self.prev_mouse_pos.clone();
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
                 for obj in self.pieces.iter_mut() {
@@ -134,21 +133,9 @@ impl<'a> Chessboard<'a> {
                 }
             }
             sdl2::event::Event::MouseButtonUp { .. } => {
-                let final_pos = match self.get_field_coords_by_point(mouse_coords_px) {
-                    // out of bounds of chessboard, set to initial file
-                    None => { None }
-                    Some(coords) => {
-                        let final_pos_opengl = context.sdl_window_to_opengl_space(
-                            &(
-                                coords.0 as i32 * self.field_size as i32 + self.position.0,
-                                coords.1 as i32 * self.field_size as i32 + self.position.1,
-                            )
-                        );
-                        Some((final_pos_opengl.0, final_pos_opengl.1))
-                    }
-                };
+                let target_field = self.get_field_by_point(mouse_coords_px);
                 self.pieces.iter_mut().for_each(|piece| {
-                    piece.handle_drop(final_pos);
+                    piece.handle_drop(context, target_field.clone(), &ChessboardState {});
                 })
             }
             sdl2::event::Event::MouseMotion { .. } => {
@@ -165,21 +152,33 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
 
-    fn get_field_by_name(&self, name: &str) -> &Field {
+    fn get_field_by_name(&self, name: &str) -> Field {
         // hella inefficient, we just know don't need to check everywhere
 
         for row in self.fields.iter() {
             for f in row {
                 if f.name == name {
-                    return f;
+                    return f.clone();
                 }
             }
         }
         panic!(format!("Asking for non existent field {}", name))
     }
 
+    // could also move it to field.contains() or something
+    fn get_field_by_point(&self, point: &(i32, i32)) -> Option<Field> {
+        return match self.get_field_coords_by_point(point) {
+            None => None,
+            Some(coords) => {
+                let field = self.fields[coords.1][coords.0].clone();
+                println!("{:?}", field);
+                Some(field)
+            }
+        };
+    }
+
     // todo: should be get field by point...
-    fn get_field_coords_by_point(&self, point: &(i32, i32)) -> Option<(u32, u32)> {
+    fn get_field_coords_by_point(&self, point: &(i32, i32)) -> Option<(usize, usize)> {
         if point.0 < self.position.0 ||
             point.0 as i32 > self.position.0 + self.board_size as i32 ||
             point.1 < self.position.1 ||
@@ -188,8 +187,8 @@ impl<'a> Chessboard<'a> {
         }
         return Some(
             (
-                ((point.0 as i32 - self.position.0) / self.field_size as i32) as u32,
-                ((point.1 as i32 - self.position.1) / self.field_size as i32) as u32
+                ((point.0 as i32 - self.position.0) / self.field_size as i32) as usize,
+                ((point.1 as i32 - self.position.1) / self.field_size as i32) as usize
             )
         );
     }

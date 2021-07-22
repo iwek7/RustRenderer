@@ -1,3 +1,4 @@
+#[derive(Clone, Debug)]
 pub struct Field {
     pub name: String,
     pub col: u32,

@@ -36,16 +36,22 @@ impl<'a> Draggable for Piece<'a> {
         self.initial_drag_pos_opengl = self.quad.get_pos();
     }
 
-    fn handle_drop(&mut self, final_pos: Option<(f32, f32)>) {
+    fn handle_drop(&mut self, context: &OpenglContext, target_field: Option<Field>, chessboard_state: &ChessboardState) {
         if self.is_dragged {
-            match final_pos {
+            match target_field {
                 None => {
                     self.quad.move_to(&self.initial_drag_pos_opengl);
                     self.is_dragged = false
                 } //comeback
-                Some(_) => {
-                    let unwr = final_pos.unwrap();
-                    self.quad.move_to(&(unwr.0, unwr.1, 0.0));
+                Some(field) => {
+                    if self.move_component.is_move_allowed(chessboard_state, &field) {
+                        let pos = field.get_position_3d();
+                        let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
+                        self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
+                    } else {
+                        self.quad.move_to(&self.initial_drag_pos_opengl);
+                    }
+
                     self.is_dragged = false
                 }
             }
@@ -124,19 +130,16 @@ impl<'a> PieceFactory<'a> {
     }
 }
 
-
-
-
 pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool;
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &Field) -> bool;
     fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field>;
 }
 
 pub struct PawnMoveComponent {}
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn is_move_allowed(&self, state: ChessboardState, target_field: Field) -> bool {
-        true
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &Field) -> bool {
+        !target_field.name.contains("A")
     }
 
     fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field> {
