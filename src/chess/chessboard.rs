@@ -28,18 +28,18 @@ impl<'a> Drawable for Chessboard<'a> {
 }
 
 impl<'a> Chessboard<'a> {
-    pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext, piece_shader: &'a render_gl::Program, chessboard_shader: &'a render_gl::Program) -> Chessboard<'a> {
+    pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> Chessboard<'a> {
         let field_size = 87;
         let board_size = field_size * 8;
         let position = (100, 0, 0);
         let quad = Quadrangle::new(
             create_rect_coords_in_opengl_space(&opengl_context, position.clone(), (board_size, board_size), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            &chessboard_shader,
+            &shader,
             Some(&chessboard_texture),
         );
 
-        let piece_factory = PieceFactory::new(opengl_context, piece_shader);
+        let piece_factory = PieceFactory::new(opengl_context, shader);
 
         let mut fields = Vec::new();
         for row_idx in 0..8 as u32 {

@@ -29,11 +29,10 @@ fn main() {
 
     let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
     let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
-    let chessboard_shader_program = render_gl::Program::from_res(&res, "shaders/chessboard").unwrap();
 
     let chessboard_data = res.load_image("textures/chessboard.png");
     let chessboard_texture = Texture::from_image(chessboard_data);
-    let mut chessboard = Chessboard::new(&chessboard_texture, &context, &tx_shader_program, &chessboard_shader_program);
+    let mut chessboard = Chessboard::new(&chessboard_texture, &context, &tx_shader_program);
     let pieces = res.load_image("textures/pieces.png");
     let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
     chessboard.init_pieces(&pieces_texture);
