@@ -5,7 +5,7 @@ use crate::render_gl::data;
 #[repr(C, packed)]
 pub struct VertexColored {
     pub pos: data::f32_f32_f32,
-    pub clr: data::f32_f32_f32,
+    pub clr: data::f32_f32_f32_f32,
 }
 
 impl VertexShaderDataSetter for VertexColored {
@@ -21,7 +21,7 @@ impl VertexShaderDataSetter for VertexColored {
         let location = 1; // layout (location = 1)
         let offset = offset + std::mem::size_of::<data::f32_f32_f32>(); // offset of the first component
         unsafe {
-            data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
+            data::f32_f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
         }
     }
 

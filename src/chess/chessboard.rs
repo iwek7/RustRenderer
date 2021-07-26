@@ -1,6 +1,6 @@
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::field::Field;
-use crate::chess::infrastructure::{Draggable, PieceType, Side};
+use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
@@ -17,7 +17,7 @@ pub struct Chessboard<'a> {
     board_size: u32,
     position: (i32, i32, i32),
     prev_mouse_pos: (f32, f32),
-    fields: Vec<Vec<Field>>,
+    fields: Vec<Vec<Field<'a>>>,
 }
 
 impl<'a> Drawable for Chessboard<'a> {
@@ -28,7 +28,8 @@ impl<'a> Drawable for Chessboard<'a> {
 }
 
 impl<'a> Chessboard<'a> {
-    pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> Chessboard<'a> {
+    pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext,
+               shader: &'a render_gl::Program, possible_move_shader: &'a render_gl::Program) -> Chessboard<'a> {
         let field_size = 87;
         let board_size = field_size * 8;
         let position = (100, 0, 0);
@@ -45,11 +46,14 @@ impl<'a> Chessboard<'a> {
         for row_idx in 0..8 as u32 {
             let mut row = Vec::new();
             for col_idx in 0..8 as u32 {
-                row.push(Field::of_position(
+                row.push(Field::new(
                     col_idx,
                     row_idx,
                     col_idx as i32 * field_size + position.0,
                     row_idx as i32 * field_size + position.1,
+                    field_size,
+                    possible_move_shader,
+                    opengl_context,
                 ));
             }
             fields.push(row);
@@ -70,8 +74,8 @@ impl<'a> Chessboard<'a> {
 
     fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
         (
-            field.col as i32 * self.field_size as i32 + self.position.0,
-            field.row as i32 * self.field_size as i32 + self.position.1,
+            field.data.col as i32 * self.field_size as i32 + self.position.0,
+            field.data.row as i32 * self.field_size as i32 + self.position.1,
             0
         )
     }
@@ -126,17 +130,34 @@ impl<'a> Chessboard<'a> {
     pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
+                for i in 0..self.pieces.len() {
+                    0
+                }
                 for obj in self.pieces.iter_mut() {
                     if obj.is_mouse_over(mouse_coords_opengl) {
-                        obj.handle_start_drag()
+                        obj.handle_start_drag();
+
+                        // obj.move_component.get_all_allowed_moves(ChessboardState {}).iter()
+                        //     .for_each(|allowedField| { self.fields })
                     }
                 }
             }
             sdl2::event::Event::MouseButtonUp { .. } => {
-                let target_field = self.get_field_by_point(mouse_coords_px);
-                self.pieces.iter_mut().for_each(|piece| {
-                    piece.handle_drop(context, target_field.clone(), &ChessboardState {});
-                })
+                match self.get_field_by_point(mouse_coords_px) {
+                    None => {
+                        self.pieces.iter_mut().for_each(|piece| {
+                            piece.return_to_initial_pos();
+                        })
+                    }
+                    Some(field) => {
+                        // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
+                        let field_data = field.data.clone();
+                        let pos = field.get_position_3d();
+                        self.pieces.iter_mut().for_each(|piece| {
+                            piece.handle_drop(context, field_data.clone(), pos, &ChessboardState {});
+                        })
+                    }
+                }
             }
             sdl2::event::Event::MouseMotion { .. } => {
                 let drag_offset = &(
@@ -152,13 +173,12 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
 
-    fn get_field_by_name(&self, name: &str) -> Field {
+    fn get_field_by_name(&self, name: &str) -> &Field {
         // hella inefficient, we just know don't need to check everywhere
-
         for row in self.fields.iter() {
             for f in row {
-                if f.name == name {
-                    return f.clone();
+                if f.data.name == name {
+                    return f;
                 }
             }
         }
@@ -166,12 +186,11 @@ impl<'a> Chessboard<'a> {
     }
 
     // could also move it to field.contains() or something
-    fn get_field_by_point(&self, point: &(i32, i32)) -> Option<Field> {
+    fn get_field_by_point(&self, point: &(i32, i32)) -> Option<&Field> {
         return match self.get_field_coords_by_point(point) {
             None => None,
             Some(coords) => {
-                let field = self.fields[coords.1][coords.0].clone();
-                println!("{:?}", field);
+                let field = &self.fields[coords.1][coords.0];
                 Some(field)
             }
         };
@@ -195,3 +214,4 @@ impl<'a> Chessboard<'a> {
 }
 
 pub struct ChessboardState {}
+

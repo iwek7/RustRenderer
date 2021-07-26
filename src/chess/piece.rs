@@ -1,20 +1,20 @@
 use std::borrow::Borrow;
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
-use crate::chess::infrastructure::{Draggable, PieceType, Side};
+use crate::chess::chessboard::ChessboardState;
+use crate::chess::field::{Field, FieldData};
+use crate::chess::infrastructure::{PieceType, Side};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::field::Field;
-use crate::chess::chessboard::ChessboardState;
 
 pub struct Piece<'a> {
     piece_type: PieceType,
     quad: Quadrangle<'a, VertexTextured>,
-    move_component: Box<dyn PieceMoveComponent>,
+    pub move_component: Box<dyn PieceMoveComponent>,
     is_dragged: bool,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
@@ -25,40 +25,37 @@ impl<'a> Drawable for Piece<'a> {
     }
 }
 
-impl<'a> Draggable for Piece<'a> {
-    fn is_mouse_over(&self, mouse_coords_opengl: &(f32, f32)) -> bool {
+impl<'a> Piece<'a> {
+    pub fn is_mouse_over(&self, mouse_coords_opengl: &(f32, f32)) -> bool {
         self.quad.contains_point(mouse_coords_opengl)
     }
 
-    fn handle_start_drag(&mut self) {
+    pub fn handle_start_drag(&mut self) {
         self.is_dragged = true;
         let pos = self.quad.get_pos();
         self.initial_drag_pos_opengl = self.quad.get_pos();
     }
 
-    fn handle_drop(&mut self, context: &OpenglContext, target_field: Option<Field>, chessboard_state: &ChessboardState) {
+    pub fn return_to_initial_pos(&mut self) {
         if self.is_dragged {
-            match target_field {
-                None => {
-                    self.quad.move_to(&self.initial_drag_pos_opengl);
-                    self.is_dragged = false
-                } //comeback
-                Some(field) => {
-                    if self.move_component.is_move_allowed(chessboard_state, &field) {
-                        let pos = field.get_position_3d();
-                        let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
-                        self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
-                    } else {
-                        self.quad.move_to(&self.initial_drag_pos_opengl);
-                    }
-
-                    self.is_dragged = false
-                }
-            }
+            self.quad.move_to(&self.initial_drag_pos_opengl);
+            self.is_dragged = false
         }
     }
 
-    fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
+    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldData, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
+        if self.is_dragged {
+            if self.move_component.is_move_allowed(chessboard_state, &target_field) {
+                let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
+                self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
+            } else {
+                self.quad.move_to(&self.initial_drag_pos_opengl);
+            }
+            self.is_dragged = false
+        }
+    }
+
+    pub fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
         if self.is_dragged {
             self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
         }
@@ -131,19 +128,19 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &Field) -> bool;
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field>;
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldData) -> bool;
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldData>;
 }
 
 pub struct PawnMoveComponent {}
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &Field) -> bool {
-        !target_field.name.contains("A")
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldData) -> bool {
+        !target_field.col != 0
     }
 
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<Field> {
-        vec!()
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldData> {
+        vec!(FieldData { name: String::from("A1"), col: 0, row: 0 })
     }
 }
 
