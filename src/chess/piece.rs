@@ -128,7 +128,7 @@ impl PieceMoveComponent for PawnMoveComponent {
     }
 
     fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldData> {
-        vec!(FieldData { name: String::from("A1"), col: 0, row: 0 })
+        vec!(FieldData { name: String::from("B2"), col: 0, row: 0 })
     }
 }
 

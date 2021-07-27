@@ -1,5 +1,5 @@
 use crate::{create_rect_coords_in_opengl_space, render_gl};
-use crate::chess::field::Field;
+use crate::chess::field::{Field, FieldData};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory};
 use crate::maths::quadrangle::Quadrangle;
@@ -19,13 +19,6 @@ pub struct Chessboard<'a> {
     prev_mouse_pos: (f32, f32),
     fields: Vec<Vec<Field<'a>>>,
     dragger_piece: Option<usize>,
-}
-
-impl<'a> Drawable for Chessboard<'a> {
-    fn render(&self) {
-        self.board.render();
-        self.pieces.iter().for_each(|piece| { piece.render() })
-    }
 }
 
 impl<'a> Chessboard<'a> {
@@ -127,17 +120,15 @@ impl<'a> Chessboard<'a> {
     pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
-                // for i in 0..self.pieces.len() {
-                //     0
-                // }
                 for (i, obj) in self.pieces.iter_mut().enumerate() {
                     if obj.is_mouse_over(mouse_coords_opengl) {
                         self.dragger_piece = Some(i);
                         obj.handle_start_drag();
-
-                        // obj.move_component.get_all_allowed_moves(ChessboardState {}).iter()
-                        //     .for_each(|allowedField| { self.fields })
                     }
+                }
+                if self.dragger_piece != None {
+                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].move_component.get_all_allowed_moves(ChessboardState {});
+                    allowed_fields.iter_mut().for_each(|allowed_field| { self.fields[allowed_field.row as usize][allowed_field.col as usize].is_possible_move = true; })
                 }
             }
             sdl2::event::Event::MouseButtonUp { .. } => {
@@ -157,6 +148,7 @@ impl<'a> Chessboard<'a> {
                         }
                     }
                 }
+                self.clear_allowed_fields();
                 self.dragger_piece = None;
             }
             sdl2::event::Event::MouseMotion { .. } => {
@@ -187,6 +179,7 @@ impl<'a> Chessboard<'a> {
         panic!(format!("Asking for non existent field {}", name))
     }
 
+
     // could also move it to field.contains() or something
     fn get_field_by_point(&self, point: &(i32, i32)) -> Option<&Field> {
         return match self.get_field_coords_by_point(point) {
@@ -212,6 +205,18 @@ impl<'a> Chessboard<'a> {
                 ((point.1 as i32 - self.position.1) / self.field_size as i32) as usize
             )
         );
+    }
+
+    fn clear_allowed_fields(&mut self) {
+        self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.is_possible_move = false))
+    }
+}
+
+impl<'a> Drawable for Chessboard<'a> {
+    fn render(&self) {
+        self.board.render();
+        self.pieces.iter().for_each(|piece| { piece.render() });
+        self.fields.iter().for_each(|row| row.iter().for_each(|field| field.render()));
     }
 }
 

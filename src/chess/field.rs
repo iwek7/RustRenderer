@@ -5,6 +5,7 @@ use crate::maths::vertex::VertexColored;
 use crate::opengl_context::OpenglContext;
 
 pub struct Field<'a> {
+    // todo: those variables should not be mutable anyhow
     pub data: FieldData,
     pub x: i32,
     pub y: i32,
@@ -30,7 +31,7 @@ impl<'a> Field<'a> {
         });
         let name = format!("{}{}", col_name, (row + 1).to_string());
         let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (1.0, 1.0, 1.0, 1.0)),
+            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 1.0, 1.0, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
