@@ -215,8 +215,8 @@ impl<'a> Chessboard<'a> {
 impl<'a> Drawable for Chessboard<'a> {
     fn render(&self) {
         self.board.render();
-        self.pieces.iter().for_each(|piece| { piece.render() });
         self.fields.iter().for_each(|row| row.iter().for_each(|field| field.render()));
+        self.pieces.iter().for_each(|piece| { piece.render() });
     }
 }
 

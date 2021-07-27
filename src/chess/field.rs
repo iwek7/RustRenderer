@@ -31,7 +31,7 @@ impl<'a> Field<'a> {
         });
         let name = format!("{}{}", col_name, (row + 1).to_string());
         let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 1.0, 1.0, 0.5)),
+            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
@@ -70,4 +70,34 @@ pub struct FieldData {
     pub name: String,
     pub col: u32,
     pub row: u32,
+}
+
+impl FieldData {
+    pub fn from_string(str: &str) -> FieldData {
+        let name = String::from(str);
+        if name.len() != 2 {
+            panic!(format!("Trying to parse field with invalid name {}", name))
+        }
+        let col = match name.chars().nth(0).unwrap() {
+            'A' => 0,
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            _ => panic!(format!("Trying to create invalid field {}", name))
+        };
+        let row = name.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
+        if !(0..8).contains(&row) {
+            panic!(format!("Trying to create invalid field {}", name))
+        }
+
+        FieldData {
+            name: String::from(str),
+            col,
+            row,
+        }
+    }
 }
