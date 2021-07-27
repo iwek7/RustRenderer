@@ -18,6 +18,7 @@ pub struct Chessboard<'a> {
     position: (i32, i32, i32),
     prev_mouse_pos: (f32, f32),
     fields: Vec<Vec<Field<'a>>>,
+    dragger_piece: Option<usize>,
 }
 
 impl<'a> Drawable for Chessboard<'a> {
@@ -69,6 +70,7 @@ impl<'a> Chessboard<'a> {
             position,
             prev_mouse_pos: (0.0, 0.0),
             fields,
+            dragger_piece: None,
         };
     }
 
@@ -119,22 +121,18 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("H7").get_position_3d(), piece_size));
     }
 
-    /**
-    iterating over all those draggables is veeery inefficient
-    but I can't hold reference to currently dragged object here
-    as it violates only one mutable ref rule
-     **/
     // todo holy shit we operate in both coordinate systems at the same time...
     // todo even context is needed here to translate them...
     // todo horror
     pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
-                for i in 0..self.pieces.len() {
-                    0
-                }
-                for obj in self.pieces.iter_mut() {
+                // for i in 0..self.pieces.len() {
+                //     0
+                // }
+                for (i, obj) in self.pieces.iter_mut().enumerate() {
                     if obj.is_mouse_over(mouse_coords_opengl) {
+                        self.dragger_piece = Some(i);
                         obj.handle_start_drag();
 
                         // obj.move_component.get_all_allowed_moves(ChessboardState {}).iter()
@@ -145,27 +143,31 @@ impl<'a> Chessboard<'a> {
             sdl2::event::Event::MouseButtonUp { .. } => {
                 match self.get_field_by_point(mouse_coords_px) {
                     None => {
-                        self.pieces.iter_mut().for_each(|piece| {
-                            piece.return_to_initial_pos();
-                        })
+                        if self.dragger_piece != None {
+                            self.pieces[self.dragger_piece.unwrap()].return_to_initial_pos();
+                        }
                     }
                     Some(field) => {
                         // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
-                        let field_data = field.data.clone();
-                        let pos = field.get_position_3d();
-                        self.pieces.iter_mut().for_each(|piece| {
-                            piece.handle_drop(context, field_data.clone(), pos, &ChessboardState {});
-                        })
+                        if self.dragger_piece != None {
+                            let field_data = field.data.clone();
+                            let pos = field.get_position_3d();
+                            self.pieces[self.dragger_piece.unwrap()]
+                                .handle_drop(context, field_data.clone(), pos, &ChessboardState {});
+                        }
                     }
                 }
+                self.dragger_piece = None;
             }
             sdl2::event::Event::MouseMotion { .. } => {
                 let drag_offset = &(
                     (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
                     (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
                 );
-                self.pieces.iter_mut()
-                    .for_each(|it| { it.handle_drag_pointer_move(drag_offset) });
+
+                if self.dragger_piece != None {
+                    self.pieces[self.dragger_piece.unwrap()].handle_drag_pointer_move(drag_offset);
+                }
             }
 
             _ => {}

@@ -15,7 +15,6 @@ pub struct Piece<'a> {
     piece_type: PieceType,
     quad: Quadrangle<'a, VertexTextured>,
     pub move_component: Box<dyn PieceMoveComponent>,
-    is_dragged: bool,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
 
@@ -31,34 +30,24 @@ impl<'a> Piece<'a> {
     }
 
     pub fn handle_start_drag(&mut self) {
-        self.is_dragged = true;
-        let pos = self.quad.get_pos();
         self.initial_drag_pos_opengl = self.quad.get_pos();
     }
 
     pub fn return_to_initial_pos(&mut self) {
-        if self.is_dragged {
-            self.quad.move_to(&self.initial_drag_pos_opengl);
-            self.is_dragged = false
-        }
+        self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
     pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldData, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
-        if self.is_dragged {
-            if self.move_component.is_move_allowed(chessboard_state, &target_field) {
-                let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
-                self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
-            } else {
-                self.quad.move_to(&self.initial_drag_pos_opengl);
-            }
-            self.is_dragged = false
+        if self.move_component.is_move_allowed(chessboard_state, &target_field) {
+            let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
+            self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
+        } else {
+            self.quad.move_to(&self.initial_drag_pos_opengl);
         }
     }
 
     pub fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
-        if self.is_dragged {
-            self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
-        }
+        self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
     }
 }
 
@@ -103,7 +92,6 @@ impl<'a> PieceFactory<'a> {
             piece_type,
             quad,
             move_component: Box::new(move_component),
-            is_dragged: false,
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
         };
     }
