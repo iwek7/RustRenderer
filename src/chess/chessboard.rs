@@ -1,5 +1,5 @@
 use crate::{create_rect_coords_in_opengl_space, render_gl};
-use crate::chess::field::{Field, FieldData};
+use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory};
 use crate::maths::quadrangle::Quadrangle;
@@ -69,8 +69,8 @@ impl<'a> Chessboard<'a> {
 
     fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
         (
-            field.data.col as i32 * self.field_size as i32 + self.position.0,
-            field.data.row as i32 * self.field_size as i32 + self.position.1,
+            field.logic.col as i32 * self.field_size as i32 + self.position.0,
+            field.logic.row as i32 * self.field_size as i32 + self.position.1,
             0
         )
     }
@@ -127,7 +127,7 @@ impl<'a> Chessboard<'a> {
                     }
                 }
                 if self.dragger_piece != None {
-                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].move_component.get_all_allowed_moves(ChessboardState {});
+                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].logic.move_component.get_all_allowed_moves(ChessboardState {});
                     allowed_fields.iter_mut().for_each(|allowed_field| { self.fields[allowed_field.row as usize][allowed_field.col as usize].is_possible_move = true; })
                 }
             }
@@ -141,7 +141,7 @@ impl<'a> Chessboard<'a> {
                     Some(field) => {
                         // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
                         if self.dragger_piece != None {
-                            let field_data = field.data.clone();
+                            let field_data = field.logic.clone();
                             let pos = field.get_position_3d();
                             self.pieces[self.dragger_piece.unwrap()]
                                 .handle_drop(context, field_data.clone(), pos, &ChessboardState {});
@@ -171,7 +171,7 @@ impl<'a> Chessboard<'a> {
         // hella inefficient, we just know don't need to check everywhere
         for row in self.fields.iter() {
             for f in row {
-                if f.data.name == name {
+                if f.logic.name == name {
                     return f;
                 }
             }
@@ -220,5 +220,7 @@ impl<'a> Drawable for Chessboard<'a> {
     }
 }
 
-pub struct ChessboardState {}
+pub struct ChessboardState {
+    
+}
 

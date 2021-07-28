@@ -6,7 +6,7 @@ use crate::opengl_context::OpenglContext;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
-    pub data: FieldData,
+    pub logic: FieldLogic,
     pub x: i32,
     pub y: i32,
     possible_move_overlay: Quadrangle<'a, VertexColored>,
@@ -15,21 +15,6 @@ pub struct Field<'a> {
 
 impl<'a> Field<'a> {
     pub fn new(col: u32, row: u32, x: i32, y: i32, field_size: i32, possible_move_shader: &'a render_gl::Program, opengl_context: &OpenglContext) -> Field<'a> {
-        if col > 7 || row > 7 {
-            panic!(format!("Trying to create field with row {} and col {}", row, col))
-        }
-        let col_name = String::from(match col {
-            0 => "A",
-            1 => "B",
-            2 => "C",
-            3 => "D",
-            4 => "E",
-            5 => "F",
-            6 => "G",
-            7 => "H",
-            _ => panic!(format!("Trying to create field with row {} and col {}", row, col))
-        });
-        let name = format!("{}{}", col_name, (row + 1).to_string());
         let possible_move_overlay = Quadrangle::new(
             create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
@@ -37,13 +22,8 @@ impl<'a> Field<'a> {
             None,
         );
 
-        println!("{}", format!("creating field name {} row {} col {} x {} y {}", name, row, col, x, y));
         Field {
-            data: FieldData {
-                name,
-                col,
-                row,
-            },
+            logic: FieldLogic::from_coords(row, col),
             x,
             y,
             possible_move_overlay,
@@ -66,14 +46,42 @@ impl<'a> Drawable for Field<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct FieldData {
+pub struct FieldLogic {
     pub name: String,
     pub col: u32,
     pub row: u32,
 }
 
-impl FieldData {
-    pub fn from_string(str: &str) -> FieldData {
+impl FieldLogic {
+    pub fn from_coords(row: u32, col: u32) -> FieldLogic {
+        if !FieldLogic::is_legal_field_coord(&(row as i32)) {
+            panic!(format!("Trying to create field with invalid row {}", row))
+        }
+
+        if !FieldLogic::is_legal_field_coord(&(col as i32)) {
+            panic!(format!("Trying to create field with invalid col {}", col))
+        }
+
+        let col_name = String::from(match col {
+            0 => "A",
+            1 => "B",
+            2 => "C",
+            3 => "D",
+            4 => "E",
+            5 => "F",
+            6 => "G",
+            7 => "H",
+            _ => panic!(format!("Trying to create field with row {} and col {}", row, col))
+        });
+        let name = format!("{}{}", col_name, (row + 1).to_string());
+        FieldLogic {
+            name,
+            row,
+            col,
+        }
+    }
+
+    pub fn from_string(str: &str) -> FieldLogic {
         let name = String::from(str);
         if name.len() != 2 {
             panic!(format!("Trying to parse field with invalid name {}", name))
@@ -94,10 +102,28 @@ impl FieldData {
             panic!(format!("Trying to create invalid field {}", name))
         }
 
-        FieldData {
+        FieldLogic {
             name: String::from(str),
             col,
             row,
         }
+    }
+
+    pub fn get_offset_field(&self, col_offset: i32, row_offset: i32) -> Option<FieldLogic> {
+        let new_row = self.row as i32 + row_offset;
+        if FieldLogic::is_legal_field_coord(&new_row) {
+            return None
+        }
+
+        let new_col = self.col as i32 + col_offset;
+        if FieldLogic::is_legal_field_coord(&new_col) {
+            return None
+        }
+
+        Some(FieldLogic::from_coords((new_row as u32), (new_col as u32)))
+    }
+
+    fn is_legal_field_coord(coord: &i32) -> bool {
+        (0_i32..8_i32).contains(&coord)
     }
 }

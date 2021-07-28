@@ -1,5 +1,5 @@
 use crate::chess::chessboard::ChessboardState;
-use crate::chess::field::{Field, FieldData};
+use crate::chess::field::{Field, FieldLogic};
 use crate::opengl_context::OpenglContext;
 
 pub enum PieceType {

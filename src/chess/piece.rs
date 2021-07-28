@@ -2,7 +2,7 @@ use std::borrow::Borrow;
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::chessboard::ChessboardState;
-use crate::chess::field::{Field, FieldData};
+use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
@@ -12,11 +12,11 @@ use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
 
 pub struct Piece<'a> {
-    piece_type: PieceType,
+    pub logic: PieceLogic,
     quad: Quadrangle<'a, VertexTextured>,
-    pub move_component: Box<dyn PieceMoveComponent>,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
+
 
 impl<'a> Drawable for Piece<'a> {
     fn render(&self) {
@@ -37,8 +37,8 @@ impl<'a> Piece<'a> {
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
-    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldData, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
-        if self.move_component.is_move_allowed(chessboard_state, &target_field) {
+    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
+        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field) {
             let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
             self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
         } else {
@@ -89,9 +89,8 @@ impl<'a> PieceFactory<'a> {
 
         let move_component = PawnMoveComponent {};
         return Piece {
-            piece_type,
+            logic: PieceLogic { piece_type, move_component: Box::new(move_component) },
             quad,
-            move_component: Box::new(move_component),
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
         };
     }
@@ -115,25 +114,29 @@ impl<'a> PieceFactory<'a> {
     }
 }
 
+pub struct PieceLogic {
+    pub move_component: Box<dyn PieceMoveComponent>,
+    piece_type: PieceType,
+}
+
 pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldData) -> bool;
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldData>;
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic) -> bool;
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldLogic>;
 }
 
 pub struct PawnMoveComponent {}
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldData) -> bool {
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic) -> bool {
         !target_field.col != 0
     }
 
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldData> {
+    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldLogic> {
         vec!(
-            FieldData::from_string("B2"),
-            FieldData::from_string("C4")
-
-
+            FieldLogic::from_string("B2"),
+            FieldLogic::from_string("C4")
         )
     }
 }
+
 
