@@ -98,16 +98,14 @@ pub struct RockMoveComponent {}
 
 impl PieceMoveComponent for RockMoveComponent {
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
-        return AllowedMoves {
-            moves: get_all_fields().iter()
-                .map(|field| {
-                    AllowedMove {
-                        target: field.clone(),
-                        move_type: if state.is_field_occupied(field) { MoveType::CAPTURE } else { MoveType::MOVE },
-                    }
-                })
-                .collect()
-        };
+        let mut moves = vec!();
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, 0));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 0, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, 0));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 0, -1));
+        AllowedMoves {
+            moves
+        }
     }
 }
 
@@ -119,42 +117,13 @@ pub struct BishopMoveComponent {}
 impl PieceMoveComponent for BishopMoveComponent {
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
         let mut moves = vec!();
-        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, 1, 1));
-        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, 1, -1));
-        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, -1, 1));
-        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, -1, -1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, -1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, -1));
         AllowedMoves {
             moves
         }
-    }
-}
-
-impl BishopMoveComponent {
-    fn get_moves_in_direction(&self, state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedMove> {
-        let mut blocked = false;
-        let mut allowed_moves = vec!();
-        let mut i = 0;
-
-        while !blocked {
-            i = i + 1;
-            let possible_target = piece_to_move.get_occupied_field().get_offset_field(i * row_offset, i * col_offset);
-            match possible_target {
-                None => { blocked = true; }
-                Some(target) => {
-                    let possible_other_piece = state.get_piece_at(&target);
-                    match possible_other_piece {
-                        None => { allowed_moves.push(AllowedMove::new_move(target)) }
-                        Some(other_piece) => {
-                            if other_piece.get_side() != piece_to_move.get_side() {
-                                allowed_moves.push(AllowedMove::new_capture(target))
-                            }
-                            blocked = true;
-                        }
-                    }
-                }
-            }
-        }
-        return allowed_moves;
     }
 }
 
@@ -188,19 +157,44 @@ impl PieceMoveComponent for KnightMoveComponent {
     }
 }
 
+/**
+  Queen move
+ */
+
+pub struct QueenMoveComponent {}
+
+impl PieceMoveComponent for QueenMoveComponent {
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let mut moves = vec!();
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, -1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, -1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 1, 0));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 0, 1));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, -1, 0));
+        moves.append(&mut AllowedMove::get_moves_in_direction(state, piece_to_move, 0, -1));
+        AllowedMoves {
+            moves
+        }
+    }
+}
 
 /**
 other stuff
  */
 pub fn create_move_component(piece_type: &PieceType) -> Box<dyn PieceMoveComponent> {
     match piece_type {
+        PieceType::PAWN => Box::new(PawnMoveComponent{}),
         PieceType::ROOK => Box::new(RockMoveComponent {}),
         PieceType::BISHOP => Box::new(BishopMoveComponent {}),
         PieceType::KNIGHT => Box::new(KnightMoveComponent {}),
+        PieceType::QUEEN => Box::new(QueenMoveComponent{}),
         _ => Box::new(PawnMoveComponent {})
     }
 }
 
+// for testing
 fn get_all_fields() -> Vec<FieldLogic> {
     let mut vec = vec!();
     for i in 1..=8 {
@@ -260,6 +254,33 @@ impl AllowedMove {
                 Some(AllowedMove::new_capture(field_ahead))
             }
         }
+    }
+
+    fn get_moves_in_direction(state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedMove> {
+        let mut blocked = false;
+        let mut allowed_moves = vec!();
+        let mut i = 0;
+
+        while !blocked {
+            i = i + 1;
+            let possible_target = piece_to_move.get_occupied_field().get_offset_field(i * row_offset, i * col_offset);
+            match possible_target {
+                None => { blocked = true; }
+                Some(target) => {
+                    let possible_other_piece = state.get_piece_at(&target);
+                    match possible_other_piece {
+                        None => { allowed_moves.push(AllowedMove::new_move(target)) }
+                        Some(other_piece) => {
+                            if other_piece.get_side() != piece_to_move.get_side() {
+                                allowed_moves.push(AllowedMove::new_capture(target))
+                            }
+                            blocked = true;
+                        }
+                    }
+                }
+            }
+        }
+        return allowed_moves;
     }
 
     pub fn get_target(&self) -> &FieldLogic {
