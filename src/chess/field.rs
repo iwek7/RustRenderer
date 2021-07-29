@@ -12,8 +12,10 @@ pub struct Field<'a> {
     pub y: i32,
     possible_move_overlay: Quadrangle<'a, VertexColored>,
     possible_capture_overlay: Quadrangle<'a, VertexColored>,
+    current_field_overlay: Quadrangle<'a, VertexColored>,
     is_possible_move: bool,
     is_possible_capture: bool,
+    pub is_current_field: bool
 }
 
 impl<'a> Field<'a> {
@@ -32,14 +34,23 @@ impl<'a> Field<'a> {
             None,
         );
 
+        let current_field_overlay = Quadrangle::new(
+            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
+            [0, 1, 3, 1, 2, 3],
+            &possible_move_shader,
+            None,
+        );
+
         Field {
             logic: FieldLogic::from_coords(row, col),
             x,
             y,
             possible_move_overlay,
             possible_capture_overlay,
+            current_field_overlay,
             is_possible_move: false,
             is_possible_capture: false,
+            is_current_field: false
         }
     }
 
@@ -57,9 +68,9 @@ impl<'a> Field<'a> {
     pub fn clear_possible_moves_overlay(&mut self) {
         self.is_possible_capture = false;
         self.is_possible_move = false;
+        self.is_current_field = false;
     }
 }
-
 
 impl<'a> Drawable for Field<'a> {
     fn render(&self) {
@@ -67,6 +78,8 @@ impl<'a> Drawable for Field<'a> {
             self.possible_move_overlay.render()
         } else if self.is_possible_capture {
             self.possible_capture_overlay.render()
+        } else if self.is_current_field {
+            self.current_field_overlay.render()
         }
     }
 }

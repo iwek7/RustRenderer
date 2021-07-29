@@ -131,13 +131,18 @@ impl<'a> Chessboard<'a> {
                     }
                 }
                 if self.dragger_piece != None {
-                    let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
+                    {
+                        let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
 
-                    allowed_moves.get_moves().iter().for_each(|allowed_move| {
-                        self.fields[allowed_move.get_target().row as usize][allowed_move.get_target().col as usize].update_with_allowed_move(allowed_move.get_move_type());
-                    });
+                        allowed_moves.get_moves().iter().for_each(|allowed_move| {
+                            self.get_field_by_logic(allowed_move.get_target()).update_with_allowed_move(allowed_move.get_move_type());
+                        });
+                    }
+                    let occupied_field_logic = &self.pieces[self.dragger_piece.unwrap()].logic.get_occupied_field().clone();
+                    self.get_field_by_logic(occupied_field_logic).is_current_field = true;
                 }
             }
+
             sdl2::event::Event::MouseButtonUp { .. } => {
                 match self.get_field_by_point(mouse_coords_px) {
                     None => {
@@ -178,6 +183,10 @@ impl<'a> Chessboard<'a> {
             _ => {}
         }
         self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
+
+    fn get_field_by_logic(&mut self, field_logic: &FieldLogic) -> &mut Field<'a> {
+        &mut self.fields[field_logic.row as usize][field_logic.col as usize]
     }
 
 
@@ -231,6 +240,7 @@ impl<'a> Chessboard<'a> {
             .collect();
         return ChessboardState::new(piece_logics);
     }
+
 }
 
 impl<'a> Drawable for Chessboard<'a> {
