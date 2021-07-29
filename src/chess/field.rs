@@ -45,7 +45,7 @@ impl<'a> Drawable for Field<'a> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct FieldLogic {
     pub name: String,
     pub col: u32,
@@ -111,12 +111,12 @@ impl FieldLogic {
 
     pub fn get_offset_field(&self, col_offset: i32, row_offset: i32) -> Option<FieldLogic> {
         let new_row = self.row as i32 + row_offset;
-        if FieldLogic::is_legal_field_coord(&new_row) {
+        if !FieldLogic::is_legal_field_coord(&new_row) {
             return None
         }
 
         let new_col = self.col as i32 + col_offset;
-        if FieldLogic::is_legal_field_coord(&new_col) {
+        if !FieldLogic::is_legal_field_coord(&new_col) {
             return None
         }
 

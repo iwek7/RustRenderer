@@ -69,74 +69,6 @@ impl<'a> Chessboard<'a> {
         };
     }
 
-    fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
-        (
-            field.logic.col as i32 * self.field_size as i32 + self.position.0,
-            field.logic.row as i32 * self.field_size as i32 + self.position.1,
-            0
-        )
-    }
-
-    // todo holy shit we operate in both coordinate systems at the same time...
-    // todo even context is needed here to translate them...
-    // todo horror
-
-    // mouse_coords_px is sdl coords (y down)
-    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
-        match event {
-            sdl2::event::Event::MouseButtonDown { .. } => {
-                for (i, obj) in self.pieces.iter_mut().enumerate() {
-                    if obj.is_mouse_over(mouse_coords_opengl) {
-                        self.dragger_piece = Some(i);
-                        obj.handle_start_drag();
-                    }
-                }
-                if self.dragger_piece != None {
-                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&ChessboardState { occupied_fields: HashMap::new() });
-                    allowed_fields.iter_mut().for_each(|allowed_field| { self.fields[allowed_field.row as usize][allowed_field.col as usize].is_possible_move = true; })
-                }
-            }
-            sdl2::event::Event::MouseButtonUp { .. } => {
-                match self.get_field_by_point(mouse_coords_px) {
-                    None => {
-                        if self.dragger_piece != None {
-                            self.pieces[self.dragger_piece.unwrap()].return_to_initial_pos();
-                        }
-                    }
-                    Some(field) => {
-                        // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
-                        if self.dragger_piece != None {
-                            let field_data = field.logic.clone();
-                            let pos = field.get_position_3d();
-                            self.pieces[self.dragger_piece.unwrap()]
-                                .handle_drop(
-                                    context,
-                                    field_data.clone(),
-                                    pos,
-                                    &ChessboardState { occupied_fields: HashMap::new() }
-                                );
-                        }
-                    }
-                }
-                self.clear_allowed_fields();
-                self.dragger_piece = None;
-            }
-            sdl2::event::Event::MouseMotion { .. } => {
-                let drag_offset = &(
-                    (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
-                    (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
-                );
-
-                if self.dragger_piece != None {
-                    self.pieces[self.dragger_piece.unwrap()].handle_drag_pointer_move(drag_offset);
-                }
-            }
-
-            _ => {}
-        }
-        self.prev_mouse_pos = mouse_coords_opengl.clone()
-    }
-
     pub fn init_pieces(&mut self, pieces_sheet: &'a Texture) {
         let piece_size = (self.field_size as i32, self.field_size as i32);
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_by_name("A1"), piece_size));
@@ -175,6 +107,76 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("G7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("H7"), piece_size));
     }
+
+    fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
+        (
+            field.logic.col as i32 * self.field_size as i32 + self.position.0,
+            field.logic.row as i32 * self.field_size as i32 + self.position.1,
+            0
+        )
+    }
+
+    // todo holy shit we operate in both coordinate systems at the same time...
+    // todo even context is needed here to translate them...
+    // todo horror
+
+    // mouse_coords_px is sdl coords (y down)
+    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+        match event {
+            sdl2::event::Event::MouseButtonDown { .. } => {
+                for (i, obj) in self.pieces.iter_mut().enumerate() {
+                    if obj.is_mouse_over(mouse_coords_opengl) {
+                        self.dragger_piece = Some(i);
+                        obj.handle_start_drag();
+                    }
+                }
+                if self.dragger_piece != None {
+                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
+                    allowed_fields.iter_mut().for_each(|allowed_field| { self.fields[allowed_field.row as usize][allowed_field.col as usize].is_possible_move = true; })
+                }
+            }
+            sdl2::event::Event::MouseButtonUp { .. } => {
+                match self.get_field_by_point(mouse_coords_px) {
+                    None => {
+                        if self.dragger_piece != None {
+                            self.pieces[self.dragger_piece.unwrap()].return_to_initial_pos();
+                        }
+                    }
+                    Some(field) => {
+                        // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
+                        if self.dragger_piece != None {
+                            let field_data = field.logic.clone();
+                            let pos = field.get_position_3d();
+                            let chessboard = &self.create_chessboard_state();
+                            self.pieces[self.dragger_piece.unwrap()]
+                                .handle_drop(
+                                    context,
+                                    field_data.clone(),
+                                    pos,
+                                    chessboard,
+                                );
+                        }
+                    }
+                }
+                self.clear_allowed_fields();
+                self.dragger_piece = None;
+            }
+            sdl2::event::Event::MouseMotion { .. } => {
+                let drag_offset = &(
+                    (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
+                    (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
+                );
+
+                if self.dragger_piece != None {
+                    self.pieces[self.dragger_piece.unwrap()].handle_drag_pointer_move(drag_offset);
+                }
+            }
+
+            _ => {}
+        }
+        self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
+
 
     fn get_field_by_name(&self, name: &str) -> &Field {
         // hella inefficient, we just know don't need to check everywhere
@@ -219,6 +221,13 @@ impl<'a> Chessboard<'a> {
     fn clear_allowed_fields(&mut self) {
         self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.is_possible_move = false))
     }
+
+    fn create_chessboard_state(&self) -> ChessboardState {
+        let piece_logics = self.pieces.iter()
+            .map(|piece| piece.logic.make_duplicate())
+            .collect();
+        return ChessboardState::new(piece_logics);
+    }
 }
 
 impl<'a> Drawable for Chessboard<'a> {
@@ -231,5 +240,25 @@ impl<'a> Drawable for Chessboard<'a> {
 
 pub struct ChessboardState {
     occupied_fields: HashMap<FieldLogic, PieceLogic>,
+}
+
+impl ChessboardState {
+    pub fn new(pieces: Vec<PieceLogic>) -> ChessboardState {
+        let mut occupied_fields: HashMap<FieldLogic, PieceLogic> = HashMap::new();
+        for piece in pieces {
+            occupied_fields.insert(piece.get_occupied_field().clone(), piece.make_duplicate());
+        }
+        return ChessboardState {
+            occupied_fields
+        };
+    }
+
+    pub fn is_field_occupied(&self, field_data: &FieldLogic) -> bool {
+        self.occupied_fields.get(field_data).is_some()
+    }
+
+    pub fn is_field_empty(&self, field_data: &FieldLogic) -> bool {
+        !self.is_field_occupied(field_data)
+    }
 }
 

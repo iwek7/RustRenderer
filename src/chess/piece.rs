@@ -42,7 +42,7 @@ impl<'a> Piece<'a> {
 
     pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
-        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic.occupied_field) {
+        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
             let opengl_pos = context.engine_to_opengl_space(&pos);
             self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
             self.logic = self.logic.move_to(&target_field);
@@ -96,7 +96,9 @@ impl<'a> PieceFactory<'a> {
             logic: PieceLogic {
                 piece_type,
                 move_component,
+                side,
                 occupied_field: field.logic.clone(),
+                moved: false
             },
             quad,
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
@@ -123,14 +125,16 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub struct PieceLogic {
-    pub move_component: Box<dyn PieceMoveComponent>,
+    move_component: Box<dyn PieceMoveComponent>,
     piece_type: PieceType,
+    side: Side,
     occupied_field: FieldLogic,
+    moved: bool,
 }
 
 impl PieceLogic {
     pub fn get_all_allowed_moves(&self, state: &ChessboardState) -> Vec<FieldLogic> {
-        self.move_component.get_all_allowed_moves(state, &self.occupied_field)
+        self.move_component.get_all_allowed_moves(state, &self)
     }
 
     pub fn move_to(&self, target_field: &FieldLogic) -> PieceLogic {
@@ -139,7 +143,35 @@ impl PieceLogic {
             move_component: create_move_component(&self.piece_type),
             piece_type: self.piece_type.clone(),
             occupied_field: target_field.clone(),
+            moved: true,
+            side: self.side.clone()
         }
+    }
+
+    pub fn make_duplicate(&self) -> PieceLogic {
+        PieceLogic {
+            move_component: create_move_component(&self.piece_type),
+            piece_type: self.piece_type.clone(),
+            occupied_field: self.occupied_field.clone(),
+            moved: self.moved,
+            side: self.side.clone()
+        }
+    }
+
+    pub fn get_move_component(&self) -> &Box<dyn PieceMoveComponent> {
+        &self.move_component
+    }
+
+    pub fn get_occupied_field(&self) -> &FieldLogic {
+        &self.occupied_field
+    }
+
+    pub fn has_moved(&self) -> bool {
+        self.moved.clone()
+    }
+
+    pub fn get_side(&self) -> &Side {
+        &self.side
     }
 }
 

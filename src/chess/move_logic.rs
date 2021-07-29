@@ -1,31 +1,67 @@
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::FieldLogic;
 use crate::chess::infrastructure::PieceType;
+use crate::chess::piece::PieceLogic;
 
 pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, occupied_field: &FieldLogic) -> bool {
-        println!("Target field is {:?}", target_field);
-        self.get_all_allowed_moves(state, occupied_field).contains(target_field)
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> bool {
+        println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
+        self.get_all_allowed_moves(state, piece_to_move).contains(target_field)
     }
-    fn get_all_allowed_moves(&self, state: &ChessboardState, occupied_field: &FieldLogic) -> Vec<FieldLogic>;
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic>;
 }
 
 pub struct PawnMoveComponent {}
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn get_all_allowed_moves(&self, state: &ChessboardState, occupied_field: &FieldLogic) -> Vec<FieldLogic> {
-        vec!(
-            FieldLogic::from_string("B1"),
-            FieldLogic::from_string("B2"),
-            FieldLogic::from_string("B3"),
-        )
+    fn get_all_allowed_moves(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
+        let mut allowed_moves = vec!();
+        match self.get_move_ahead(chessboard, piece_to_move) {
+            Some(move_ahead) => allowed_moves.push(move_ahead),
+            _ => {}
+        }
+
+        match self.get_first_move(chessboard, piece_to_move) {
+            Some(move_ahead) => allowed_moves.push(move_ahead),
+            _ => {}
+        }
+
+        return allowed_moves;
+    }
+
+}
+
+impl PawnMoveComponent {
+    fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+        match piece_to_move.get_occupied_field().get_offset_field(0,piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
+            None => None,
+            Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
+                Some(field_ahead)
+            } else {
+                None
+            }
+        }
+    }
+
+    fn get_first_move(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+        if piece_to_move.has_moved() {
+            return None;
+        }
+        match piece_to_move.get_occupied_field().get_offset_field(0,piece_to_move.get_side().adjust_pawn_move_offset(&2)) {
+            None => None,
+            Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
+                Some(field_ahead)
+            } else {
+                None
+            }
+        }
     }
 }
 
 pub struct RockMoveComponent {}
 
 impl PieceMoveComponent for RockMoveComponent {
-    fn get_all_allowed_moves(&self, state: &ChessboardState, occupied_field: &FieldLogic) -> Vec<FieldLogic> {
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
         return get_all_fields();
     }
 }
