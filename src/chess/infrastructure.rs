@@ -8,7 +8,7 @@ pub enum PieceType {
     KING,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum Side {
     BLACK,
     WHITE,
@@ -23,3 +23,16 @@ impl Side {
     }
 }
 
+
+pub trait VectorExtension<T> {
+    fn push_if_exists(&mut self, opt: Option<T>);
+}
+
+impl<T> VectorExtension<T> for Vec<T> {
+    fn push_if_exists(&mut self, opt: Option<T>) {
+        match opt {
+            None => {}
+            Some(val) => { self.push(val) }
+        }
+    }
+}

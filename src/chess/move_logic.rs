@@ -1,6 +1,6 @@
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::FieldLogic;
-use crate::chess::infrastructure::PieceType;
+use crate::chess::infrastructure::{PieceType, VectorExtension};
 use crate::chess::piece::PieceLogic;
 
 pub trait PieceMoveComponent {
@@ -16,21 +16,19 @@ pub struct PawnMoveComponent {}
 impl PieceMoveComponent for PawnMoveComponent {
     fn get_all_allowed_moves(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
         let mut allowed_moves = vec!();
-        match self.get_move_ahead(chessboard, piece_to_move) {
-            Some(move_ahead) => allowed_moves.push(move_ahead),
-            _ => {}
-        }
 
-        match self.get_first_move(chessboard, piece_to_move) {
-            Some(move_ahead) => allowed_moves.push(move_ahead),
-            _ => {}
-        }
+        allowed_moves.push_if_exists(self.get_move_ahead(chessboard, piece_to_move));
+        allowed_moves.push_if_exists(self.get_first_move(chessboard, piece_to_move));
+        allowed_moves.push_if_exists(self.get_left_capture(chessboard, piece_to_move));
+        allowed_moves.push_if_exists(self.get_right_capture(chessboard, piece_to_move));
+
+
 
         return allowed_moves;
     }
-
 }
 
+// todo: enpassant
 impl PawnMoveComponent {
     fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
         match piece_to_move.get_occupied_field().get_offset_field(0,piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
@@ -53,6 +51,29 @@ impl PawnMoveComponent {
                 Some(field_ahead)
             } else {
                 None
+            }
+        }
+    }
+
+
+
+    fn get_left_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+        self.get_capture(chessboard, piece_to_move, -1)
+    }
+
+    fn get_right_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+        self.get_capture(chessboard, piece_to_move, 1)
+    }
+
+    fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<FieldLogic> {
+        match piece_to_move.get_occupied_field().get_offset_field(col_offset, piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
+            None => None,
+            Some(attacked_field) => {
+                let attacked_piece = chessboard.get_piece_at(&attacked_field);
+                if attacked_piece.is_some() && attacked_piece.unwrap().get_side() != piece_to_move.get_side() {
+                    return Some(attacked_field)
+                }
+                return None
             }
         }
     }
@@ -87,3 +108,4 @@ fn get_all_fields() -> Vec<FieldLogic> {
     }
     return vec;
 }
+

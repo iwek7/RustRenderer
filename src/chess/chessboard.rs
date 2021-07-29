@@ -260,5 +260,9 @@ impl ChessboardState {
     pub fn is_field_empty(&self, field_data: &FieldLogic) -> bool {
         !self.is_field_occupied(field_data)
     }
+
+    pub fn get_piece_at(&self, field_data: &FieldLogic) -> Option<&PieceLogic> {
+        self.occupied_fields.get(field_data)
+    }
 }
 
