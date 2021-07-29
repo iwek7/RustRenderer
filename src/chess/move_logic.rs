@@ -34,14 +34,17 @@ pawn move
 // todo: enpassant
 impl PawnMoveComponent {
     fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
-        match piece_to_move.get_occupied_field().get_offset_field(0, piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
-            None => None,
-            Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
-                Some(AllowedMove::new_move(field_ahead))
-            } else {
-                None
+        let allowed_move = AllowedMove::to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), 0);
+        return match allowed_move {
+            None => { None }
+            Some(real_move) => {
+                if real_move.move_type == MoveType::MOVE {
+                    Some(real_move)
+                } else {
+                    None
+                }
             }
-        }
+        };
     }
 
     fn get_first_move(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
@@ -156,12 +159,44 @@ impl BishopMoveComponent {
 }
 
 /**
+   Knight move
+ */
+pub struct KnightMoveComponent {}
+
+impl PieceMoveComponent for KnightMoveComponent {
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let mut moves = vec!();
+        // todo: write macro that takes all args and adds only not empty optionals
+
+        // move up
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 2, 1));
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 2, -1));
+
+        // move right
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, 2));
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, 2));
+
+        // move down
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -2, 1));
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -2, -1));
+
+        // move left
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, -2));
+        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, -2));
+
+        return AllowedMoves { moves };
+    }
+}
+
+
+/**
 other stuff
  */
 pub fn create_move_component(piece_type: &PieceType) -> Box<dyn PieceMoveComponent> {
     match piece_type {
         PieceType::ROOK => Box::new(RockMoveComponent {}),
         PieceType::BISHOP => Box::new(BishopMoveComponent {}),
+        PieceType::KNIGHT => Box::new(KnightMoveComponent {}),
         _ => Box::new(PawnMoveComponent {})
     }
 }
@@ -201,6 +236,7 @@ pub struct AllowedMove {
     move_type: MoveType,
 }
 
+#[derive(Eq, PartialEq)]
 pub enum MoveType {
     MOVE,
     CAPTURE,
@@ -213,6 +249,17 @@ impl AllowedMove {
 
     fn new_move(target: FieldLogic) -> AllowedMove {
         AllowedMove { target, move_type: MoveType::MOVE }
+    }
+
+    fn to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
+        match piece_to_move.get_occupied_field().get_offset_field(col_offset, row_offset) {
+            None => None,
+            Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
+                Some(AllowedMove::new_move(field_ahead))
+            } else {
+                Some(AllowedMove::new_capture(field_ahead))
+            }
+        }
     }
 
     pub fn get_target(&self) -> &FieldLogic {
