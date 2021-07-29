@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
-use crate::chess::move_logic::MoveType;
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;

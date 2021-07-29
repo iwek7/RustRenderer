@@ -3,6 +3,9 @@ use crate::chess::field::FieldLogic;
 use crate::chess::infrastructure::{PieceType, VectorExtension};
 use crate::chess::piece::PieceLogic;
 
+/**
+piece move trait
+ */
 pub trait PieceMoveComponent {
     fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> bool {
         println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
@@ -25,6 +28,9 @@ impl PieceMoveComponent for PawnMoveComponent {
     }
 }
 
+/**
+pawn move
+ */
 // todo: enpassant
 impl PawnMoveComponent {
     fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
@@ -42,6 +48,14 @@ impl PawnMoveComponent {
         if piece_to_move.has_moved() {
             return None;
         }
+
+        // slightly inefficient as we look twice for first move (here and in calling func)
+        // on the other hand imo this makes code of parent func clearer
+        match self.get_move_ahead(chessboard, piece_to_move) {
+            None => { return None; }
+            Some(_) => {}
+        }
+
         match piece_to_move.get_occupied_field().get_offset_field(0, piece_to_move.get_side().adjust_pawn_move_offset(&2)) {
             None => None,
             Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
@@ -74,6 +88,9 @@ impl PawnMoveComponent {
     }
 }
 
+/**
+rook move
+ */
 pub struct RockMoveComponent {}
 
 impl PieceMoveComponent for RockMoveComponent {
@@ -91,9 +108,60 @@ impl PieceMoveComponent for RockMoveComponent {
     }
 }
 
+/**
+bishop move
+ */
+pub struct BishopMoveComponent {}
+
+impl PieceMoveComponent for BishopMoveComponent {
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let mut moves = vec!();
+        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, 1, 1));
+        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, 1, -1));
+        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, -1, 1));
+        moves.append(&mut self.get_moves_in_direction(state, piece_to_move, -1, -1));
+        AllowedMoves {
+            moves
+        }
+    }
+}
+
+impl BishopMoveComponent {
+    fn get_moves_in_direction(&self, state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedMove> {
+        let mut blocked = false;
+        let mut allowed_moves = vec!();
+        let mut i = 0;
+
+        while !blocked {
+            i = i + 1;
+            let possible_target = piece_to_move.get_occupied_field().get_offset_field(i * row_offset, i * col_offset);
+            match possible_target {
+                None => { blocked = true; }
+                Some(target) => {
+                    let possible_other_piece = state.get_piece_at(&target);
+                    match possible_other_piece {
+                        None => { allowed_moves.push(AllowedMove::new_move(target)) }
+                        Some(other_piece) => {
+                            if other_piece.get_side() != piece_to_move.get_side() {
+                                allowed_moves.push(AllowedMove::new_capture(target))
+                            }
+                            blocked = true;
+                        }
+                    }
+                }
+            }
+        }
+        return allowed_moves;
+    }
+}
+
+/**
+other stuff
+ */
 pub fn create_move_component(piece_type: &PieceType) -> Box<dyn PieceMoveComponent> {
     match piece_type {
         PieceType::ROOK => Box::new(RockMoveComponent {}),
+        PieceType::BISHOP => Box::new(BishopMoveComponent {}),
         _ => Box::new(PawnMoveComponent {})
     }
 }
@@ -124,9 +192,6 @@ impl AllowedMoves {
     }
 
     fn is_move_allowed(&self, target: &FieldLogic) -> bool {
-        // for allowed_move in self.moves {
-        //
-        // }
         self.moves.iter().map(|allowed_move| allowed_move.target.clone()).any(|allowed_target| &allowed_target == target)
     }
 }
