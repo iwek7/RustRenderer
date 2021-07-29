@@ -1,4 +1,5 @@
 use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
+use crate::chess::move_logic::MoveType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexColored;
@@ -10,13 +11,22 @@ pub struct Field<'a> {
     pub x: i32,
     pub y: i32,
     possible_move_overlay: Quadrangle<'a, VertexColored>,
-    pub is_possible_move: bool,
+    possible_capture_overlay: Quadrangle<'a, VertexColored>,
+    is_possible_move: bool,
+    is_possible_capture: bool,
 }
 
 impl<'a> Field<'a> {
     pub fn new(col: u32, row: u32, x: i32, y: i32, field_size: i32, possible_move_shader: &'a render_gl::Program, opengl_context: &OpenglContext) -> Field<'a> {
         let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
+            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 0.5)),
+            [0, 1, 3, 1, 2, 3],
+            &possible_move_shader,
+            None,
+        );
+
+        let possible_capture_overlay = Quadrangle::new(
+            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
@@ -27,12 +37,26 @@ impl<'a> Field<'a> {
             x,
             y,
             possible_move_overlay,
+            possible_capture_overlay,
             is_possible_move: false,
+            is_possible_capture: false,
         }
     }
 
     pub fn get_position_3d(&self) -> (i32, i32, i32) {
         (self.x, self.y, 0)
+    }
+
+    pub fn update_with_allowed_move(&mut self, move_type: &MoveType) {
+        match move_type {
+            MoveType::MOVE => { self.is_possible_move = true }
+            MoveType::CAPTURE => { self.is_possible_capture = true }
+        }
+    }
+
+    pub fn clear_possible_moves_overlay(&mut self) {
+        self.is_possible_capture = false;
+        self.is_possible_move = false;
     }
 }
 
@@ -41,6 +65,8 @@ impl<'a> Drawable for Field<'a> {
     fn render(&self) {
         if self.is_possible_move {
             self.possible_move_overlay.render()
+        } else if self.is_possible_capture {
+            self.possible_capture_overlay.render()
         }
     }
 }
@@ -112,12 +138,12 @@ impl FieldLogic {
     pub fn get_offset_field(&self, col_offset: i32, row_offset: i32) -> Option<FieldLogic> {
         let new_row = self.row as i32 + row_offset;
         if !FieldLogic::is_legal_field_coord(&new_row) {
-            return None
+            return None;
         }
 
         let new_col = self.col as i32 + col_offset;
         if !FieldLogic::is_legal_field_coord(&new_col) {
-            return None
+            return None;
         }
 
         Some(FieldLogic::from_coords(new_row as u32, new_col as u32))
@@ -126,5 +152,4 @@ impl FieldLogic {
     fn is_legal_field_coord(coord: &i32) -> bool {
         (0_i32..8_i32).contains(&coord)
     }
-
 }

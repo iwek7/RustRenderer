@@ -10,7 +10,7 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::move_logic::PieceMoveComponent;
+use crate::chess::move_logic::{PieceMoveComponent, AllowedMoves};
 use crate::chess::move_logic::create_move_component;
 
 pub struct Piece<'a> {
@@ -133,7 +133,7 @@ pub struct PieceLogic {
 }
 
 impl PieceLogic {
-    pub fn get_all_allowed_moves(&self, state: &ChessboardState) -> Vec<FieldLogic> {
+    pub fn get_all_allowed_moves(&self, state: &ChessboardState) -> AllowedMoves {
         self.move_component.get_all_allowed_moves(state, &self)
     }
 

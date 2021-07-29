@@ -6,74 +6,69 @@ use crate::chess::piece::PieceLogic;
 pub trait PieceMoveComponent {
     fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> bool {
         println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
-        self.get_all_allowed_moves(state, piece_to_move).contains(target_field)
+        self.get_all_allowed_moves(state, piece_to_move).is_move_allowed(target_field)
     }
-    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic>;
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves;
 }
 
 pub struct PawnMoveComponent {}
 
 impl PieceMoveComponent for PawnMoveComponent {
-    fn get_all_allowed_moves(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
+    fn get_all_allowed_moves(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
         let mut allowed_moves = vec!();
-
         allowed_moves.push_if_exists(self.get_move_ahead(chessboard, piece_to_move));
         allowed_moves.push_if_exists(self.get_first_move(chessboard, piece_to_move));
         allowed_moves.push_if_exists(self.get_left_capture(chessboard, piece_to_move));
         allowed_moves.push_if_exists(self.get_right_capture(chessboard, piece_to_move));
 
-
-
-        return allowed_moves;
+        return AllowedMoves { moves: allowed_moves };
     }
 }
 
 // todo: enpassant
 impl PawnMoveComponent {
-    fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
-        match piece_to_move.get_occupied_field().get_offset_field(0,piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
+    fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
+        match piece_to_move.get_occupied_field().get_offset_field(0, piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
             None => None,
             Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
-                Some(field_ahead)
+                Some(AllowedMove::new_move(field_ahead))
             } else {
                 None
             }
         }
     }
 
-    fn get_first_move(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+    fn get_first_move(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
         if piece_to_move.has_moved() {
             return None;
         }
-        match piece_to_move.get_occupied_field().get_offset_field(0,piece_to_move.get_side().adjust_pawn_move_offset(&2)) {
+        match piece_to_move.get_occupied_field().get_offset_field(0, piece_to_move.get_side().adjust_pawn_move_offset(&2)) {
             None => None,
             Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
-                Some(field_ahead)
+                Some(AllowedMove::new_move(field_ahead))
             } else {
                 None
             }
         }
     }
 
-
-
-    fn get_left_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+    fn get_left_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
         self.get_capture(chessboard, piece_to_move, -1)
     }
 
-    fn get_right_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<FieldLogic> {
+    fn get_right_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
         self.get_capture(chessboard, piece_to_move, 1)
     }
 
-    fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<FieldLogic> {
+    fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<AllowedMove> {
         match piece_to_move.get_occupied_field().get_offset_field(col_offset, piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
             None => None,
             Some(attacked_field) => {
                 let attacked_piece = chessboard.get_piece_at(&attacked_field);
                 if attacked_piece.is_some() && attacked_piece.unwrap().get_side() != piece_to_move.get_side() {
-                    return Some(attacked_field)
+                    return Some(AllowedMove::new_capture(attacked_field));
                 }
-                return None
+                return None;
             }
         }
     }
@@ -82,8 +77,17 @@ impl PawnMoveComponent {
 pub struct RockMoveComponent {}
 
 impl PieceMoveComponent for RockMoveComponent {
-    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
-        return get_all_fields();
+    fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        return AllowedMoves {
+            moves: get_all_fields().iter()
+                .map(|field| {
+                    AllowedMove {
+                        target: field.clone(),
+                        move_type: if state.is_field_occupied(field) { MoveType::CAPTURE } else { MoveType::MOVE },
+                    }
+                })
+                .collect()
+        };
     }
 }
 
@@ -107,5 +111,51 @@ fn get_all_fields() -> Vec<FieldLogic> {
         vec.push(FieldLogic::from_string(format!("H{}", i).as_str()));
     }
     return vec;
+}
+
+
+pub struct AllowedMoves {
+    moves: Vec<AllowedMove>,
+}
+
+impl AllowedMoves {
+    pub fn get_moves(&self) -> &Vec<AllowedMove> {
+        &self.moves
+    }
+
+    fn is_move_allowed(&self, target: &FieldLogic) -> bool {
+        // for allowed_move in self.moves {
+        //
+        // }
+        self.moves.iter().map(|allowed_move| allowed_move.target.clone()).any(|allowed_target| &allowed_target == target)
+    }
+}
+
+pub struct AllowedMove {
+    target: FieldLogic,
+    move_type: MoveType,
+}
+
+pub enum MoveType {
+    MOVE,
+    CAPTURE,
+}
+
+impl AllowedMove {
+    fn new_capture(target: FieldLogic) -> AllowedMove {
+        AllowedMove { target, move_type: MoveType::CAPTURE }
+    }
+
+    fn new_move(target: FieldLogic) -> AllowedMove {
+        AllowedMove { target, move_type: MoveType::MOVE }
+    }
+
+    pub fn get_target(&self) -> &FieldLogic {
+        &self.target
+    }
+
+    pub fn get_move_type(&self) -> &MoveType {
+        &self.move_type
+    }
 }
 

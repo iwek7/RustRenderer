@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
+use crate::chess::move_logic::MoveType;
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
@@ -131,8 +132,11 @@ impl<'a> Chessboard<'a> {
                     }
                 }
                 if self.dragger_piece != None {
-                    let allowed_fields = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
-                    allowed_fields.iter_mut().for_each(|allowed_field| { self.fields[allowed_field.row as usize][allowed_field.col as usize].is_possible_move = true; })
+                    let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
+
+                    allowed_moves.get_moves().iter().for_each(|allowed_move| {
+                        self.fields[allowed_move.get_target().row as usize][allowed_move.get_target().col as usize].update_with_allowed_move(allowed_move.get_move_type());
+                    });
                 }
             }
             sdl2::event::Event::MouseButtonUp { .. } => {
@@ -219,7 +223,7 @@ impl<'a> Chessboard<'a> {
     }
 
     fn clear_allowed_fields(&mut self) {
-        self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.is_possible_move = false))
+        self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.clear_possible_moves_overlay()))
     }
 
     fn create_chessboard_state(&self) -> ChessboardState {
