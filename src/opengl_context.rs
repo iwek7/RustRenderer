@@ -62,7 +62,7 @@ impl OpenglContext {
         return (
             2.0 * pos.0 as f32 / win_size.0 as f32 - 1.0,
             2.0 * pos.1 as f32 / win_size.1 as f32 - 1.0,
-            pos.2 as f32 // todo fix this when creating camera
+            0.0 // todo fix this when creating camera
         );
     }
 }

@@ -13,7 +13,7 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
 }
 
 
-const REFERENCE_INDEX: usize = 3;
+const REFERENCE_INDEX: usize = 2;
 
 impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     pub fn new(vertices: [T; 4],

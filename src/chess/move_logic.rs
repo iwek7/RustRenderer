@@ -14,6 +14,7 @@ pub struct PawnMoveComponent {}
 impl PieceMoveComponent for PawnMoveComponent {
     fn get_all_allowed_moves(&self, state: &ChessboardState, occupied_field: &FieldLogic) -> Vec<FieldLogic> {
         vec!(
+            FieldLogic::from_string("B1"),
             FieldLogic::from_string("B2"),
             FieldLogic::from_string("B3"),
         )

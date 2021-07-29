@@ -41,8 +41,9 @@ impl<'a> Piece<'a> {
     }
 
     pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
+        println!("Dropping piece at field {:?} position {:?}", target_field, pos);
         if self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic.occupied_field) {
-            let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
+            let opengl_pos = context.engine_to_opengl_space(&pos);
             self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
             self.logic = self.logic.move_to(&target_field);
         } else {
