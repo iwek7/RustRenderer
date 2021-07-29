@@ -1,7 +1,4 @@
-use crate::chess::chessboard::ChessboardState;
-use crate::chess::field::{Field, FieldLogic};
-use crate::opengl_context::OpenglContext;
-
+#[derive(Clone)]
 pub enum PieceType {
     PAWN,
     KNIGHT,

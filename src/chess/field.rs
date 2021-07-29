@@ -1,4 +1,4 @@
-use crate::{create_rect_coords_in_opengl_space, create_rect_coords_in_opengl_space_colored, render_gl};
+use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexColored;
@@ -45,7 +45,7 @@ impl<'a> Drawable for Field<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct FieldLogic {
     pub name: String,
     pub col: u32,
@@ -55,11 +55,11 @@ pub struct FieldLogic {
 impl FieldLogic {
     pub fn from_coords(row: u32, col: u32) -> FieldLogic {
         if !FieldLogic::is_legal_field_coord(&(row as i32)) {
-            panic!(format!("Trying to create field with invalid row {}", row))
+            panic!("Trying to create field with invalid row {}", row)
         }
 
         if !FieldLogic::is_legal_field_coord(&(col as i32)) {
-            panic!(format!("Trying to create field with invalid col {}", col))
+            panic!("Trying to create field with invalid col {}", col)
         }
 
         let col_name = String::from(match col {
@@ -71,7 +71,7 @@ impl FieldLogic {
             5 => "F",
             6 => "G",
             7 => "H",
-            _ => panic!(format!("Trying to create field with row {} and col {}", row, col))
+            _ => panic!("Trying to create field with row {} and col {}", row, col)
         });
         let name = format!("{}{}", col_name, (row + 1).to_string());
         FieldLogic {
@@ -84,7 +84,7 @@ impl FieldLogic {
     pub fn from_string(str: &str) -> FieldLogic {
         let name = String::from(str);
         if name.len() != 2 {
-            panic!(format!("Trying to parse field with invalid name {}", name))
+            panic!("Trying to parse field with invalid name {}", name)
         }
         let col = match name.chars().nth(0).unwrap() {
             'A' => 0,
@@ -95,11 +95,11 @@ impl FieldLogic {
             'F' => 5,
             'G' => 6,
             'H' => 7,
-            _ => panic!(format!("Trying to create invalid field {}", name))
+            _ => panic!("Trying to create invalid field {}", name)
         };
         let row = name.chars().nth(1).unwrap().to_digit(10).unwrap() - 1;
         if !(0..8).contains(&row) {
-            panic!(format!("Trying to create invalid field {}", name))
+            panic!("Trying to create invalid field {}", name)
         }
 
         FieldLogic {
@@ -120,10 +120,11 @@ impl FieldLogic {
             return None
         }
 
-        Some(FieldLogic::from_coords((new_row as u32), (new_col as u32)))
+        Some(FieldLogic::from_coords(new_row as u32, new_col as u32))
     }
 
     fn is_legal_field_coord(coord: &i32) -> bool {
         (0_i32..8_i32).contains(&coord)
     }
+
 }

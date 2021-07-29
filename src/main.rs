@@ -3,7 +3,6 @@ use std::path::Path;
 use sdl2::keyboard::Keycode;
 
 use crate::chess::chessboard::Chessboard;
-use crate::maths::segment::Segment;
 use crate::maths::triangle::{Drawable, Triangle};
 use crate::maths::vertex;
 use crate::maths::vertex::{VertexColored, VertexTextured};

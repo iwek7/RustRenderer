@@ -10,11 +10,14 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use crate::chess::move_logic::PieceMoveComponent;
+use crate::chess::move_logic::create_move_component;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
     quad: Quadrangle<'a, VertexTextured>,
     initial_drag_pos_opengl: (f32, f32, f32),
+
 }
 
 
@@ -38,9 +41,10 @@ impl<'a> Piece<'a> {
     }
 
     pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) {
-        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field) {
+        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic.occupied_field) {
             let opengl_pos = context.sdl_window_to_opengl_space3(&pos);
             self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
+            self.logic = self.logic.move_to(&target_field);
         } else {
             self.quad.move_to(&self.initial_drag_pos_opengl);
         }
@@ -73,12 +77,12 @@ impl<'a> PieceFactory<'a> {
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, pos: (i32, i32, i32), size: (i32, i32)) -> Piece<'a> {
+    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, field: &Field, size: (i32, i32)) -> Piece<'a> {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
         let quad = Quadrangle::new(
             create_rect_coords_in_opengl_space(
                 &self.opengl_context,
-                pos,
+                field.get_position_3d(),
                 size,
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),
             ),
@@ -86,10 +90,13 @@ impl<'a> PieceFactory<'a> {
             self.shader,
             Some(pieces_sheet),
         );
-
-        let move_component = PawnMoveComponent {};
+        let move_component = create_move_component(&piece_type);
         return Piece {
-            logic: PieceLogic { piece_type, move_component: Box::new(move_component) },
+            logic: PieceLogic {
+                piece_type,
+                move_component,
+                occupied_field: field.logic.clone(),
+            },
             quad,
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
         };
@@ -117,26 +124,23 @@ impl<'a> PieceFactory<'a> {
 pub struct PieceLogic {
     pub move_component: Box<dyn PieceMoveComponent>,
     piece_type: PieceType,
+    occupied_field: FieldLogic,
 }
 
-pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic) -> bool;
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldLogic>;
-}
-
-pub struct PawnMoveComponent {}
-
-impl PieceMoveComponent for PawnMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic) -> bool {
-        !target_field.col != 0
+impl PieceLogic {
+    pub fn get_all_allowed_moves(&self, state: &ChessboardState) -> Vec<FieldLogic> {
+        self.move_component.get_all_allowed_moves(state, &self.occupied_field)
     }
 
-    fn get_all_allowed_moves(&self, state: ChessboardState) -> Vec<FieldLogic> {
-        vec!(
-            FieldLogic::from_string("B2"),
-            FieldLogic::from_string("C4")
-        )
+    pub fn move_to(&self, target_field: &FieldLogic) -> PieceLogic {
+        // todo: validate if move is legal
+        PieceLogic {
+            move_component: create_move_component(&self.piece_type),
+            piece_type: self.piece_type.clone(),
+            occupied_field: target_field.clone(),
+        }
     }
 }
+
 
 

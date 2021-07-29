@@ -1,5 +1,5 @@
-use crate::render_gl;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
+use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
@@ -8,7 +8,6 @@ pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
     vertices: [T; 3],
     indices: [i32; 3],
-    is_dragged: bool, // todo it should not be here ...
 }
 
 // todo: pass reference of texture here
@@ -24,8 +23,7 @@ impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
         Triangle {
             open_gl_context,
             vertices,
-            indices,
-            is_dragged: false,
+            indices
         }
     }
 
