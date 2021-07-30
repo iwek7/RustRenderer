@@ -7,9 +7,9 @@ use crate::chess::piece::PieceLogic;
 piece move trait
  */
 pub trait PieceMoveComponent {
-    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> bool {
+    fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
         println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
-        self.get_all_allowed_moves(state, piece_to_move).is_move_allowed(target_field)
+        return self.get_all_allowed_moves(state, piece_to_move).get_allowed_move_to(target_field);
     }
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves;
 }
@@ -38,7 +38,7 @@ impl PawnMoveComponent {
         return match allowed_move {
             None => { None }
             Some(real_move) => {
-                if real_move.move_type == MoveType::MOVE {
+                if real_move.get_move_type() == MoveType::MOVE {
                     Some(real_move)
                 } else {
                     None
@@ -78,14 +78,14 @@ impl PawnMoveComponent {
     }
 
     fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<AllowedMove> {
-        match piece_to_move.get_occupied_field().get_offset_field(col_offset, piece_to_move.get_side().adjust_pawn_move_offset(&1)) {
-            None => None,
-            Some(attacked_field) => {
-                let attacked_piece = chessboard.get_piece_at(&attacked_field);
-                if attacked_piece.is_some() && attacked_piece.unwrap().get_side() != piece_to_move.get_side() {
-                    return Some(AllowedMove::new_capture(attacked_field));
+        match AllowedMove::to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), col_offset) {
+            None => { None }
+            Some(allowed_field) => {
+                if allowed_field.get_move_type() == MoveType::CAPTURE {
+                    return Some(allowed_field)
+                } else {
+                    None
                 }
-                return None;
             }
         }
     }
@@ -128,7 +128,7 @@ impl PieceMoveComponent for BishopMoveComponent {
 }
 
 /**
- Knight move
+Knight move
  */
 pub struct KnightMoveComponent {}
 
@@ -181,7 +181,7 @@ impl PieceMoveComponent for QueenMoveComponent {
 }
 
 /**
-   King move
+King move
  */
 
 pub struct KingMoveComponent {}
@@ -245,11 +245,40 @@ impl AllowedMoves {
     fn is_move_allowed(&self, target: &FieldLogic) -> bool {
         self.moves.iter().map(|allowed_move| allowed_move.target.clone()).any(|allowed_target| &allowed_target == target)
     }
+
+    fn get_allowed_move_to(&self, target: &FieldLogic) -> Option<AllowedMove> {
+        for allowed_move in self.moves.iter() {
+            if &allowed_move.target == target {
+                return Some(allowed_move.clone());
+            }
+        }
+        return None;
+    }
 }
 
 pub struct AllowedMove {
     target: FieldLogic,
-    move_type: MoveType,
+    capture: Option<PieceLogic>,
+}
+
+impl Clone for AllowedMove {
+    fn clone(&self) -> Self {
+        let new_target = self.target.clone();
+        let new_capture = if self.capture.is_some() {
+            Some(self.capture.as_ref().unwrap().make_duplicate())
+        } else {
+            None
+        };
+
+        AllowedMove {
+            target: new_target,
+            capture: new_capture,
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        todo!()
+    }
 }
 
 #[derive(Eq, PartialEq)]
@@ -259,12 +288,12 @@ pub enum MoveType {
 }
 
 impl AllowedMove {
-    fn new_capture(target: FieldLogic) -> AllowedMove {
-        AllowedMove { target, move_type: MoveType::CAPTURE }
+    fn new_capture(target: FieldLogic, captured_piece: PieceLogic) -> AllowedMove {
+        AllowedMove { target, capture: Some(captured_piece) }
     }
 
     fn new_move(target: FieldLogic) -> AllowedMove {
-        AllowedMove { target, move_type: MoveType::MOVE }
+        AllowedMove { target, capture: None }
     }
 
     fn to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
@@ -278,7 +307,7 @@ impl AllowedMove {
                     }
                     Some(other_piece) => {
                         if other_piece.get_side() != piece_to_move.get_side() {
-                            Some(AllowedMove::new_capture(target_field))
+                            Some(AllowedMove::new_capture(target_field, other_piece.make_duplicate()))
                         } else {
                             None
                         }
@@ -304,7 +333,7 @@ impl AllowedMove {
                         None => { allowed_moves.push(AllowedMove::new_move(target)) }
                         Some(other_piece) => {
                             if other_piece.get_side() != piece_to_move.get_side() {
-                                allowed_moves.push(AllowedMove::new_capture(target))
+                                allowed_moves.push(AllowedMove::new_capture(target, other_piece.make_duplicate()))
                             }
                             blocked = true;
                         }
@@ -319,8 +348,17 @@ impl AllowedMove {
         &self.target
     }
 
-    pub fn get_move_type(&self) -> &MoveType {
-        &self.move_type
+    pub fn get_move_type(&self) -> MoveType {
+        match self.capture {
+            None => { MoveType::MOVE }
+            Some(_) => { MoveType::CAPTURE }
+        }
+    }
+
+    pub fn get_capture(&self) -> &Option<PieceLogic> {
+        &self.capture
     }
 }
+
+
 

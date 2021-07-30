@@ -4,14 +4,14 @@ use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
+use crate::chess::move_logic::{AllowedMoves, PieceMoveComponent, AllowedMove};
+use crate::chess::move_logic::create_move_component;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::move_logic::{PieceMoveComponent, AllowedMoves};
-use crate::chess::move_logic::create_move_component;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
@@ -40,16 +40,19 @@ impl<'a> Piece<'a> {
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
-    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) -> bool {
+    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) -> Option<AllowedMove> {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
-        if self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
-            let opengl_pos = context.engine_to_opengl_space(&pos);
-            self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
-            self.logic = self.logic.move_to(&target_field);
-            return true;
-        } else {
-            self.quad.move_to(&self.initial_drag_pos_opengl);
-            return false;
+        return match self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
+            None => {
+                self.quad.move_to(&self.initial_drag_pos_opengl);
+                None
+            }
+            Some(allowed_move) => {
+                let opengl_pos = context.engine_to_opengl_space(&pos);
+                self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
+                self.logic = self.logic.move_to(&target_field);
+                Some(allowed_move)
+            }
         }
     }
 
@@ -100,7 +103,7 @@ impl<'a> PieceFactory<'a> {
                 move_component,
                 side,
                 occupied_field: field.logic.clone(),
-                moved: false
+                moved: false,
             },
             quad,
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
@@ -146,7 +149,7 @@ impl PieceLogic {
             piece_type: self.piece_type.clone(),
             occupied_field: target_field.clone(),
             moved: true,
-            side: self.side.clone()
+            side: self.side.clone(),
         }
     }
 
@@ -156,7 +159,7 @@ impl PieceLogic {
             piece_type: self.piece_type.clone(),
             occupied_field: self.occupied_field.clone(),
             moved: self.moved,
-            side: self.side.clone()
+            side: self.side.clone(),
         }
     }
 
@@ -177,5 +180,14 @@ impl PieceLogic {
     }
 }
 
+impl Clone for PieceLogic {
+    fn clone(&self) -> Self {
+        self.make_duplicate()
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        todo!()
+    }
+}
 
 

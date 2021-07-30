@@ -139,7 +139,7 @@ impl<'a> Chessboard<'a> {
                         let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
 
                         allowed_moves.get_moves().iter().for_each(|allowed_move| {
-                            self.get_field_by_logic(allowed_move.get_target()).update_with_allowed_move(allowed_move.get_move_type());
+                            self.get_field_by_logic(allowed_move.get_target()).update_with_allowed_move(&allowed_move.get_move_type());
                         });
                     }
                     let occupied_field_logic = &self.pieces[self.dragger_piece.unwrap()].logic.get_occupied_field().clone();
@@ -160,14 +160,16 @@ impl<'a> Chessboard<'a> {
                             let field_data = field.logic.clone();
                             let pos = field.get_position_3d();
                             let chessboard = &self.create_chessboard_state();
-                            let moved = self.pieces[self.dragger_piece.unwrap()].handle_drop(
+                            match self.pieces[self.dragger_piece.unwrap()].handle_drop(
                                 context,
                                 field_data.clone(),
                                 pos,
                                 chessboard,
-                            );
-                            if moved {
-                                self.side_to_move = self.side_to_move.get_other()
+                            ) {
+                                None => {}
+                                Some(allowed_move) => {
+                                    self.side_to_move = self.side_to_move.get_other()
+                                }
                             }
                         }
                     }
