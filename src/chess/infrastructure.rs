@@ -21,6 +21,13 @@ impl Side {
             Side::WHITE => { row_offset.clone() }
         }
     }
+
+    pub fn get_other(&self) -> Side {
+        match self {
+            Side::BLACK => { Side::WHITE }
+            Side::WHITE => { Side::BLACK }
+        }
+    }
 }
 
 

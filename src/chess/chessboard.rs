@@ -21,6 +21,7 @@ pub struct Chessboard<'a> {
     prev_mouse_pos: (f32, f32),
     fields: Vec<Vec<Field<'a>>>,
     dragger_piece: Option<usize>,
+    side_to_move: Side,
 }
 
 impl<'a> Chessboard<'a> {
@@ -66,6 +67,7 @@ impl<'a> Chessboard<'a> {
             prev_mouse_pos: (0.0, 0.0),
             fields,
             dragger_piece: None,
+            side_to_move: Side::WHITE,
         };
     }
 
@@ -124,10 +126,12 @@ impl<'a> Chessboard<'a> {
     pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
-                for (i, obj) in self.pieces.iter_mut().enumerate() {
-                    if obj.is_mouse_over(mouse_coords_opengl) {
-                        self.dragger_piece = Some(i);
-                        obj.handle_start_drag();
+                for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
+                    if piece_obj.is_mouse_over(mouse_coords_opengl) {
+                        if piece_obj.logic.get_side() == &self.side_to_move {
+                            self.dragger_piece = Some(i);
+                            piece_obj.handle_start_drag();
+                        }
                     }
                 }
                 if self.dragger_piece != None {
@@ -156,13 +160,15 @@ impl<'a> Chessboard<'a> {
                             let field_data = field.logic.clone();
                             let pos = field.get_position_3d();
                             let chessboard = &self.create_chessboard_state();
-                            self.pieces[self.dragger_piece.unwrap()]
-                                .handle_drop(
-                                    context,
-                                    field_data.clone(),
-                                    pos,
-                                    chessboard,
-                                );
+                            let moved = self.pieces[self.dragger_piece.unwrap()].handle_drop(
+                                context,
+                                field_data.clone(),
+                                pos,
+                                chessboard,
+                            );
+                            if moved {
+                                self.side_to_move = self.side_to_move.get_other()
+                            }
                         }
                     }
                 }
@@ -240,7 +246,6 @@ impl<'a> Chessboard<'a> {
             .collect();
         return ChessboardState::new(piece_logics);
     }
-
 }
 
 impl<'a> Drawable for Chessboard<'a> {
