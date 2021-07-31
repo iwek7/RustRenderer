@@ -2,7 +2,6 @@ use crate::chess::chessboard::Chessboard;
 use crate::maths::triangle::Drawable;
 use crate::opengl_context::OpenglContext;
 use crate::render_gl;
-use crate::resources::Resources;
 use crate::texture::Texture;
 
 pub struct ChessGame<'a> {

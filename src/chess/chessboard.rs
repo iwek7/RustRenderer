@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
-use crate::chess::move_logic::MoveType;
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use crate::chess::allowed_move::MoveType;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, VertexTextured>,
@@ -122,7 +122,6 @@ impl<'a> Chessboard<'a> {
     // todo holy shit we operate in both coordinate systems at the same time...
     // todo even context is needed here to translate them...
     // todo horror
-
     // mouse_coords_px is sdl coords (y down)
     pub fn handle_start_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
         for (i, piece_obj) in self.pieces.iter_mut().enumerate() {

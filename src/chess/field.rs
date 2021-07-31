@@ -1,9 +1,9 @@
 use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
-use crate::chess::move_logic::MoveType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexColored;
 use crate::opengl_context::OpenglContext;
+use crate::chess::allowed_move::MoveType;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
