@@ -51,9 +51,7 @@ impl<'a> Piece<'a> {
                 None
             }
             Some(allowed_move) => {
-                let opengl_pos = context.engine_to_opengl_space(&pos);
-                self.quad.move_to(&(opengl_pos.0, opengl_pos.1, 0.0));
-                self.logic = self.logic.move_to(&target_field);
+                self.force_move(context, target_field.clone(), pos);
                 Some(allowed_move)
             }
         }
@@ -61,6 +59,12 @@ impl<'a> Piece<'a> {
 
     pub fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
         self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
+    }
+
+    pub fn force_move(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32)) {
+        let opengl_pos = context.engine_to_opengl_space(&pos);
+        self.quad.move_to(&opengl_pos);
+        self.logic = self.logic.move_to(&target_field);
     }
 }
 
@@ -172,6 +176,7 @@ impl PieceLogic {
         }
     }
 
+    // todo: remove this in favour of clone
     pub fn make_duplicate(&self) -> PieceLogic {
         PieceLogic {
             move_component: create_move_component(&self.piece_type),

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::chess::allowed_move::{AccompanyingMove, MoveType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
@@ -9,7 +10,6 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::allowed_move::MoveType;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, VertexTextured>,
@@ -22,7 +22,7 @@ pub struct Chessboard<'a> {
     prev_mouse_pos: (f32, f32),
     fields: Vec<Vec<Field<'a>>>,
     dragger_piece: Option<usize>,
-    side_to_move: Side,
+    global_game_state: GlobalGameState,
 }
 
 impl<'a> Chessboard<'a> {
@@ -68,19 +68,19 @@ impl<'a> Chessboard<'a> {
             prev_mouse_pos: (0.0, 0.0),
             fields,
             dragger_piece: None,
-            side_to_move: Side::WHITE,
+            global_game_state: GlobalGameState::new(),
         };
     }
 
     pub fn init_pieces(&mut self, pieces_sheet: &'a Texture) {
         let piece_size = (self.field_size as i32, self.field_size as i32);
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_by_name("A1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_by_name("B1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_by_name("C1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, pieces_sheet, self.get_field_by_name("D1"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_by_name("B1"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_by_name("C1"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, pieces_sheet, self.get_field_by_name("D1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, pieces_sheet, self.get_field_by_name("E1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_by_name("F1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_by_name("G1"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet, self.get_field_by_name("F1"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet, self.get_field_by_name("G1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet, self.get_field_by_name("H1"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("A2"), piece_size));
@@ -93,12 +93,12 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("H2"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_by_name("A8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_by_name("B8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_by_name("C8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, pieces_sheet, self.get_field_by_name("D8"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_by_name("B8"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_by_name("C8"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, pieces_sheet, self.get_field_by_name("D8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, pieces_sheet, self.get_field_by_name("E8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_by_name("F8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_by_name("G8"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet, self.get_field_by_name("F8"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet, self.get_field_by_name("G8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_by_name("H8"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("A7"), piece_size));
@@ -126,7 +126,7 @@ impl<'a> Chessboard<'a> {
     pub fn handle_start_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
         for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
             if piece_obj.is_mouse_over(mouse_coords_opengl) {
-                if piece_obj.logic.get_side() == &self.side_to_move {
+                if piece_obj.logic.get_side() == self.global_game_state.get_side_to_move() {
                     self.dragger_piece = Some(i);
                     piece_obj.handle_start_drag();
                 }
@@ -167,9 +167,16 @@ impl<'a> Chessboard<'a> {
                     ) {
                         None => {}
                         Some(allowed_move) => {
-                            self.side_to_move = self.side_to_move.get_other();
+                            self.global_game_state = self.global_game_state.switch_side_to_move();
                             if allowed_move.get_move_type() == MoveType::CAPTURE {
                                 self.handle_piece_capture(&allowed_move.get_capture().clone().unwrap())
+                            }
+
+                            match allowed_move.get_accompanying_move() {
+                                None => {}
+                                Some(accompanying_move) => {
+                                    self.handle_accompanying_move(accompanying_move, context);
+                                }
                             }
                         }
                     }
@@ -198,6 +205,21 @@ impl<'a> Chessboard<'a> {
         self.pieces.remove(
             self.pieces.iter().position(|piece| &piece.logic == capture
             ).expect(&format!("Piece to capture {} not found", capture)));
+    }
+
+    fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove, context: &OpenglContext) {
+        let source_field = accompanying_move.get_piece().get_occupied_field();
+        let target_field_pos = self.get_field_by_logic(accompanying_move.get_target()).get_position_3d();
+        match self.get_piece_by_field(source_field) {
+            None => { panic!("Accompanying move failed") }
+            Some(piece) => {
+                piece.force_move(context, accompanying_move.get_target().clone(), target_field_pos);
+            }
+        }
+    }
+
+    fn get_piece_by_field(&mut self, field_logic: &FieldLogic) -> Option<&mut Piece<'a>> {
+        self.pieces.iter_mut().find(|piece| piece.logic.get_occupied_field() == field_logic)
     }
 
     fn get_field_by_logic(&mut self, field_logic: &FieldLogic) -> &mut Field<'a> {
@@ -252,7 +274,7 @@ impl<'a> Chessboard<'a> {
         let piece_logics = self.pieces.iter()
             .map(|piece| piece.logic.make_duplicate())
             .collect();
-        return ChessboardState::new(piece_logics);
+        return ChessboardState::new(piece_logics, self.global_game_state.clone());
     }
 }
 
@@ -266,16 +288,18 @@ impl<'a> Drawable for Chessboard<'a> {
 
 pub struct ChessboardState {
     occupied_fields: HashMap<FieldLogic, PieceLogic>,
+    global_game_state: GlobalGameState,
 }
 
 impl ChessboardState {
-    pub fn new(pieces: Vec<PieceLogic>) -> ChessboardState {
+    pub fn new(pieces: Vec<PieceLogic>, global_game_state: GlobalGameState) -> ChessboardState {
         let mut occupied_fields: HashMap<FieldLogic, PieceLogic> = HashMap::new();
         for piece in pieces {
             occupied_fields.insert(piece.get_occupied_field().clone(), piece.make_duplicate());
         }
         return ChessboardState {
-            occupied_fields
+            occupied_fields,
+            global_game_state,
         };
     }
 
@@ -289,6 +313,33 @@ impl ChessboardState {
 
     pub fn get_piece_at(&self, field_data: &FieldLogic) -> Option<&PieceLogic> {
         self.occupied_fields.get(field_data)
+    }
+
+    pub fn get_global_game_state(&self) -> &GlobalGameState {
+        &self.global_game_state
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GlobalGameState {
+    side_to_move: Side,
+}
+
+impl GlobalGameState {
+    fn new() -> GlobalGameState {
+        GlobalGameState {
+            side_to_move: Side::WHITE
+        }
+    }
+
+    fn switch_side_to_move(&self) -> GlobalGameState {
+        GlobalGameState {
+            side_to_move: self.side_to_move.get_other()
+        }
+    }
+
+    fn get_side_to_move(&self) -> &Side {
+        &self.side_to_move
     }
 }
 

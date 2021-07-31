@@ -1,8 +1,8 @@
+use crate::chess::allowed_move::{AllowedMove, AllowedMoves, MoveType};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::FieldLogic;
 use crate::chess::infrastructure::{PieceType, VectorExtension};
 use crate::chess::piece::PieceLogic;
-use crate::chess::allowed_move::{AllowedMove, MoveType, AllowedMoves};
 
 /**
 piece move trait
@@ -83,7 +83,7 @@ impl PawnMoveComponent {
             None => { None }
             Some(allowed_field) => {
                 if allowed_field.get_move_type() == MoveType::CAPTURE {
-                    return Some(allowed_field)
+                    return Some(allowed_field);
                 } else {
                     None
                 }
@@ -192,6 +192,47 @@ impl PieceMoveComponent for KingMoveComponent {
         moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, -1));
         moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 0, -1));
         moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, -1));
+
+        // castles
+
+        // todo implement rule that prevents castle if field is attacked
+        // king side castle
+        if !piece_to_move.has_moved() {
+            let one_right = piece_to_move.get_occupied_field().get_offset_field(1, 0).unwrap();
+            let two_right = piece_to_move.get_occupied_field().get_offset_field(2, 0).unwrap();
+            let rook_field = piece_to_move.get_occupied_field().get_offset_field(3, 0).unwrap();
+            let possible_rook = state.get_piece_at(&rook_field);
+            if possible_rook.is_some() {
+                let rook = possible_rook.unwrap();
+                if  !rook.has_moved()
+                    && !state.is_field_occupied(&one_right)
+                    && !state.is_field_occupied(&two_right) {
+                    moves.push_if_exists(Some(AllowedMove::new_composite_move(two_right, one_right, rook.clone())));
+                }
+            }
+        }
+
+        // queen side castle
+        if !piece_to_move.has_moved() {
+            let one_left = piece_to_move.get_occupied_field().get_offset_field(-1, 0).unwrap();
+            let two_left = piece_to_move.get_occupied_field().get_offset_field(-2, 0).unwrap();
+            let three_left = piece_to_move.get_occupied_field().get_offset_field(-3, 0).unwrap();
+            let rook_field = piece_to_move.get_occupied_field().get_offset_field(-4, 0).unwrap();
+            let possible_rook = state.get_piece_at(&rook_field);
+            if possible_rook.is_some() {
+                let rook = possible_rook.unwrap();
+                if !rook.has_moved()
+                    && !state.is_field_occupied(&one_left)
+                    && !state.is_field_occupied(&two_left)
+                    && !state.is_field_occupied(&three_left) {
+
+                    moves.push_if_exists(Some(AllowedMove::new_composite_move(two_left, one_left, rook.clone())));
+                }
+            }
+
+
+
+        }
 
         return AllowedMoves::new(moves);
     }

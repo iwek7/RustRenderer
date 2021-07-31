@@ -1,6 +1,6 @@
 use crate::chess::chessboard::ChessboardState;
-use crate::chess::piece::PieceLogic;
 use crate::chess::field::FieldLogic;
+use crate::chess::piece::PieceLogic;
 
 pub struct AllowedMoves {
     moves: Vec<AllowedMove>,
@@ -8,7 +8,7 @@ pub struct AllowedMoves {
 
 impl AllowedMoves {
     pub fn new(moves: Vec<AllowedMove>) -> AllowedMoves {
-        AllowedMoves{
+        AllowedMoves {
             moves
         }
     }
@@ -31,44 +31,30 @@ impl AllowedMoves {
     }
 }
 
-pub struct AllowedMove {
-    target: FieldLogic,
-    capture: Option<PieceLogic>,
-}
-
-impl Clone for AllowedMove {
-    fn clone(&self) -> Self {
-        let new_target = self.target.clone();
-        let new_capture = if self.capture.is_some() {
-            Some(self.capture.as_ref().unwrap().make_duplicate())
-        } else {
-            None
-        };
-
-        AllowedMove {
-            target: new_target,
-            capture: new_capture,
-        }
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        todo!()
-    }
-}
-
 #[derive(Eq, PartialEq)]
 pub enum MoveType {
     MOVE,
     CAPTURE,
 }
 
+
+pub struct AllowedMove {
+    target: FieldLogic,
+    capture: Option<PieceLogic>,
+    accompanying_move: Option<AccompanyingMove>,
+}
+
 impl AllowedMove {
     pub fn new_capture(target: FieldLogic, captured_piece: PieceLogic) -> AllowedMove {
-        AllowedMove { target, capture: Some(captured_piece) }
+        AllowedMove { target, capture: Some(captured_piece), accompanying_move: None }
     }
 
     pub fn new_move(target: FieldLogic) -> AllowedMove {
-        AllowedMove { target, capture: None }
+        AllowedMove { target, capture: None, accompanying_move: None }
+    }
+
+    pub fn new_composite_move(target: FieldLogic, accompanying_target: FieldLogic, accompanying_piece: PieceLogic) -> AllowedMove {
+        AllowedMove { target, capture: None, accompanying_move: Some(AccompanyingMove::new(accompanying_target, accompanying_piece)) }
     }
 
     pub fn to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
@@ -132,6 +118,57 @@ impl AllowedMove {
 
     pub fn get_capture(&self) -> &Option<PieceLogic> {
         &self.capture
+    }
+
+    pub fn get_accompanying_move(&self) -> &Option<AccompanyingMove> {
+        &self.accompanying_move
+    }
+}
+
+
+impl Clone for AllowedMove {
+    fn clone(&self) -> Self {
+        let new_target = self.target.clone();
+        let new_capture = if self.capture.is_some() {
+            Some(self.capture.as_ref().unwrap().make_duplicate())
+        } else {
+            None
+        };
+
+        let new_accompanying_move = self.accompanying_move.clone();
+        AllowedMove {
+            target: new_target,
+            capture: new_capture,
+            accompanying_move: new_accompanying_move,
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        todo!()
+    }
+}
+
+
+#[derive(Clone)]
+pub struct AccompanyingMove {
+    target: FieldLogic,
+    piece: PieceLogic,
+}
+
+impl AccompanyingMove {
+    fn new(target: FieldLogic, piece: PieceLogic) -> AccompanyingMove {
+        AccompanyingMove {
+            target,
+            piece,
+        }
+    }
+
+    pub fn get_target(&self) -> &FieldLogic {
+        &self.target
+    }
+
+    pub fn get_piece(&self) -> &PieceLogic {
+        &self.piece
     }
 }
 
