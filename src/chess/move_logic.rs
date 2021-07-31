@@ -12,7 +12,12 @@ pub trait PieceMoveComponent {
         println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
         return self.get_all_allowed_moves(state, piece_to_move).get_allowed_move_to(target_field);
     }
+
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves;
+
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        self.get_all_allowed_moves(state, piece_to_move)
+    }
 }
 
 pub struct PawnMoveComponent {}
@@ -27,6 +32,13 @@ impl PieceMoveComponent for PawnMoveComponent {
 
         return AllowedMoves::new(allowed_moves);
     }
+
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let mut attacked_fields = vec!();
+        attacked_fields.push_if_exists(AllowedMove::attack_to_field(piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), -1));
+        attacked_fields.push_if_exists(AllowedMove::attack_to_field(piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), 1));
+        return AllowedMoves::new(attacked_fields);
+    }
 }
 
 /**
@@ -35,7 +47,7 @@ pawn move
 // todo: enpassant
 impl PawnMoveComponent {
     fn get_move_ahead(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedMove> {
-        let allowed_move = AllowedMove::to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), 0);
+        let allowed_move = AllowedMove::move_to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), 0);
         return match allowed_move {
             None => { None }
             Some(real_move) => {
@@ -79,7 +91,7 @@ impl PawnMoveComponent {
     }
 
     fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<AllowedMove> {
-        match AllowedMove::to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), col_offset) {
+        match AllowedMove::move_to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), col_offset) {
             None => { None }
             Some(allowed_field) => {
                 if allowed_field.get_move_type() == MoveType::CAPTURE {
@@ -135,20 +147,20 @@ impl PieceMoveComponent for KnightMoveComponent {
         // todo: write macro that takes all args and adds only not empty optionals
 
         // move up
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 2, 1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 2, -1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 2, 1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 2, -1));
 
         // move right
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, 2));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, 2));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -1, 2));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, 2));
 
         // move down
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -2, 1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -2, -1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -2, 1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -2, -1));
 
         // move left
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, -2));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, -2));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -1, -2));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, -2));
 
         return AllowedMoves::new(moves);
     }
@@ -183,15 +195,30 @@ pub struct KingMoveComponent {}
 
 impl PieceMoveComponent for KingMoveComponent {
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let attacked_fields = state.get_all_attacked_fields(piece_to_move.get_side());
+        return AllowedMoves::new(self.get_potential_moves(state, piece_to_move).iter()
+            .filter(|allowed_move| !attacked_fields.contains(allowed_move.get_target()))
+            .cloned()
+            .collect()
+        );
+    }
+
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        AllowedMoves::new(self.get_potential_moves(state, piece_to_move))
+    }
+}
+
+impl KingMoveComponent {
+    fn get_potential_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<AllowedMove> {
         let mut moves = vec!();
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, 0));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, 1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 0, 1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, 1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, 0));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, -1, -1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 0, -1));
-        moves.push_if_exists(AllowedMove::to_field(state, piece_to_move, 1, -1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, 0));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, 1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 0, 1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -1, 1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -1, 0));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, -1, -1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 0, -1));
+        moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, -1));
 
         // castles
 
@@ -204,7 +231,7 @@ impl PieceMoveComponent for KingMoveComponent {
             let possible_rook = state.get_piece_at(&rook_field);
             if possible_rook.is_some() {
                 let rook = possible_rook.unwrap();
-                if  !rook.has_moved()
+                if !rook.has_moved()
                     && !state.is_field_occupied(&one_right)
                     && !state.is_field_occupied(&two_right) {
                     moves.push_if_exists(Some(AllowedMove::new_composite_move(two_right, one_right, rook.clone())));
@@ -225,16 +252,12 @@ impl PieceMoveComponent for KingMoveComponent {
                     && !state.is_field_occupied(&one_left)
                     && !state.is_field_occupied(&two_left)
                     && !state.is_field_occupied(&three_left) {
-
                     moves.push_if_exists(Some(AllowedMove::new_composite_move(two_left, one_left, rook.clone())));
                 }
             }
-
-
-
         }
 
-        return AllowedMoves::new(moves);
+        return moves;
     }
 }
 

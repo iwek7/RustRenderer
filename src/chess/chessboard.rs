@@ -318,6 +318,15 @@ impl ChessboardState {
     pub fn get_global_game_state(&self) -> &GlobalGameState {
         &self.global_game_state
     }
+
+    pub fn get_all_attacked_fields(&self, allied_side: &Side) -> Vec<FieldLogic> {
+        return self.occupied_fields.values()
+            .cloned()
+            .filter(|piece| piece.get_side() != allied_side)
+            .flat_map(|piece| piece.get_all_attacked_fields(self).get_moves().clone())
+            .map(|allowed_move| allowed_move.get_target().clone())
+            .collect()
+    }
 }
 
 #[derive(Clone, Debug)]

@@ -57,7 +57,7 @@ impl AllowedMove {
         AllowedMove { target, capture: None, accompanying_move: Some(AccompanyingMove::new(accompanying_target, accompanying_piece)) }
     }
 
-    pub fn to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
+    pub fn move_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
         match piece_to_move.get_occupied_field().get_offset_field(col_offset, row_offset) {
             None => None,
             Some(target_field) => {
@@ -75,6 +75,14 @@ impl AllowedMove {
                     }
                 }
             }
+        }
+    }
+
+    pub fn attack_to_field(piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
+        match piece_to_move.get_occupied_field().get_offset_field(col_offset, row_offset) {
+            None => { None }
+            // we return here new move but it is not really a move, this class should not be used for attacks...
+            Some(field) => { Some(AllowedMove::new_move(field)) }
         }
     }
 

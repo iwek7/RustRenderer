@@ -144,25 +144,13 @@ pub struct PieceLogic {
     moved: bool,
 }
 
-impl Display for PieceLogic {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Piece of type {:?}, side: {:?}, occupiedField {:?}", self.piece_type, self.side, self.occupied_field)
-    }
-}
-
-impl PartialEq for PieceLogic {
-    fn eq(&self, other: &Self) -> bool {
-        self.moved == other.moved && self.occupied_field == other.occupied_field && self.side == other.side && self.piece_type == other.piece_type
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
-}
-
 impl PieceLogic {
     pub fn get_all_allowed_moves(&self, state: &ChessboardState) -> AllowedMoves {
         self.move_component.get_all_allowed_moves(state, &self)
+    }
+
+    pub fn get_all_attacked_fields(&self, state: &ChessboardState) -> AllowedMoves {
+        self.move_component.get_all_attacked_fields(state, &self)
     }
 
     pub fn move_to(&self, target_field: &FieldLogic) -> PieceLogic {
@@ -207,6 +195,22 @@ impl Clone for PieceLogic {
 
     fn clone_from(&mut self, source: &Self) {
         todo!()
+    }
+}
+
+impl Display for PieceLogic {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Piece of type {:?}, side: {:?}, occupiedField {:?}", self.piece_type, self.side, self.occupied_field)
+    }
+}
+
+impl PartialEq for PieceLogic {
+    fn eq(&self, other: &Self) -> bool {
+        self.moved == other.moved && self.occupied_field == other.occupied_field && self.side == other.side && self.piece_type == other.piece_type
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        !self.eq(other)
     }
 }
 
