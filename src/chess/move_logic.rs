@@ -206,37 +206,40 @@ impl PieceMoveComponent for KingMoveComponent {
         moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, -1));
 
         // castles
-
-        // todo implement rule that prevents castle if field is attacked
-        // king side castle
         if !piece_to_move.has_moved() {
+            let attacked_fields = state.get_all_attacked_fields(piece_to_move.get_side());
+
+            // king side castle
             let one_right = piece_to_move.get_occupied_field().get_offset_field(1, 0).unwrap();
             let two_right = piece_to_move.get_occupied_field().get_offset_field(2, 0).unwrap();
             let rook_field = piece_to_move.get_occupied_field().get_offset_field(3, 0).unwrap();
-            let possible_rook = state.get_piece_at(&rook_field);
-            if possible_rook.is_some() {
-                let rook = possible_rook.unwrap();
+            let possible_right_rook = state.get_piece_at(&rook_field);
+            if possible_right_rook.is_some() {
+                let rook = possible_right_rook.unwrap();
                 if !rook.has_moved()
                     && !state.is_field_occupied(&one_right)
-                    && !state.is_field_occupied(&two_right) {
+                    && !state.is_field_occupied(&two_right)
+                    && !attacked_fields.contains(&one_right)
+                    && !attacked_fields.contains(&two_right)
+                {
                     moves.push_if_exists(Some(AllowedMove::new_composite_move(two_right, one_right, rook.clone())));
                 }
             }
-        }
 
-        // queen side castle
-        if !piece_to_move.has_moved() {
+            // queen side castle
             let one_left = piece_to_move.get_occupied_field().get_offset_field(-1, 0).unwrap();
             let two_left = piece_to_move.get_occupied_field().get_offset_field(-2, 0).unwrap();
             let three_left = piece_to_move.get_occupied_field().get_offset_field(-3, 0).unwrap();
             let rook_field = piece_to_move.get_occupied_field().get_offset_field(-4, 0).unwrap();
-            let possible_rook = state.get_piece_at(&rook_field);
-            if possible_rook.is_some() {
-                let rook = possible_rook.unwrap();
+            let possible_left_rook = state.get_piece_at(&rook_field);
+            if possible_left_rook.is_some() {
+                let rook = possible_left_rook.unwrap();
                 if !rook.has_moved()
                     && !state.is_field_occupied(&one_left)
                     && !state.is_field_occupied(&two_left)
-                    && !state.is_field_occupied(&three_left) {
+                    && !state.is_field_occupied(&three_left)
+                    && !attacked_fields.contains(&one_left)
+                    && !attacked_fields.contains(&two_left) {
                     moves.push_if_exists(Some(AllowedMove::new_composite_move(two_left, one_left, rook.clone())));
                 }
             }
