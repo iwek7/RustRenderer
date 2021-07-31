@@ -78,14 +78,6 @@ impl AllowedMove {
         }
     }
 
-    pub fn attack_to_field(piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
-        match piece_to_move.get_occupied_field().get_offset_field(col_offset, row_offset) {
-            None => { None }
-            // we return here new move but it is not really a move, this class should not be used for attacks...
-            Some(field) => { Some(AllowedMove::new_move(field)) }
-        }
-    }
-
     pub fn get_moves_in_direction(state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedMove> {
         let mut blocked = false;
         let mut allowed_moves = vec!();

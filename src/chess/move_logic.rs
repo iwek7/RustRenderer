@@ -15,8 +15,8 @@ pub trait PieceMoveComponent {
 
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves;
 
-    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
-        self.get_all_allowed_moves(state, piece_to_move)
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
+        self.get_all_allowed_moves(state, piece_to_move).get_moves().iter().map(|allowed_move| allowed_move.get_target().clone()).collect()
     }
 }
 
@@ -33,11 +33,11 @@ impl PieceMoveComponent for PawnMoveComponent {
         return AllowedMoves::new(allowed_moves);
     }
 
-    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
         let mut attacked_fields = vec!();
-        attacked_fields.push_if_exists(AllowedMove::attack_to_field(piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), -1));
-        attacked_fields.push_if_exists(AllowedMove::attack_to_field(piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), 1));
-        return AllowedMoves::new(attacked_fields);
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(piece_to_move.get_side().adjust_pawn_move_offset(&1), -1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(piece_to_move.get_side().adjust_pawn_move_offset(&1), 1));
+        return attacked_fields;
     }
 }
 
@@ -195,21 +195,6 @@ pub struct KingMoveComponent {}
 
 impl PieceMoveComponent for KingMoveComponent {
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
-        let attacked_fields = state.get_all_attacked_fields(piece_to_move.get_side());
-        return AllowedMoves::new(self.get_potential_moves(state, piece_to_move).iter()
-            .filter(|allowed_move| !attacked_fields.contains(allowed_move.get_target()))
-            .cloned()
-            .collect()
-        );
-    }
-
-    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
-        AllowedMoves::new(self.get_potential_moves(state, piece_to_move))
-    }
-}
-
-impl KingMoveComponent {
-    fn get_potential_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<AllowedMove> {
         let mut moves = vec!();
         moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, 0));
         moves.push_if_exists(AllowedMove::move_to_field(state, piece_to_move, 1, 1));
@@ -257,7 +242,26 @@ impl KingMoveComponent {
             }
         }
 
-        return moves;
+        let attacked_fields = state.get_all_attacked_fields(piece_to_move.get_side());
+        return AllowedMoves::new(moves.iter()
+            .filter(|allowed_move| !attacked_fields.contains(allowed_move.get_target()))
+            .cloned()
+            .collect()
+        );
+    }
+
+    fn get_all_attacked_fields(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<FieldLogic> {
+        let mut attacked_fields = vec!();
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(1, 0));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(1, 1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(0, 1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(-1, 1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(-1, 0));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(-1, -1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(0, -1));
+        attacked_fields.push_if_exists(piece_to_move.get_occupied_field().get_offset_field(1, -1));
+
+        return attacked_fields;
     }
 }
 

@@ -149,7 +149,7 @@ impl PieceLogic {
         self.move_component.get_all_allowed_moves(state, &self)
     }
 
-    pub fn get_all_attacked_fields(&self, state: &ChessboardState) -> AllowedMoves {
+    pub fn get_all_attacked_fields(&self, state: &ChessboardState) -> Vec<FieldLogic> {
         self.move_component.get_all_attacked_fields(state, &self)
     }
 

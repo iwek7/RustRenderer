@@ -323,8 +323,7 @@ impl ChessboardState {
         return self.occupied_fields.values()
             .cloned()
             .filter(|piece| piece.get_side() != allied_side)
-            .flat_map(|piece| piece.get_all_attacked_fields(self).get_moves().clone())
-            .map(|allowed_move| allowed_move.get_target().clone())
+            .flat_map(|piece| piece.get_all_attacked_fields(self).clone())
             .collect()
     }
 }
