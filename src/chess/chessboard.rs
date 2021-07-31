@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
+use crate::chess::move_logic::MoveType;
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::move_logic::MoveType;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, VertexTextured>,
@@ -27,18 +27,18 @@ pub struct Chessboard<'a> {
 
 impl<'a> Chessboard<'a> {
     pub fn new(chessboard_texture: &'a Texture, opengl_context: &'a OpenglContext,
-               shader: &'a render_gl::Program, possible_move_shader: &'a render_gl::Program) -> Chessboard<'a> {
+               chessboard_shader: &'a render_gl::Program, possible_move_shader: &'a render_gl::Program) -> Chessboard<'a> {
         let field_size = 87;
         let board_size = field_size * 8;
         let position = (100, 0, 0);
         let quad = Quadrangle::new(
             create_rect_coords_in_opengl_space(&opengl_context, position.clone(), (board_size, board_size), &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            &shader,
+            &chessboard_shader,
             Some(&chessboard_texture),
         );
 
-        let piece_factory = PieceFactory::new(opengl_context, shader);
+        let piece_factory = PieceFactory::new(opengl_context, chessboard_shader);
 
         let mut fields = Vec::new();
         for row_idx in 0..8 as u32 {
@@ -124,75 +124,72 @@ impl<'a> Chessboard<'a> {
     // todo horror
 
     // mouse_coords_px is sdl coords (y down)
-    pub fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
-        match event {
-            sdl2::event::Event::MouseButtonDown { .. } => {
-                for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
-                    if piece_obj.is_mouse_over(mouse_coords_opengl) {
-                        if piece_obj.logic.get_side() == &self.side_to_move {
-                            self.dragger_piece = Some(i);
-                            piece_obj.handle_start_drag();
-                        }
-                    }
-                }
-                if self.dragger_piece != None {
-                    {
-                        let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
-
-                        allowed_moves.get_moves().iter().for_each(|allowed_move| {
-                            self.get_field_by_logic(allowed_move.get_target()).update_with_allowed_move(&allowed_move.get_move_type());
-                        });
-                    }
-                    let occupied_field_logic = &self.pieces[self.dragger_piece.unwrap()].logic.get_occupied_field().clone();
-                    self.get_field_by_logic(occupied_field_logic).is_current_field = true;
+    pub fn handle_start_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+        for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
+            if piece_obj.is_mouse_over(mouse_coords_opengl) {
+                if piece_obj.logic.get_side() == &self.side_to_move {
+                    self.dragger_piece = Some(i);
+                    piece_obj.handle_start_drag();
                 }
             }
+        }
+        if self.dragger_piece != None {
+            {
+                let allowed_moves = &mut self.pieces[self.dragger_piece.unwrap()].logic.get_all_allowed_moves(&self.create_chessboard_state());
 
-            sdl2::event::Event::MouseButtonUp { .. } => {
-                match self.get_field_by_point(mouse_coords_px) {
-                    None => {
-                        if self.dragger_piece != None {
-                            self.pieces[self.dragger_piece.unwrap()].return_to_initial_pos();
-                        }
-                    }
-                    Some(field) => {
-                        // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
-                        if self.dragger_piece != None {
-                            let field_data = field.logic.clone();
-                            let pos = field.get_position_3d();
-                            let chessboard = &self.create_chessboard_state();
-                            match self.pieces[self.dragger_piece.unwrap()].handle_drop(
-                                context,
-                                field_data.clone(),
-                                pos,
-                                chessboard,
-                            ) {
-                                None => {}
-                                Some(allowed_move) => {
-                                    self.side_to_move = self.side_to_move.get_other();
-                                    if allowed_move.get_move_type() == MoveType::CAPTURE {
-                                        self.handle_piece_capture(&allowed_move.get_capture().clone().unwrap())
-                                    }
-                                }
+                allowed_moves.get_moves().iter().for_each(|allowed_move| {
+                    self.get_field_by_logic(allowed_move.get_target()).update_with_allowed_move(&allowed_move.get_move_type());
+                });
+            }
+            let occupied_field_logic = &self.pieces[self.dragger_piece.unwrap()].logic.get_occupied_field().clone();
+            self.get_field_by_logic(occupied_field_logic).is_current_field = true;
+        }
+        self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
+
+    pub fn handle_piece_drop_attempt(&mut self, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+        match self.get_field_by_point(mouse_coords_px) {
+            None => {
+                if self.dragger_piece != None {
+                    self.pieces[self.dragger_piece.unwrap()].return_to_initial_pos();
+                }
+            }
+            Some(field) => {
+                // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
+                if self.dragger_piece != None {
+                    let field_data = field.logic.clone();
+                    let pos = field.get_position_3d();
+                    let chessboard = &self.create_chessboard_state();
+                    match self.pieces[self.dragger_piece.unwrap()].handle_drop(
+                        context,
+                        field_data.clone(),
+                        pos,
+                        chessboard,
+                    ) {
+                        None => {}
+                        Some(allowed_move) => {
+                            self.side_to_move = self.side_to_move.get_other();
+                            if allowed_move.get_move_type() == MoveType::CAPTURE {
+                                self.handle_piece_capture(&allowed_move.get_capture().clone().unwrap())
                             }
                         }
                     }
                 }
-                self.clear_allowed_fields();
-                self.dragger_piece = None;
             }
-            sdl2::event::Event::MouseMotion { .. } => {
-                let drag_offset = &(
-                    (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
-                    (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
-                );
+        }
+        self.clear_allowed_fields();
+        self.dragger_piece = None;
+        self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
 
-                if self.dragger_piece != None {
-                    self.pieces[self.dragger_piece.unwrap()].handle_drag_pointer_move(drag_offset);
-                }
-            }
+    pub fn handle_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+        let drag_offset = &(
+            (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
+            (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
+        );
 
-            _ => {}
+        if self.dragger_piece != None {
+            self.pieces[self.dragger_piece.unwrap()].handle_drag_pointer_move(drag_offset);
         }
         self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
@@ -207,7 +204,6 @@ impl<'a> Chessboard<'a> {
     fn get_field_by_logic(&mut self, field_logic: &FieldLogic) -> &mut Field<'a> {
         &mut self.fields[field_logic.row as usize][field_logic.col as usize]
     }
-
 
     fn get_field_by_name(&self, name: &str) -> &Field {
         // hella inefficient, we just know don't need to check everywhere

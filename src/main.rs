@@ -1,15 +1,11 @@
 use std::path::Path;
 
-use sdl2::keyboard::Keycode;
-
-use crate::chess::chessboard::Chessboard;
-use crate::maths::triangle::{Drawable, Triangle};
+use crate::chess::chess_game::ChessGame;
 use crate::maths::vertex;
 use crate::maths::vertex::{VertexColored, VertexTextured};
 use crate::opengl_context::OpenglContext;
 use crate::resources::Resources;
 use crate::texture::{SpriteCoords, Texture};
-use crate::vertex::VertexShaderDataSetter;
 
 pub mod render_gl;
 pub mod resources;
@@ -31,30 +27,10 @@ fn main() {
 
     let chessboard_data = res.load_image("textures/chessboard.png");
     let chessboard_texture = Texture::from_image(chessboard_data);
-    let mut chessboard = Chessboard::new(&chessboard_texture, &context, &tx_shader_program, &shader_program);
+
     let pieces = res.load_image("textures/pieces.png");
     let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
-    chessboard.init_pieces(&pieces_texture);
-    //
-    // let triangle2 = Triangle::new(
-    //     [
-    //         vertex::VertexColored { pos: (-1.0, -0.9, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
-    //         vertex::VertexColored { pos: (-0.7, -0.9, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
-    //         vertex::VertexColored { pos: (-0.85, -0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() },
-    //     ],
-    //     [0, 1, 2],
-    //     &shader_program,
-    //     None,
-    // );
-    //
-    // let segment = Segment::new(
-    //     [
-    //         vertex::VertexColored { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-    //         vertex::VertexColored { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-    //     ],
-    //     [0, 1],
-    //     &shader_program,
-    // );
+    let mut chess_game = ChessGame::initialize(&chessboard_texture, &pieces_texture, &context, &tx_shader_program, &shader_program);
 
     let mut renderer = renderer::Renderer::new(&context);
 
@@ -78,53 +54,12 @@ fn main() {
                 _ => {}
             }
 
-            chessboard.handle_event(&event, mouse_coords_px, &mouse_opengl_coords, &context)
+            chess_game.handle_event(&event, mouse_coords_px, &mouse_opengl_coords, &context)
         }
 
         renderer.render(&[
-            // &triangle2,
-            // &player,
-            // &quad,
-            // &quad2,
-            // &segment,
-            // &piece
-            &chessboard
+            &chess_game
         ]);
-    }
-}
-
-struct Player<'a, T: VertexShaderDataSetter> {
-    pub triangle: Triangle<'a, T>,
-}
-
-impl<'a, T: VertexShaderDataSetter> Player<'a, T> {
-    fn new(triangle: Triangle<T>) -> Player<T> {
-        Player { triangle }
-    }
-
-    fn handle_input(&mut self, keycode: Keycode) {
-        let move_speed: f32 = 0.1;
-        match keycode {
-            sdl2::keyboard::Keycode::Left => {
-                self.triangle.move_by(-move_speed, 0.0, 0.0)
-            }
-            sdl2::keyboard::Keycode::Right => {
-                self.triangle.move_by(move_speed, 0.0, 0.0)
-            }
-            sdl2::keyboard::Keycode::Up => {
-                self.triangle.move_by(0.0, move_speed, 0.0)
-            }
-            sdl2::keyboard::Keycode::Down => {
-                self.triangle.move_by(0.0, -move_speed, 0.0)
-            }
-            _ => {}
-        }
-    }
-}
-
-impl<'a, T: VertexShaderDataSetter> Drawable for Player<'a, T> {
-    fn render(&self) {
-        self.triangle.render();
     }
 }
 

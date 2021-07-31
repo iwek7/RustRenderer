@@ -1,10 +1,12 @@
+use core::fmt;
 use std::borrow::Borrow;
+use std::fmt::{Display, Formatter};
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
-use crate::chess::move_logic::{AllowedMoves, PieceMoveComponent, AllowedMove};
+use crate::chess::move_logic::{AllowedMove, AllowedMoves, PieceMoveComponent};
 use crate::chess::move_logic::create_move_component;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
@@ -12,8 +14,6 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use std::fmt::{Debug, Formatter, Display};
-use core::fmt;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
@@ -179,10 +179,6 @@ impl PieceLogic {
             moved: self.moved,
             side: self.side.clone(),
         }
-    }
-
-    pub fn get_move_component(&self) -> &Box<dyn PieceMoveComponent> {
-        &self.move_component
     }
 
     pub fn get_occupied_field(&self) -> &FieldLogic {

@@ -2,7 +2,8 @@ mod piece;
 mod infrastructure;
 mod field;
 mod move_logic;
-pub mod chessboard;
+mod chessboard;
+pub mod chess_game;
 
 
 
