@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PieceType {
     PAWN,
     KNIGHT,
@@ -8,7 +8,7 @@ pub enum PieceType {
     KING,
 }
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Side {
     BLACK,
     WHITE,

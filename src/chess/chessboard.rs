@@ -9,6 +9,7 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use crate::chess::move_logic::MoveType;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, VertexTextured>,
@@ -168,7 +169,10 @@ impl<'a> Chessboard<'a> {
                             ) {
                                 None => {}
                                 Some(allowed_move) => {
-                                    self.side_to_move = self.side_to_move.get_other()
+                                    self.side_to_move = self.side_to_move.get_other();
+                                    if allowed_move.get_move_type() == MoveType::CAPTURE {
+                                        self.handle_piece_capture(&allowed_move.get_capture().clone().unwrap())
+                                    }
                                 }
                             }
                         }
@@ -191,6 +195,13 @@ impl<'a> Chessboard<'a> {
             _ => {}
         }
         self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
+
+    fn handle_piece_capture(&mut self, capture: &PieceLogic) {
+        println!("Captured piece {}", capture);
+        self.pieces.remove(
+            self.pieces.iter().position(|piece| &piece.logic == capture
+            ).expect(&format!("Piece to capture {} not found", capture)));
     }
 
     fn get_field_by_logic(&mut self, field_logic: &FieldLogic) -> &mut Field<'a> {

@@ -12,6 +12,8 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use std::fmt::{Debug, Formatter, Display};
+use core::fmt;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
@@ -130,11 +132,27 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub struct PieceLogic {
-    move_component: Box<dyn PieceMoveComponent>,
+    move_component: Box<dyn PieceMoveComponent>, // todo this feels so wrong here and causes so much issues..., maybe it should somehow part of PieceType? or monad?
     piece_type: PieceType,
     side: Side,
     occupied_field: FieldLogic,
     moved: bool,
+}
+
+impl Display for PieceLogic {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Piece of type {:?}, side: {:?}, occupiedField {:?}", self.piece_type, self.side, self.occupied_field)
+    }
+}
+
+impl PartialEq for PieceLogic {
+    fn eq(&self, other: &Self) -> bool {
+        self.moved == other.moved && self.occupied_field == other.occupied_field && self.side == other.side && self.piece_type == other.piece_type
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        !self.eq(other)
+    }
 }
 
 impl PieceLogic {
