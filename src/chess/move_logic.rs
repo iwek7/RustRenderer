@@ -296,14 +296,14 @@ impl PieceMoveComponent for KingMoveComponent {
     fn get_all_attacks(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<AllowedAction> {
         let mut attacked_fields = vec!();
 
-        AllowedAction::action_to_field(state, piece_to_move,1, 0);
-        AllowedAction::action_to_field(state, piece_to_move,1, 1);
-        AllowedAction::action_to_field(state, piece_to_move,0, 1);
-        AllowedAction::action_to_field(state, piece_to_move,-1, 1);
-        AllowedAction::action_to_field(state, piece_to_move,-1, 0);
-        AllowedAction::action_to_field(state, piece_to_move,-1, -1);
-        AllowedAction::action_to_field(state, piece_to_move,0, -1);
-        AllowedAction::action_to_field(state, piece_to_move,1, -1);
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, 1, 0));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, 1, 1));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, 0, 1));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, -1, 1));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, -1, 0));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, -1, -1));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, 0, -1));
+        attacked_fields.push_if_exists(AllowedAction::action_to_field(state, piece_to_move, 1, -1));
 
         return attacked_fields;
     }

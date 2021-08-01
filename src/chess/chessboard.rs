@@ -328,7 +328,7 @@ impl ChessboardState {
     }
 
     pub fn is_in_check(&self, side: &Side) -> bool {
-        let attacked_fields = self.get_all_attacked_fields(&side.get_other());
+        let attacked_fields = self.get_all_attacked_fields(&side);
         attacked_fields.iter()
             .map(|field| self.occupied_fields.get(field))
             .filter(|possible_piece| possible_piece.is_some())
