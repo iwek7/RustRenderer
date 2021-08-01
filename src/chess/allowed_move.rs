@@ -3,17 +3,32 @@ use crate::chess::field::FieldLogic;
 use crate::chess::piece::PieceLogic;
 
 pub struct AllowedMoves {
-    moves: Vec<AllowedMove>,
+    moves: Vec<AllowedAction>,
 }
 
 impl AllowedMoves {
-    pub fn new(moves: Vec<AllowedMove>) -> AllowedMoves {
+    pub fn new(actions: Vec<AllowedAction>, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
+        let filtered_moves: Vec<AllowedAction> = actions.clone().into_iter()
+            .filter(|allowed_action| allowed_action.get_action_type() != ActionType::SUPPORT)
+            .collect();
         AllowedMoves {
-            moves
+            moves: filtered_moves
+            /* if state.is_in_check(piece_to_move.get_side()) {
+                filtered_moves.clone().into_iter()
+                    .filter(|allowed_move| {
+                        let new_state = state.move_piece_to(piece_to_move.get_occupied_field(), allowed_move.get_target());
+                        !new_state.is_in_check(piece_to_move.get_side())
+                    })
+                    .collect()
+            } else {
+                filtered_moves
+            }
+
+             */
         }
     }
 
-    pub fn get_moves(&self) -> &Vec<AllowedMove> {
+    pub fn get_moves(&self) -> &Vec<AllowedAction> {
         &self.moves
     }
 
@@ -21,7 +36,7 @@ impl AllowedMoves {
         self.moves.iter().map(|allowed_move| allowed_move.target.clone()).any(|allowed_target| &allowed_target == target)
     }
 
-    pub fn get_allowed_move_to(&self, target: &FieldLogic) -> Option<AllowedMove> {
+    pub fn get_allowed_move_to(&self, target: &FieldLogic) -> Option<AllowedAction> {
         for allowed_move in self.moves.iter() {
             if &allowed_move.target == target {
                 return Some(allowed_move.clone());
@@ -32,45 +47,63 @@ impl AllowedMoves {
 }
 
 #[derive(Eq, PartialEq)]
-pub enum MoveType {
+pub enum ActionType {
     MOVE,
     CAPTURE,
+    SUPPORT, // cant move but is supporting this field
 }
 
 
-pub struct AllowedMove {
+pub struct AllowedAction {
     target: FieldLogic,
     capture: Option<PieceLogic>,
     accompanying_move: Option<AccompanyingMove>,
+    is_support: bool,
 }
 
-impl AllowedMove {
-    pub fn new_capture(target: FieldLogic, captured_piece: PieceLogic) -> AllowedMove {
-        AllowedMove { target, capture: Some(captured_piece), accompanying_move: None }
+impl AllowedAction {
+    pub fn new_capture(target: FieldLogic, captured_piece: PieceLogic) -> AllowedAction {
+        AllowedAction { target, capture: Some(captured_piece), accompanying_move: None, is_support: false }
     }
 
-    pub fn new_move(target: FieldLogic) -> AllowedMove {
-        AllowedMove { target, capture: None, accompanying_move: None }
+    pub fn new_move(target: FieldLogic) -> AllowedAction {
+        AllowedAction { target, capture: None, accompanying_move: None, is_support: false }
     }
 
-    pub fn new_composite_move(target: FieldLogic, accompanying_target: FieldLogic, accompanying_piece: PieceLogic) -> AllowedMove {
-        AllowedMove { target, capture: None, accompanying_move: Some(AccompanyingMove::new(accompanying_target, accompanying_piece)) }
+    pub fn new_composite_move(target: FieldLogic, accompanying_target: FieldLogic, accompanying_piece: PieceLogic) -> AllowedAction {
+        AllowedAction { target, capture: None, accompanying_move: Some(AccompanyingMove::new(accompanying_target, accompanying_piece)), is_support: false }
     }
 
-    pub fn move_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedMove> {
+    pub fn new_support(target: FieldLogic) -> AllowedAction {
+        AllowedAction { target, capture: None, accompanying_move: None, is_support: true }
+    }
+
+    pub fn movable_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
+      match AllowedAction::action_to_field(chessboard, piece_to_move, row_offset, col_offset) {
+          None => { None }
+          Some(action) => {
+              if action.get_action_type() == ActionType::SUPPORT {
+                  return None;
+              }
+              Some(action)
+          }
+      }
+    }
+
+    pub fn action_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
         match piece_to_move.get_occupied_field().get_offset_field(col_offset, row_offset) {
             None => None,
             Some(target_field) => {
                 let possible_other_piece = chessboard.get_piece_at(&target_field);
                 match possible_other_piece {
                     None => {
-                        Some(AllowedMove::new_move(target_field))
+                        Some(AllowedAction::new_move(target_field))
                     }
                     Some(other_piece) => {
                         if other_piece.get_side() != piece_to_move.get_side() {
-                            Some(AllowedMove::new_capture(target_field, other_piece.make_duplicate()))
+                            Some(AllowedAction::new_capture(target_field, other_piece.make_duplicate()))
                         } else {
-                            None
+                            Some(AllowedAction::new_support(target_field))
                         }
                     }
                 }
@@ -78,7 +111,7 @@ impl AllowedMove {
         }
     }
 
-    pub fn get_moves_in_direction(state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedMove> {
+    pub fn get_all_actions_in_direction(state: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Vec<AllowedAction> {
         let mut blocked = false;
         let mut allowed_moves = vec!();
         let mut i = 0;
@@ -91,10 +124,11 @@ impl AllowedMove {
                 Some(target) => {
                     let possible_other_piece = state.get_piece_at(&target);
                     match possible_other_piece {
-                        None => { allowed_moves.push(AllowedMove::new_move(target)) }
+                        None => { allowed_moves.push(AllowedAction::new_move(target)) }
                         Some(other_piece) => {
-                            if other_piece.get_side() != piece_to_move.get_side() {
-                                allowed_moves.push(AllowedMove::new_capture(target, other_piece.make_duplicate()))
+                            match other_piece.get_side() != piece_to_move.get_side() {
+                                true => allowed_moves.push(AllowedAction::new_capture(target, other_piece.make_duplicate())),
+                                false => allowed_moves.push(AllowedAction::new_support(target))
                             }
                             blocked = true;
                         }
@@ -109,10 +143,13 @@ impl AllowedMove {
         &self.target
     }
 
-    pub fn get_move_type(&self) -> MoveType {
-        match self.capture {
-            None => { MoveType::MOVE }
-            Some(_) => { MoveType::CAPTURE }
+    pub fn get_action_type(&self) -> ActionType {
+        if self.capture.is_some() {
+            ActionType::CAPTURE
+        } else if self.is_support {
+            ActionType::SUPPORT
+        } else {
+            ActionType::MOVE
         }
     }
 
@@ -126,7 +163,7 @@ impl AllowedMove {
 }
 
 
-impl Clone for AllowedMove {
+impl Clone for AllowedAction {
     fn clone(&self) -> Self {
         let new_target = self.target.clone();
         let new_capture = if self.capture.is_some() {
@@ -136,10 +173,12 @@ impl Clone for AllowedMove {
         };
 
         let new_accompanying_move = self.accompanying_move.clone();
-        AllowedMove {
+        let new_is_support = self.is_support.clone();
+        AllowedAction {
             target: new_target,
             capture: new_capture,
             accompanying_move: new_accompanying_move,
+            is_support: new_is_support,
         }
     }
 

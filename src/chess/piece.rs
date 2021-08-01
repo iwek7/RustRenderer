@@ -3,10 +3,11 @@ use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
-use crate::chess::move_logic::{PieceMoveComponent};
+use crate::chess::move_logic::PieceMoveComponent;
 use crate::chess::move_logic::create_move_component;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
@@ -14,7 +15,6 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexTextured;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
-use crate::chess::allowed_move::{AllowedMove, AllowedMoves};
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
@@ -43,7 +43,7 @@ impl<'a> Piece<'a> {
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
-    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) -> Option<AllowedMove> {
+    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
         return match self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
             None => {
@@ -54,7 +54,7 @@ impl<'a> Piece<'a> {
                 self.force_move(context, target_field.clone(), pos);
                 Some(allowed_move)
             }
-        }
+        };
     }
 
     pub fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
@@ -137,7 +137,8 @@ impl<'a> PieceFactory<'a> {
 }
 
 pub struct PieceLogic {
-    move_component: Box<dyn PieceMoveComponent>, // todo this feels so wrong here and causes so much issues..., maybe it should somehow part of PieceType? or monad?
+    // todo this feels so wrong here and causes so much issues..., maybe it should somehow part of PieceType? or monad?
+    move_component: Box<dyn PieceMoveComponent>,
     piece_type: PieceType,
     side: Side,
     occupied_field: FieldLogic,
@@ -149,8 +150,8 @@ impl PieceLogic {
         self.move_component.get_all_allowed_moves(state, &self)
     }
 
-    pub fn get_all_attacked_fields(&self, state: &ChessboardState) -> Vec<FieldLogic> {
-        self.move_component.get_all_attacked_fields(state, &self)
+    pub fn get_all_attacked_fields(&self, state: &ChessboardState) -> Vec<AllowedAction> {
+        self.move_component.get_all_attacks(state, &self)
     }
 
     pub fn move_to(&self, target_field: &FieldLogic) -> PieceLogic {
@@ -186,6 +187,8 @@ impl PieceLogic {
     pub fn get_side(&self) -> &Side {
         &self.side
     }
+
+    pub fn get_type(&self) -> &PieceType { &self.piece_type }
 }
 
 impl Clone for PieceLogic {

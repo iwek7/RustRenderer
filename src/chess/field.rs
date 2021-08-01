@@ -3,7 +3,7 @@ use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexColored;
 use crate::opengl_context::OpenglContext;
-use crate::chess::allowed_move::MoveType;
+use crate::chess::allowed_move::ActionType;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
@@ -58,10 +58,11 @@ impl<'a> Field<'a> {
         (self.x, self.y, 0)
     }
 
-    pub fn update_with_allowed_move(&mut self, move_type: &MoveType) {
+    pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {
         match move_type {
-            MoveType::MOVE => { self.is_possible_move = true }
-            MoveType::CAPTURE => { self.is_possible_capture = true }
+            ActionType::MOVE => { self.is_possible_move = true }
+            ActionType::CAPTURE => { self.is_possible_capture = true }
+            _ => {}
         }
     }
 
