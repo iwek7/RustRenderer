@@ -12,16 +12,13 @@ impl AllowedMoves {
             .filter(|allowed_action| allowed_action.get_action_type() != ActionType::SUPPORT)
             .collect();
         AllowedMoves {
-            moves: if state.is_in_check(piece_to_move.get_side()) {
-                filtered_moves.clone().into_iter()
+            moves: filtered_moves.clone().into_iter()
                     .filter(|allowed_move| {
                         let new_state = state.move_piece_to(piece_to_move.get_occupied_field(), allowed_move.get_target());
                         !new_state.is_in_check(piece_to_move.get_side())
                     })
                     .collect()
-            } else {
-                filtered_moves
-            }
+
         }
     }
 
