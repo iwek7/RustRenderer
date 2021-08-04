@@ -9,16 +9,15 @@ pub struct AllowedMoves {
 impl AllowedMoves {
     pub fn new(actions: Vec<AllowedAction>, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves {
         let filtered_moves: Vec<AllowedAction> = actions.clone().into_iter()
-            .filter(|allowed_action| allowed_action.get_action_type() != ActionType::SUPPORT)
+            .filter(|allowed_action| allowed_action.action_type.is_movable())
             .collect();
         AllowedMoves {
             moves: filtered_moves.clone().into_iter()
-                    .filter(|allowed_move| {
-                        let new_state = state.move_piece_to(piece_to_move.get_occupied_field(), allowed_move.get_target());
-                        !new_state.is_in_check(piece_to_move.get_side())
-                    })
-                    .collect()
-
+                .filter(|allowed_move| {
+                    let new_state = state.move_piece_to(piece_to_move.get_occupied_field(), allowed_move.get_target());
+                    !new_state.is_in_check(piece_to_move.get_side())
+                })
+                .collect()
         }
     }
 
@@ -40,48 +39,66 @@ impl AllowedMoves {
     }
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Clone)]
 pub enum ActionType {
     MOVE,
-    CAPTURE,
-    SUPPORT, // cant move but is supporting this field
+    COMPOSITE_MOVE { accompanying_move: AccompanyingMove },
+    CAPTURE { captured_piece: PieceLogic },
+    SUPPORT,
+    // cant move but is supporting this field
+    PROMOTION,
+}
+
+impl ActionType {
+    fn is_movable(&self) -> bool {
+        match self {
+            ActionType::SUPPORT => { false }
+            _ => true
+        }
+    }
 }
 
 
 pub struct AllowedAction {
     target: FieldLogic,
-    capture: Option<PieceLogic>,
-    accompanying_move: Option<AccompanyingMove>,
-    is_support: bool,
+    action_type: ActionType,
 }
 
 impl AllowedAction {
     pub fn new_capture(target: FieldLogic, captured_piece: PieceLogic) -> AllowedAction {
-        AllowedAction { target, capture: Some(captured_piece), accompanying_move: None, is_support: false }
+        AllowedAction { target, action_type: ActionType::CAPTURE { captured_piece } }
     }
 
     pub fn new_move(target: FieldLogic) -> AllowedAction {
-        AllowedAction { target, capture: None, accompanying_move: None, is_support: false }
+        AllowedAction { target, action_type: ActionType::MOVE }
     }
 
     pub fn new_composite_move(target: FieldLogic, accompanying_target: FieldLogic, accompanying_piece: PieceLogic) -> AllowedAction {
-        AllowedAction { target, capture: None, accompanying_move: Some(AccompanyingMove::new(accompanying_target, accompanying_piece)), is_support: false }
+        AllowedAction {
+            target,
+            action_type: ActionType::COMPOSITE_MOVE {
+                accompanying_move: AccompanyingMove::new(accompanying_target, accompanying_piece)
+            },
+        }
     }
 
     pub fn new_support(target: FieldLogic) -> AllowedAction {
-        AllowedAction { target, capture: None, accompanying_move: None, is_support: true }
+        AllowedAction { target, action_type: ActionType::SUPPORT }
     }
 
+    // pub fn new_promotion(target: FieldLogic) -> AllowedAction {}
+
     pub fn movable_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
-      match AllowedAction::action_to_field(chessboard, piece_to_move, row_offset, col_offset) {
-          None => { None }
-          Some(action) => {
-              if action.get_action_type() == ActionType::SUPPORT {
-                  return None;
-              }
-              Some(action)
-          }
-      }
+        match AllowedAction::action_to_field(chessboard, piece_to_move, row_offset, col_offset) {
+            None => { None }
+            Some(action) => {
+                if action.get_action_type().is_movable() {
+                    Some(action)
+                } else {
+                    None
+                }
+            }
+        }
     }
 
     pub fn action_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
@@ -137,22 +154,8 @@ impl AllowedAction {
         &self.target
     }
 
-    pub fn get_action_type(&self) -> ActionType {
-        if self.capture.is_some() {
-            ActionType::CAPTURE
-        } else if self.is_support {
-            ActionType::SUPPORT
-        } else {
-            ActionType::MOVE
-        }
-    }
-
-    pub fn get_capture(&self) -> &Option<PieceLogic> {
-        &self.capture
-    }
-
-    pub fn get_accompanying_move(&self) -> &Option<AccompanyingMove> {
-        &self.accompanying_move
+    pub fn get_action_type(&self) -> &ActionType {
+        &self.action_type
     }
 }
 
@@ -160,19 +163,10 @@ impl AllowedAction {
 impl Clone for AllowedAction {
     fn clone(&self) -> Self {
         let new_target = self.target.clone();
-        let new_capture = if self.capture.is_some() {
-            Some(self.capture.as_ref().unwrap().make_duplicate())
-        } else {
-            None
-        };
-
-        let new_accompanying_move = self.accompanying_move.clone();
-        let new_is_support = self.is_support.clone();
+        let new_action_type = self.action_type.clone();
         AllowedAction {
             target: new_target,
-            capture: new_capture,
-            accompanying_move: new_accompanying_move,
-            is_support: new_is_support,
+            action_type: new_action_type,
         }
     }
 

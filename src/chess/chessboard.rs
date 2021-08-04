@@ -166,17 +166,14 @@ impl<'a> Chessboard<'a> {
                         chessboard,
                     ) {
                         None => {}
-                        Some(allowed_move) => {
+                        Some(allowed_action) => {
                             self.global_game_state = self.global_game_state.switch_side_to_move();
-                            if allowed_move.get_action_type() == ActionType::CAPTURE {
-                                self.handle_piece_capture(&allowed_move.get_capture().clone().unwrap())
-                            }
-
-                            match allowed_move.get_accompanying_move() {
-                                None => {}
-                                Some(accompanying_move) => {
+                            match allowed_action.get_action_type() {
+                                ActionType::CAPTURE { captured_piece } => { self.handle_piece_capture(&captured_piece.clone()) }
+                                ActionType::COMPOSITE_MOVE {accompanying_move } => {
                                     self.handle_accompanying_move(accompanying_move, context);
                                 }
+                                _ => {}
                             }
                         }
                     }
@@ -208,6 +205,7 @@ impl<'a> Chessboard<'a> {
     }
 
     fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove, context: &OpenglContext) {
+        println!("here!");
         let source_field = accompanying_move.get_piece().get_occupied_field();
         let target_field_pos = self.get_field_by_logic(accompanying_move.get_target()).get_position_3d();
         match self.get_piece_by_field(source_field) {
@@ -343,7 +341,7 @@ impl ChessboardState {
             new_occupied_fields.insert(target.clone(), piece.move_to(target));
             ChessboardState {
                 occupied_fields: new_occupied_fields,
-                global_game_state: self.global_game_state.clone()
+                global_game_state: self.global_game_state.clone(),
             }
         } else {
             panic!("Trying to move piece from field it is not in in the first place...")

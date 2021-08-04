@@ -1,9 +1,9 @@
 use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
+use crate::chess::allowed_move::ActionType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexColored;
 use crate::opengl_context::OpenglContext;
-use crate::chess::allowed_move::ActionType;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
@@ -15,7 +15,7 @@ pub struct Field<'a> {
     current_field_overlay: Quadrangle<'a, VertexColored>,
     is_possible_move: bool,
     is_possible_capture: bool,
-    pub is_current_field: bool
+    pub is_current_field: bool,
 }
 
 impl<'a> Field<'a> {
@@ -50,7 +50,7 @@ impl<'a> Field<'a> {
             current_field_overlay,
             is_possible_move: false,
             is_possible_capture: false,
-            is_current_field: false
+            is_current_field: false,
         }
     }
 
@@ -61,7 +61,8 @@ impl<'a> Field<'a> {
     pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {
         match move_type {
             ActionType::MOVE => { self.is_possible_move = true }
-            ActionType::CAPTURE => { self.is_possible_capture = true }
+            ActionType::COMPOSITE_MOVE { accompanying_move } => { self.is_possible_move = true }
+            ActionType::CAPTURE { captured_piece } => { self.is_possible_capture = true }
             _ => {}
         }
     }

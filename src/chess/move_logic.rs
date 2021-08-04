@@ -50,10 +50,9 @@ impl PawnMoveComponent {
         return match allowed_move {
             None => { None }
             Some(real_move) => {
-                if real_move.get_action_type() == ActionType::MOVE {
-                    Some(real_move)
-                } else {
-                    None
+                match real_move.get_action_type() {
+                    ActionType::MOVE => { Some(real_move) }
+                    _ => { None }
                 }
             }
         };
@@ -93,10 +92,9 @@ impl PawnMoveComponent {
         match AllowedAction::movable_to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), col_offset) {
             None => { None }
             Some(allowed_field) => {
-                if allowed_field.get_action_type() == ActionType::CAPTURE {
-                    return Some(allowed_field);
-                } else {
-                    None
+                match allowed_field.get_action_type() {
+                    ActionType::CAPTURE { captured_piece } => { Some(allowed_field) }
+                    _ => { None }
                 }
             }
         }
