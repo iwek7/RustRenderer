@@ -21,7 +21,6 @@ impl<'a> ResourceManager<'a> {
         }
     }
 
-
     pub fn get_pieces_sheet(&self) -> &'a Texture {
         self.pieces_sheet
     }

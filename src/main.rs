@@ -30,7 +30,20 @@ fn main() {
 
     let pieces = res.load_image("textures/pieces.png");
     let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6);
-    let mut chess_game = ChessGame::initialize(&chessboard_texture, &pieces_texture, &context, &tx_shader_program, &shader_program);
+
+    let black_win_banner_data = res.load_image("textures/black_win_banner.png");
+    let black_win_banner_texture = Texture::from_image(black_win_banner_data);
+
+    let white_win_banner_data = res.load_image("textures/white_win_banner.png");
+    let white_win_banner_texture = Texture::from_image(white_win_banner_data);
+
+    let mut chess_game = ChessGame::initialize(&chessboard_texture,
+                                               &pieces_texture,
+                                               &context,
+                                               &tx_shader_program,
+                                               &shader_program,
+                                               &white_win_banner_texture,
+                                               &black_win_banner_texture);
 
     let mut renderer = renderer::Renderer::new(&context);
 

@@ -125,6 +125,9 @@ impl<'a> Chessboard<'a> {
     // todo horror
     // mouse_coords_px is sdl coords (y down)
     pub fn handle_start_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+        if self.is_game_over() {
+            return;
+        }
         for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
             if piece_obj.is_mouse_over(mouse_coords_opengl) {
                 if piece_obj.logic.get_side() == self.global_game_state.get_side_to_move() {
@@ -148,6 +151,9 @@ impl<'a> Chessboard<'a> {
     }
 
     pub fn handle_piece_drop_attempt(&mut self, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+        if self.is_game_over() {
+            return;
+        }
         match self.get_field_by_point(mouse_coords_px) {
             None => {
                 if self.dragged_piece != None {
@@ -196,12 +202,19 @@ impl<'a> Chessboard<'a> {
                 }
             }
         }
+        if self.create_chessboard_state().is_check_mated(self.global_game_state.get_side_to_move()) {
+            self.global_game_state = self.global_game_state.with_winner(self.global_game_state.get_side_to_move().get_other());
+        }
+
         self.clear_allowed_fields();
         self.dragged_piece = None;
         self.prev_mouse_pos = mouse_coords_opengl.clone()
     }
 
     pub fn handle_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+        if self.is_game_over() {
+            return;
+        }
         let drag_offset = &(
             (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
             (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
@@ -211,6 +224,14 @@ impl<'a> Chessboard<'a> {
             self.pieces[self.dragged_piece.unwrap()].handle_drag_pointer_move(drag_offset);
         }
         self.prev_mouse_pos = mouse_coords_opengl.clone()
+    }
+
+    pub fn get_winner(&self) -> &Option<Side> {
+        self.global_game_state.get_winner()
+    }
+
+    fn is_game_over(&self) -> bool {
+        self.global_game_state.get_winner().is_some()
     }
 
     fn handle_piece_capture(&mut self, capture: &PieceLogic) {
@@ -384,12 +405,36 @@ impl ChessboardState {
             panic!("Trying to move piece from field it is not in in the first place...")
         }
     }
+
+    pub fn is_check_mated(&self, side: &Side) -> bool {
+        if self.is_in_check(side) {
+            // check if any possible move prevents check mate
+            for piece in self.get_all_pieces_of_side(side).iter() {
+                let allowed_moves = piece.get_all_allowed_moves(self).get_moves().clone();
+                for allowed_move in allowed_moves.iter() {
+                    if !self.move_piece_to(piece.get_occupied_field(), allowed_move.get_target()).is_in_check(side) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    fn get_all_pieces_of_side(&self, side: &Side) -> Vec<PieceLogic> {
+        self.occupied_fields.values()
+            .filter(|piece| piece.get_side() == side)
+            .cloned()
+            .collect()
+    }
 }
 
 #[derive(Clone)]
 pub struct GlobalGameState {
     side_to_move: Side,
     allowed_en_passant: Option<AllowedEnPassant>,
+    winner: Option<Side>,
 }
 
 impl GlobalGameState {
@@ -397,6 +442,7 @@ impl GlobalGameState {
         GlobalGameState {
             side_to_move: Side::WHITE,
             allowed_en_passant: None,
+            winner: None,
         }
     }
 
@@ -404,6 +450,7 @@ impl GlobalGameState {
         GlobalGameState {
             side_to_move: self.side_to_move.get_other(),
             allowed_en_passant: self.allowed_en_passant.clone(),
+            winner: self.winner.clone(),
         }
     }
 
@@ -411,6 +458,7 @@ impl GlobalGameState {
         GlobalGameState {
             side_to_move: self.side_to_move.clone(),
             allowed_en_passant: Some(AllowedEnPassant { target_field, piece_to_capture }),
+            winner: self.winner.clone(),
         }
     }
 
@@ -418,6 +466,15 @@ impl GlobalGameState {
         GlobalGameState {
             side_to_move: self.side_to_move.clone(),
             allowed_en_passant: None,
+            winner: self.winner.clone(),
+        }
+    }
+
+    fn with_winner(&self, side: Side) -> GlobalGameState {
+        GlobalGameState {
+            side_to_move: self.side_to_move.clone(),
+            allowed_en_passant: self.allowed_en_passant.clone(),
+            winner: Some(side),
         }
     }
 
@@ -426,6 +483,8 @@ impl GlobalGameState {
     }
 
     pub fn get_allowed_en_passant(&self) -> &Option<AllowedEnPassant> { &self.allowed_en_passant }
+
+    pub fn get_winner(&self) -> &Option<Side> { &self.winner }
 }
 
 #[derive(Clone)]
