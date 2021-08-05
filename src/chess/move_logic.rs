@@ -1,5 +1,5 @@
 use crate::chess::allowed_move::{ActionType, AllowedAction, AllowedMoves};
-use crate::chess::chessboard::ChessboardState;
+use crate::chess::chessboard::{AllowedEnPassant, ChessboardState};
 use crate::chess::field::FieldLogic;
 use crate::chess::infrastructure::{PieceType, VectorExtension};
 use crate::chess::piece::PieceLogic;
@@ -27,6 +27,7 @@ impl PieceMoveComponent for PawnMoveComponent {
         allowed_moves.push_if_exists(self.get_first_move(chessboard, piece_to_move));
         allowed_moves.push_if_exists(self.get_left_capture(chessboard, piece_to_move));
         allowed_moves.push_if_exists(self.get_right_capture(chessboard, piece_to_move));
+        allowed_moves.push_if_exists(self.get_en_passant_capture(chessboard, piece_to_move));
         return AllowedMoves::new(allowed_moves, chessboard, piece_to_move);
     }
 
@@ -66,9 +67,8 @@ impl PawnMoveComponent {
             return None;
         }
 
-        // slightly inefficient as we look twice for first move (here and in calling func)
-        // on the other hand imo this makes code of parent func clearer
-        match self.get_move_ahead(chessboard, piece_to_move) {
+        let move_ahead = self.get_move_ahead(chessboard, piece_to_move);
+        match move_ahead {
             None => { return None; }
             Some(_) => {}
         }
@@ -76,7 +76,7 @@ impl PawnMoveComponent {
         match piece_to_move.get_occupied_field().get_offset_field(0, piece_to_move.get_side().adjust_pawn_move_offset(&2)) {
             None => None,
             Some(field_ahead) => if chessboard.is_field_empty(&field_ahead) {
-                Some(AllowedAction::new_move(field_ahead))
+                Some(AllowedAction::new_en_passable_move(field_ahead, move_ahead.unwrap().get_target().clone()))
             } else {
                 None
             }
@@ -89,6 +89,26 @@ impl PawnMoveComponent {
 
     fn get_right_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedAction> {
         self.get_capture(chessboard, piece_to_move, 1)
+    }
+
+    fn get_en_passant_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic) -> Option<AllowedAction> {
+        // this assumes that en passant field is empty (which should be)
+        match chessboard.get_global_game_state().get_allowed_en_passant() {
+            None => { None }
+            Some(allowed_en_passant) => {
+                let en_passable_field = allowed_en_passant.get_target_field().clone();
+                let row_ahead = (piece_to_move.get_occupied_field().row as i32 + piece_to_move.get_side().adjust_pawn_move_offset(&1)) as u32;
+                if en_passable_field.row == row_ahead && (
+                    en_passable_field.col == piece_to_move.get_occupied_field().col + 1 ||
+                        en_passable_field.col == piece_to_move.get_occupied_field().col - 1) {
+                    Some(AllowedAction::new_capture(
+                        en_passable_field,
+                        allowed_en_passant.get_piece_to_capture().clone()))
+                } else {
+                    None
+                }
+            }
+        }
     }
 
     fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<AllowedAction> {

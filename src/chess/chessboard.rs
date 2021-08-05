@@ -80,8 +80,8 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("C1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("D1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("E1"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F1"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("H1"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("A2"), piece_size));
@@ -90,7 +90,7 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("D2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("E2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F2"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("H2"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("A8"), piece_size));
@@ -98,8 +98,8 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("C8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("D8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("E8"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F8"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G8"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("H8"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("A7"), piece_size));
@@ -108,11 +108,8 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("D7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("E7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("F7"), piece_size));
-        // self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("H7"), piece_size));
-
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("G2"), piece_size));
     }
 
     fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
@@ -176,7 +173,7 @@ impl<'a> Chessboard<'a> {
                     match action {
                         None => {}
                         Some(allowed_action) => {
-                            self.global_game_state = self.global_game_state.switch_side_to_move();
+                            self.global_game_state = self.global_game_state.with_switched_side();
                             match allowed_action.get_action_type() {
                                 ActionType::CAPTURE { captured_piece } => { self.handle_piece_capture(&captured_piece.clone()) }
                                 ActionType::COMPOSITE_MOVE { accompanying_move } => { self.handle_accompanying_move(accompanying_move, context); }
@@ -186,6 +183,13 @@ impl<'a> Chessboard<'a> {
                                     self.handle_promotion(&new_logic);
                                 }
                                 _ => {}
+                            }
+
+                            match allowed_action.get_action_type() {
+                                ActionType::EN_PASSABLE_MOVE { en_passant_target_field } => {
+                                    self.global_game_state = self.global_game_state.with_en_passant(en_passant_target_field.clone(), new_logic.clone())
+                                }
+                                _ => { self.global_game_state = self.global_game_state.with_disabled_en_passant() }
                             }
                         }
                     }
@@ -382,26 +386,61 @@ impl ChessboardState {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct GlobalGameState {
     side_to_move: Side,
+    allowed_en_passant: Option<AllowedEnPassant>,
 }
 
 impl GlobalGameState {
     fn new() -> GlobalGameState {
         GlobalGameState {
-            side_to_move: Side::WHITE
+            side_to_move: Side::WHITE,
+            allowed_en_passant: None,
         }
     }
 
-    fn switch_side_to_move(&self) -> GlobalGameState {
+    fn with_switched_side(&self) -> GlobalGameState {
         GlobalGameState {
-            side_to_move: self.side_to_move.get_other()
+            side_to_move: self.side_to_move.get_other(),
+            allowed_en_passant: self.allowed_en_passant.clone(),
+        }
+    }
+
+    fn with_en_passant(&self, target_field: FieldLogic, piece_to_capture: PieceLogic) -> GlobalGameState {
+        GlobalGameState {
+            side_to_move: self.side_to_move.clone(),
+            allowed_en_passant: Some(AllowedEnPassant { target_field, piece_to_capture }),
+        }
+    }
+
+    fn with_disabled_en_passant(&self) -> GlobalGameState {
+        GlobalGameState {
+            side_to_move: self.side_to_move.clone(),
+            allowed_en_passant: None,
         }
     }
 
     fn get_side_to_move(&self) -> &Side {
         &self.side_to_move
+    }
+
+    pub fn get_allowed_en_passant(&self) -> &Option<AllowedEnPassant> { &self.allowed_en_passant }
+}
+
+#[derive(Clone)]
+pub struct AllowedEnPassant {
+    target_field: FieldLogic,
+    piece_to_capture: PieceLogic,
+}
+
+impl AllowedEnPassant {
+    pub fn get_target_field(&self) -> &FieldLogic {
+        &self.target_field
+    }
+
+    pub fn get_piece_to_capture(&self) -> &PieceLogic {
+        &self.piece_to_capture
     }
 }
 

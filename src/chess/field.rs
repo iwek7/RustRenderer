@@ -61,6 +61,7 @@ impl<'a> Field<'a> {
     pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {
         match move_type {
             ActionType::MOVE | ActionType::PROMOTION => { self.is_possible_move = true }
+            ActionType::EN_PASSABLE_MOVE { en_passant_target_field } => { self.is_possible_move = true }
             ActionType::COMPOSITE_MOVE { accompanying_move } => { self.is_possible_move = true }
             ActionType::CAPTURE { captured_piece } | ActionType::CAPTURE_PROMOTION { captured_piece } => { self.is_possible_capture = true }
             _ => {}

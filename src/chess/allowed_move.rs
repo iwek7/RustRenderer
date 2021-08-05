@@ -42,6 +42,7 @@ impl AllowedMoves {
 #[derive(Clone)]
 pub enum ActionType {
     MOVE,
+    EN_PASSABLE_MOVE { en_passant_target_field: FieldLogic },
     COMPOSITE_MOVE { accompanying_move: AccompanyingMove },
     CAPTURE { captured_piece: PieceLogic },
     SUPPORT,
@@ -93,6 +94,10 @@ impl AllowedAction {
 
     pub fn new_capture_promotion(target: FieldLogic, captured_piece: PieceLogic) -> AllowedAction {
         AllowedAction { target, action_type: ActionType::CAPTURE_PROMOTION { captured_piece } }
+    }
+
+    pub fn new_en_passable_move(target: FieldLogic, en_passant_target_field: FieldLogic) -> AllowedAction{
+        AllowedAction { target, action_type: ActionType::EN_PASSABLE_MOVE { en_passant_target_field } }
     }
 
     pub fn movable_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
