@@ -62,7 +62,7 @@ impl<'a> Field<'a> {
         match move_type {
             ActionType::MOVE | ActionType::PROMOTION => { self.is_possible_move = true }
             ActionType::COMPOSITE_MOVE { accompanying_move } => { self.is_possible_move = true }
-            ActionType::CAPTURE { captured_piece } => { self.is_possible_capture = true }
+            ActionType::CAPTURE { captured_piece } | ActionType::CAPTURE_PROMOTION { captured_piece } => { self.is_possible_capture = true }
             _ => {}
         }
     }

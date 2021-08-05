@@ -28,6 +28,13 @@ impl Side {
             Side::WHITE => { Side::BLACK }
         }
     }
+
+    pub fn get_last_rank_row(&self) -> u32 {
+        match self {
+            Side::BLACK => { 0 }
+            Side::WHITE => { 7 }
+        }
+    }
 }
 
 

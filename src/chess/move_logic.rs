@@ -10,13 +10,11 @@ piece move trait
 pub trait PieceMoveComponent {
     fn is_move_allowed(&self, state: &ChessboardState, target_field: &FieldLogic, piece_to_move: &PieceLogic) -> Option<AllowedAction> {
         println!("Checking allowed move to {:?}", piece_to_move.get_occupied_field());
-        // todo take into account supporting move
         return self.get_all_allowed_moves(state, piece_to_move).get_allowed_move_to(target_field);
     }
 
     fn get_all_allowed_moves(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> AllowedMoves;
 
-    // todo this default is wrong, does not include pieces occupied by allies (which are technically `attacked`)
     fn get_all_attacks(&self, state: &ChessboardState, piece_to_move: &PieceLogic) -> Vec<AllowedAction>;
 }
 
@@ -51,7 +49,12 @@ impl PawnMoveComponent {
             None => { None }
             Some(real_move) => {
                 match real_move.get_action_type() {
-                    ActionType::MOVE => { Some(real_move) }
+                    ActionType::MOVE => {
+                        match real_move.get_target().row == piece_to_move.get_side().get_last_rank_row() {
+                            true => { Some(AllowedAction::new_promotion(real_move.get_target().clone())) }
+                            false => { Some(real_move) }
+                        }
+                    }
                     _ => { None }
                 }
             }
@@ -91,9 +94,14 @@ impl PawnMoveComponent {
     fn get_capture(&self, chessboard: &ChessboardState, piece_to_move: &PieceLogic, col_offset: i32) -> Option<AllowedAction> {
         match AllowedAction::movable_to_field(chessboard, piece_to_move, piece_to_move.get_side().adjust_pawn_move_offset(&1), col_offset) {
             None => { None }
-            Some(allowed_field) => {
-                match allowed_field.get_action_type() {
-                    ActionType::CAPTURE { captured_piece } => { Some(allowed_field) }
+            Some(allowed_action) => {
+                match allowed_action.get_action_type() {
+                    ActionType::CAPTURE { captured_piece } => {
+                        match allowed_action.get_target().row == piece_to_move.get_side().get_last_rank_row() {
+                            true => { Some(AllowedAction::new_capture_promotion(allowed_action.get_target().clone(), captured_piece.clone())) }
+                            false => { Some(allowed_action) }
+                        }
+                    }
                     _ => { None }
                 }
             }

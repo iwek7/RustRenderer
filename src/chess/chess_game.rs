@@ -3,6 +3,7 @@ use crate::maths::triangle::Drawable;
 use crate::opengl_context::OpenglContext;
 use crate::render_gl;
 use crate::texture::Texture;
+use crate::chess::resource_manager::ResourceManager;
 
 pub struct ChessGame<'a> {
     chessboard: Chessboard<'a>
@@ -14,9 +15,11 @@ impl<'a> ChessGame<'a> {
                       opengl_context: &'a OpenglContext,
                       chessboard_shader: &'a render_gl::Program,
                       possible_move_shader: &'a render_gl::Program) -> ChessGame<'a> {
-        let mut chessboard = Chessboard::new(&chessboard_texture, &opengl_context, &chessboard_shader, &possible_move_shader);
 
-        chessboard.init_pieces(&pieces_texture);
+        let resource_manager = ResourceManager::new(chessboard_texture, chessboard_shader, possible_move_shader, pieces_texture);
+        let mut chessboard = Chessboard::new(&opengl_context, resource_manager);
+
+        chessboard.init_pieces();
         ChessGame {
             chessboard
         }

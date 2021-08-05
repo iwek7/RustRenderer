@@ -47,6 +47,7 @@ pub enum ActionType {
     SUPPORT,
     // cant move but is supporting this field
     PROMOTION,
+    CAPTURE_PROMOTION { captured_piece: PieceLogic },
 }
 
 impl ActionType {
@@ -88,6 +89,10 @@ impl AllowedAction {
 
     pub fn new_promotion(target: FieldLogic) -> AllowedAction {
         AllowedAction { target, action_type: ActionType::PROMOTION }
+    }
+
+    pub fn new_capture_promotion(target: FieldLogic, captured_piece: PieceLogic) -> AllowedAction {
+        AllowedAction { target, action_type: ActionType::CAPTURE_PROMOTION { captured_piece } }
     }
 
     pub fn movable_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
