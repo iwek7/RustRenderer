@@ -89,7 +89,7 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("D2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("E2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("F2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("G2"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("G2"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("H2"), piece_size));
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet, self.get_field_by_name("A8"), piece_size));
@@ -107,8 +107,11 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("D7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("E7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("F7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("G7"), piece_size));
+        // self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("G7"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("H7"), piece_size));
+
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet, self.get_field_by_name("G7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet, self.get_field_by_name("G2"), piece_size));
     }
 
     fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
@@ -170,9 +173,8 @@ impl<'a> Chessboard<'a> {
                             self.global_game_state = self.global_game_state.switch_side_to_move();
                             match allowed_action.get_action_type() {
                                 ActionType::CAPTURE { captured_piece } => { self.handle_piece_capture(&captured_piece.clone()) }
-                                ActionType::COMPOSITE_MOVE {accompanying_move } => {
-                                    self.handle_accompanying_move(accompanying_move, context);
-                                }
+                                ActionType::COMPOSITE_MOVE { accompanying_move } => { self.handle_accompanying_move(accompanying_move, context); }
+                                ActionType::PROMOTION => {}
                                 _ => {}
                             }
                         }
@@ -199,9 +201,7 @@ impl<'a> Chessboard<'a> {
 
     fn handle_piece_capture(&mut self, capture: &PieceLogic) {
         println!("Captured piece {}", capture);
-        self.pieces.remove(
-            self.pieces.iter().position(|piece| &piece.logic == capture
-            ).expect(&format!("Piece to capture {} not found", capture)));
+        self.remove_piece_by_logic(capture);
     }
 
     fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove, context: &OpenglContext) {
@@ -214,6 +214,24 @@ impl<'a> Chessboard<'a> {
                 piece.force_move(context, accompanying_move.get_target().clone(), target_field_pos);
             }
         }
+    }
+
+    fn handle_promotion(&mut self, promotion_piece: &PieceLogic) {
+        self.remove_piece_by_logic(promotion_piece);
+        // todo: support promotion to different figures
+        self.pieces.push(self.piece_factory.init_piece(
+            PieceType::QUEEN,
+            promotion_piece.get_side().clone(),
+            pieces_sheet,
+            self.get_field_by_logic(promotion_piece.get_occupied_field()),
+            piece_size)
+        );
+    }
+
+    fn remove_piece_by_logic(&mut self, piece_logic: &PieceLogic) {
+        self.pieces.remove(
+            self.pieces.iter().position(|piece| &piece.logic == capture
+            ).expect(&format!("Piece to remove {} not found", capture)));
     }
 
     fn get_piece_by_field(&mut self, field_logic: &FieldLogic) -> Option<&mut Piece<'a>> {

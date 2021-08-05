@@ -58,7 +58,7 @@ impl ActionType {
     }
 }
 
-
+// todo consider removing this object and just use enum with variable...
 pub struct AllowedAction {
     target: FieldLogic,
     action_type: ActionType,
@@ -86,7 +86,9 @@ impl AllowedAction {
         AllowedAction { target, action_type: ActionType::SUPPORT }
     }
 
-    // pub fn new_promotion(target: FieldLogic) -> AllowedAction {}
+    pub fn new_promotion(target: FieldLogic) -> AllowedAction {
+        AllowedAction { target, action_type: ActionType::PROMOTION }
+    }
 
     pub fn movable_to_field(chessboard: &ChessboardState, piece_to_move: &PieceLogic, row_offset: i32, col_offset: i32) -> Option<AllowedAction> {
         match AllowedAction::action_to_field(chessboard, piece_to_move, row_offset, col_offset) {
