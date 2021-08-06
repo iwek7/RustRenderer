@@ -31,7 +31,6 @@ impl<'a> ChessGame<'a> {
         let white_win_banner = ChessGame::create_win_banner(white_win_banner_texture, chessboard_shader, opengl_context);
         let black_win_banner = ChessGame::create_win_banner(black_win_banner_texture, chessboard_shader, opengl_context);
 
-
         ChessGame {
             chessboard,
             black_win_banner,
