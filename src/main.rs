@@ -19,65 +19,8 @@ mod chess;
 fn main() {
     let context = OpenglContext::init();
     let mut event_pump = context.sdl.event_pump().unwrap();
-
-    let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
-
-    let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
-    let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
-
-    let chessboard_data = res.load_image("textures/chessboard.png");
-    let chessboard_texture = Texture::from_image(chessboard_data, TextureParams::new());
-
-    let pieces = res.load_image("textures/pieces.png");
-    let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6,TextureParams::new());
-
-    let banner_tx_params = TextureParams::new()
-        .with_mag_filter(TextureFilterType::NEAREST)
-        .with_min_filter(TextureFilterType::NEAREST);
-
-    let black_win_banner_data = res.load_image("textures/black_win_banner.png");
-    let black_win_banner_texture = Texture::from_image(black_win_banner_data, banner_tx_params.clone());
-
-    let white_win_banner_data = res.load_image("textures/white_win_banner.png");
-    let white_win_banner_texture = Texture::from_image(white_win_banner_data,banner_tx_params);
-
-    let mut chess_game = ChessGame::initialize(&chessboard_texture,
-                                               &pieces_texture,
-                                               &context,
-                                               &tx_shader_program,
-                                               &shader_program,
-                                               &white_win_banner_texture,
-                                               &black_win_banner_texture);
-
     let mut renderer = renderer::Renderer::new(&context);
-
-    'main: loop {
-        let mouse_coords_px = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-        let mouse_opengl_coords = context.sdl_window_to_opengl_space(mouse_coords_px);
-
-        for event in event_pump.poll_iter() {
-            match event {
-                sdl2::event::Event::Quit { .. } => break 'main,
-                sdl2::event::Event::Window {
-                    win_event: sdl2::event::WindowEvent::Resized(w, h),
-                    ..
-                } => {
-                    renderer.resize_viewport(w, h);
-                }
-                sdl2::event::Event::KeyDown {
-                    keycode,
-                    ..
-                } => {}
-                _ => {}
-            }
-
-            chess_game.handle_event(&event, mouse_coords_px, &mouse_opengl_coords, &context)
-        }
-
-        renderer.render(&[
-            &chess_game
-        ]);
-    }
+    ChessGame::play(&mut renderer, &mut event_pump, &context);
 }
 
 // todo: this should be encapsulated into shapes
