@@ -46,8 +46,4 @@ fn create_rect_coords_in_opengl_space_colored(
 }
 
 
-// todo: should not be here
-pub struct SpriteSheet {
-    sprite_sheet: Texture,
-}
 

@@ -59,6 +59,10 @@ impl Texture {
     // todo drop
 }
 
+pub struct SpriteSheet {
+    sprite_sheet: Texture,
+}
+
 pub struct SpriteSheetTopology {
     spritesheet_size: (u32, u32),
     n_rows: u32,
