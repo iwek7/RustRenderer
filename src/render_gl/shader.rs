@@ -55,16 +55,6 @@ impl Program {
         Ok(Program { id: program_id , name: name.parse().unwrap() })
     }
 
-    pub fn id(&self) -> gl::types::GLuint {
-        self.id
-    }
-
-    pub fn set_used(&self) {
-        unsafe {
-            gl::UseProgram(self.id);
-        }
-    }
-
     pub fn from_res(res: &Resources, name: &str) -> Result<Program, ShaderError> {
         const POSSIBLE_EXT: [&str; 2] = [
             ".vert",
@@ -79,6 +69,30 @@ impl Program {
 
         Program::from_shaders(&shaders[..], name)
     }
+
+    pub fn id(&self) -> gl::types::GLuint {
+        self.id
+    }
+
+    pub fn set_used(&self) {
+        unsafe {
+            gl::UseProgram(self.id);
+        }
+    }
+
+    pub fn set_mat4(&self, name: &str, mat4: glam::Mat4) {
+        unsafe {
+            let cname = std::ffi::CString::new(name).expect("CString::new failed");
+            let loc = gl::GetUniformLocation(self.id, cname.as_ptr());
+            gl::UniformMatrix4fv(
+                loc as gl::types::GLint,
+                1,
+                gl::FALSE,
+                &mat4.as_ref()[0]
+            );
+        }
+    }
+
 }
 
 impl Drop for Program {

@@ -7,7 +7,7 @@ pub struct Renderer<'a> {
     viewport: render_gl::Viewport,
 }
 
-impl<'a> Renderer<'a>{
+impl<'a> Renderer<'a> {
     pub fn new(context: &OpenglContext) -> Renderer {
         let viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();

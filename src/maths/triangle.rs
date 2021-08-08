@@ -3,6 +3,7 @@ use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
+use crate::glam_utils::to_glam_vec;
 
 pub struct Triangle<'a, T: VertexShaderDataSetter> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
@@ -38,11 +39,11 @@ impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Triangle<'a, T> {
     fn render(&self) {
-        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES)
+        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()))
     }
 }
 
-impl<'a, T: VertexShaderDataSetter + Clone> Area for Triangle<'a, T> {
+impl<'a, T: VertexShaderDataSetter> Area for Triangle<'a, T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()

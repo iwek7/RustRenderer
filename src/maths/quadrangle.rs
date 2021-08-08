@@ -4,6 +4,7 @@ use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataSetter;
+use crate::glam_utils::to_glam_vec;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
@@ -56,7 +57,7 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
     fn render(&self) {
-        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES)
+        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()))
     }
 }
 

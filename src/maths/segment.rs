@@ -2,6 +2,7 @@ use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexShaderDataSetter;
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::glam_utils::to_glam_vec;
 
 pub struct Segment<'a, T> where T: VertexShaderDataSetter {
     drawing_component: ShapeDrawingComponent<'a, T>,
@@ -33,11 +34,15 @@ impl<'a, T: VertexShaderDataSetter> Segment<'a, T> {
         }
         self.drawing_component.bind_data(&self.vertices)
     }
+
+    pub fn get_pos(&self) -> glam::Vec3 {
+        to_glam_vec(&self.vertices[0].get_pos())
+    }
 }
 
 impl<'a, T: VertexShaderDataSetter> Drawable for Segment<'a, T> {
     fn render(&self) {
-        self.drawing_component.render(self.indices.len() as i32, gl::LINES)
+        self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos())
     }
 }
 

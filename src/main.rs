@@ -1,17 +1,15 @@
-use std::path::Path;
-
 use crate::chess::chess_game::ChessGame;
 use crate::maths::vertex;
 use crate::maths::vertex::{VertexColored, VertexTextured};
 use crate::opengl_context::OpenglContext;
-use crate::resources::Resources;
-use crate::texture::{SpriteCoords, Texture, TextureParams, TextureFilterType};
+use crate::texture::{SpriteCoords};
 
 pub mod render_gl;
 pub mod resources;
 pub mod renderer;
 pub mod opengl_context;
 pub mod texture;
+pub mod glam_utils;
 
 mod maths;
 mod chess;
