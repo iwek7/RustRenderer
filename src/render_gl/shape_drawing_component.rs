@@ -63,8 +63,8 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
             900.0 / 2.0,
             700.0 / 2.0,
             -700.0 / 2.0,
-            0.0,
-            1000.0,
+            0.1,
+            100.0,
         );
         self.program.set_mat4("projection", projection);
 
@@ -76,7 +76,7 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
         );
         self.program.set_mat4("view", view);
 
-        let mut model = glam::Mat4::from_translation(glam::vec3(0.0,0.0,0.2));
+        let mut model = glam::Mat4::from_translation(glam::vec3(0.0,0.0,0.0));
         model = glam::Mat4::from_rotation_x(45.0);
         self.program.set_mat4("model", model);
         // todo:  end of camera specific stuff to be moved away
