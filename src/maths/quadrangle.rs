@@ -3,11 +3,12 @@ use crate::maths::triangle::Drawable;
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
-use crate::vertex::VertexShaderDataSetter;
+use crate::vertex::VertexShaderDataConfigurer;
 use crate::glam_utils::to_glam_vec;
+use crate::renderer::RenderUtil;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
-pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
+pub struct Quadrangle<'a, T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<'a, T>,
     vertices: [T; 4],
     indices: [i32; 6],
@@ -16,7 +17,7 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataSetter {
 
 const REFERENCE_INDEX: usize = 2;
 
-impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Quadrangle<'a, T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
                program: &'a render_gl::Program,
@@ -55,13 +56,13 @@ impl<'a, T: VertexShaderDataSetter> Quadrangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataSetter> Drawable for Quadrangle<'a, T> {
-    fn render(&self) {
-        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()))
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Quadrangle<'a, T> {
+    fn render(&self,  render_util: &RenderUtil) {
+        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }
 
-impl<'a, T: VertexShaderDataSetter> Area for Quadrangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Area for Quadrangle<'a, T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()

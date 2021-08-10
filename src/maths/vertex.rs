@@ -3,13 +3,13 @@ use crate::render_gl::data;
 // todo: split geometry and opengl logic
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
-pub struct VertexColored {
+pub struct ColoredVertexData {
     pub pos: data::f32_f32_f32,
     pub clr: data::f32_f32_f32_f32,
 }
 
-impl VertexShaderDataSetter for VertexColored {
-    fn set_vertex_shader_data() {
+impl VertexShaderDataConfigurer for ColoredVertexData {
+    fn configure_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
         let location = 0; // layout (location = 0)
@@ -41,14 +41,14 @@ impl VertexShaderDataSetter for VertexColored {
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)] // todo: why packed?
-pub struct VertexTextured {
+pub struct TexturedVertexData {
     pub pos: data::f32_f32_f32,
     pub clr: data::f32_f32_f32_f32,
     pub tx_coords: data::f32_f32,
 }
 
-impl VertexShaderDataSetter for VertexTextured {
-    fn set_vertex_shader_data() {
+impl VertexShaderDataConfigurer for TexturedVertexData {
+    fn configure_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
         let location = 0;
@@ -82,8 +82,8 @@ impl VertexShaderDataSetter for VertexTextured {
     }
 }
 
-pub trait VertexShaderDataSetter {
-    fn set_vertex_shader_data();
+pub trait VertexShaderDataConfigurer {
+    fn configure_vertex_shader_data();
     fn transpose(&mut self, x: f32, y: f32, z: f32);
     fn get_pos(&self) -> (f32, f32, f32);
 }

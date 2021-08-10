@@ -1,13 +1,14 @@
 use std::marker::PhantomData;
 
-use crate::maths::vertex::VertexShaderDataSetter;
+use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
 use crate::texture::Texture;
+use crate::renderer::RenderUtil;
 
 // todo: this should be moved away from maths package to opengl package
-pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataSetter {
+pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataConfigurer {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
@@ -16,7 +17,7 @@ pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataSetter {
     _marker: PhantomData<T>,
 }
 
-impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<'a, T> {
     pub fn new(vertices: &[T], indices: &[i32],
                texture: Option<&'a Texture>, program: &'a render_gl::Program) -> ShapeDrawingComponent<'a, T> {
         let vbo = buffer::ArrayBuffer::new();
@@ -31,7 +32,7 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
         // bind indices
         ebo.bind();
         ebo.bind_buffer_data(&indices);
-        T::set_vertex_shader_data();
+        T::configure_vertex_shader_data();
 
         // unbind everything
         vbo.unbind(); // vao must be unbind before ebo else ebo does not get saved!
@@ -53,7 +54,7 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
         self.vbo.unbind();
     }
 
-    pub fn render(&self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3) {
+    pub fn render(&self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3, render_util: &RenderUtil) {
         self.program.set_used();
 
         // todo: move this away from here, camera should do this
@@ -67,19 +68,24 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
         //     100.0,
         // );
         let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
-        self.program.set_mat4("projection", projection);
+
 
         let mut view = glam::Mat4::look_at_rh(
-            glam::vec3(0.0, 0.0, 2.0), // todo is this correct?
+            glam::vec3(2.0, 3.0, 2.0), // todo is this correct?
             glam::vec3(0.0, 0.0, 0.0),
             glam::vec3(0.0, 1.0, 0.0),
         );
-        self.program.set_mat4("view", view);
+
 
         // let mut model = glam::Mat4::IDENTITY.mul_vec4(glam::vec4(0.0,0.0,-1.0, 1.0));
 
         // let mut model = glam::Mat4::from_translation(glam::vec3(1.0,1.0,3.0));
-        self.program.set_mat4("model",  glam::Mat4::IDENTITY);
+
+        let model = glam::Mat4::IDENTITY;
+        let pvm = projection * view * model;
+
+        self.program.set_mat4("pvm", pvm);
+
         // todo:  end of camera specific stuff to be moved away
 
         self.vao.bind();

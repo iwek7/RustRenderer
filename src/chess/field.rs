@@ -2,17 +2,18 @@ use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
 use crate::chess::allowed_move::ActionType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::VertexColored;
+use crate::maths::vertex::ColoredVertexData;
 use crate::opengl_context::OpenglContext;
+use crate::renderer::RenderUtil;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
     pub logic: FieldLogic,
     pub x: i32,
     pub y: i32,
-    possible_move_overlay: Quadrangle<'a, VertexColored>,
-    possible_capture_overlay: Quadrangle<'a, VertexColored>,
-    current_field_overlay: Quadrangle<'a, VertexColored>,
+    possible_move_overlay: Quadrangle<'a, ColoredVertexData>,
+    possible_capture_overlay: Quadrangle<'a, ColoredVertexData>,
+    current_field_overlay: Quadrangle<'a, ColoredVertexData>,
     is_possible_move: bool,
     is_possible_capture: bool,
     pub is_current_field: bool,
@@ -76,13 +77,13 @@ impl<'a> Field<'a> {
 }
 
 impl<'a> Drawable for Field<'a> {
-    fn render(&self) {
+    fn render(&self, render_util: &RenderUtil) {
         if self.is_possible_move {
-            self.possible_move_overlay.render()
+            self.possible_move_overlay.render(render_util)
         } else if self.is_possible_capture {
-            self.possible_capture_overlay.render()
+            self.possible_capture_overlay.render(render_util)
         } else if self.is_current_field {
-            self.current_field_overlay.render()
+            self.current_field_overlay.render(render_util)
         }
     }
 }

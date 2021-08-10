@@ -1,6 +1,7 @@
 use crate::maths::triangle::Drawable;
 use crate::opengl_context::OpenglContext;
 use crate::render_gl;
+use crate::engine::game_controller::CameraConfig;
 
 pub struct Renderer<'a> {
     context: &'a OpenglContext,
@@ -12,8 +13,6 @@ impl<'a> Renderer<'a> {
         let viewport = render_gl::Viewport::for_window(900, 700);
         viewport.set_used();
         unsafe {
-            gl::Viewport(0, 0, 900, 700);
-            gl::ClearColor(0.3, 0.3, 0.5, 1.0);
             gl::ClearColor(0.3, 0.3, 0.5, 1.0);
         }
 
@@ -23,13 +22,13 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&mut self, objects: &[&dyn Drawable]) {
+    pub fn render(&mut self, objects: &[&dyn Drawable], active_camera_config: &CameraConfig) {
         unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
         for obj_render in objects.iter() {
-            obj_render.render();
+            obj_render.render(&RenderUtil::new());
         }
         self.context.window.gl_swap_window();
     }
@@ -37,5 +36,13 @@ impl<'a> Renderer<'a> {
     pub fn resize_viewport(&mut self, w: i32, h: i32) {
         self.viewport.update_size(w, h);
         self.viewport.set_used();
+    }
+}
+
+pub struct RenderUtil {}
+
+impl RenderUtil {
+    fn new() -> RenderUtil {
+        RenderUtil {}
     }
 }

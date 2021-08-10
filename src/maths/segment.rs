@@ -1,17 +1,18 @@
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::VertexShaderDataSetter;
+use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::glam_utils::to_glam_vec;
+use crate::renderer::RenderUtil;
 
-pub struct Segment<'a, T> where T: VertexShaderDataSetter {
+pub struct Segment<'a, T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<'a, T>,
     vertices: [T; 2],
     indices: [i32; 2],
     is_dragged: bool,
 }
 
-impl<'a, T: VertexShaderDataSetter> Segment<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Segment<'a, T> {
     pub fn new(vertices: [T; 2], indices: [i32; 2], program: &render_gl::Program) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
@@ -40,9 +41,9 @@ impl<'a, T: VertexShaderDataSetter> Segment<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataSetter> Drawable for Segment<'a, T> {
-    fn render(&self) {
-        self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos())
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<'a, T> {
+    fn render(&self,  render_util: &RenderUtil) {
+        self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos(), render_util)
     }
 }
 

@@ -27,7 +27,11 @@ impl OpenglContext {
         let gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
         unsafe {
+            // todo is this needed?
             gl::Enable(gl::TEXTURE_2D);
+
+            // todo: to enable this I would have to alternate z offset of pieces and chessboard
+            // todo: to do so I would need to transfrom sdl point via camera transform to world space
             // gl::Enable(gl::DEPTH_TEST);
 
             // todo: this should be moved to texture rendering code and disabled afterwards

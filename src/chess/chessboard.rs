@@ -8,12 +8,13 @@ use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::chess::resource_manager::ResourceManager;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::VertexTextured;
+use crate::maths::vertex::TexturedVertexData;
 use crate::opengl_context::OpenglContext;
+use crate::renderer::RenderUtil;
 use crate::texture::Texture;
 
 pub struct Chessboard<'a> {
-    board: Quadrangle<'a, VertexTextured>,
+    board: Quadrangle<'a, TexturedVertexData>,
     pieces: Vec<Piece<'a>>,
     piece_factory: PieceFactory<'a>,
     field_size: u32,
@@ -335,10 +336,10 @@ impl<'a> Chessboard<'a> {
 }
 
 impl<'a> Drawable for Chessboard<'a> {
-    fn render(&self) {
-        self.board.render();
-        self.fields.iter().for_each(|row| row.iter().for_each(|field| field.render()));
-        self.pieces.iter().for_each(|piece| { piece.render() });
+    fn render(&self, render_util: &RenderUtil) {
+        self.board.render(render_util);
+        self.fields.iter().for_each(|row| row.iter().for_each(|field| field.render(render_util)));
+        self.pieces.iter().for_each(|piece| { piece.render(render_util) });
     }
 }
 

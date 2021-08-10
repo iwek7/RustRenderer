@@ -12,21 +12,22 @@ use crate::chess::move_logic::create_move_component;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::VertexTextured;
+use crate::maths::vertex::TexturedVertexData;
 use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
+use crate::renderer::RenderUtil;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
-    quad: Quadrangle<'a, VertexTextured>,
+    quad: Quadrangle<'a, TexturedVertexData>,
     initial_drag_pos_opengl: (f32, f32, f32),
 
 }
 
 
 impl<'a> Drawable for Piece<'a> {
-    fn render(&self) {
-        self.quad.render()
+    fn render(&self, render_util: &RenderUtil) {
+        self.quad.render(render_util)
     }
 }
 
@@ -92,10 +93,12 @@ impl<'a> PieceFactory<'a> {
 
     pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, field: &Field, size: (i32, i32)) -> Piece<'a> {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
+        let f_pos = field.get_position_3d();
+        let q_pos = (f_pos.0, f_pos.1, 0);
         let quad = Quadrangle::new(
             create_rect_coords_in_opengl_space(
                 &self.opengl_context,
-                field.get_position_3d(),
+                q_pos,
                 size,
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),
             ),

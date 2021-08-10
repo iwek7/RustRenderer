@@ -2,17 +2,18 @@ use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
-use crate::vertex::VertexShaderDataSetter;
+use crate::vertex::VertexShaderDataConfigurer;
 use crate::glam_utils::to_glam_vec;
+use crate::renderer::RenderUtil;
 
-pub struct Triangle<'a, T: VertexShaderDataSetter> {
+pub struct Triangle<'a, T: VertexShaderDataConfigurer> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
     vertices: [T; 3],
     indices: [i32; 3],
 }
 
 // todo: pass reference of texture here
-impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Triangle<'a, T> {
     pub fn new(vertices: [T; 3], indices: [i32; 3], program: &'a render_gl::Program, texture: Option<&'a Texture>) -> Triangle<'a, T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
@@ -37,13 +38,13 @@ impl<'a, T: VertexShaderDataSetter> Triangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataSetter> Drawable for Triangle<'a, T> {
-    fn render(&self) {
-        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()))
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Triangle<'a, T> {
+    fn render(&self,  render_util: &RenderUtil) {
+        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }
 
-impl<'a, T: VertexShaderDataSetter> Area for Triangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<'a, T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
@@ -68,8 +69,9 @@ impl<'a, T: VertexShaderDataSetter> Area for Triangle<'a, T> {
 }
 
 // todo: to separate file
+// todo: Rename to game object?
 pub trait Drawable {
-    fn render(&self);
+    fn render(&self, render_util: &RenderUtil);
 }
 
 
