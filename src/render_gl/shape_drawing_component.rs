@@ -57,28 +57,29 @@ impl<'a, T: VertexShaderDataSetter> ShapeDrawingComponent<'a, T> {
         self.program.set_used();
 
         // todo: move this away from here, camera should do this
-        let projection = glam::Mat4::orthographic_lh(
-            -900.0 / 2.0,
-            // todo get window sizes from opengl context
-            900.0 / 2.0,
-            700.0 / 2.0,
-            -700.0 / 2.0,
-            0.1,
-            100.0,
-        );
+        // let projection = glam::Mat4::orthographic_rh_gl(
+        //     -900.0 / 2.0,
+        //     // todo get window sizes from opengl context
+        //     900.0 / 2.0,
+        //     700.0 / 2.0,
+        //     -700.0 / 2.0,
+        //     0.1,
+        //     100.0,
+        // );
+        let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
         self.program.set_mat4("projection", projection);
 
-        let radius = 10.0;
-        let mut view = glam::Mat4::look_at_lh(
-            glam::vec3(0.0, 0.0, -1.0), // todo is this correct?
+        let mut view = glam::Mat4::look_at_rh(
+            glam::vec3(0.0, 0.0, 2.0), // todo is this correct?
             glam::vec3(0.0, 0.0, 0.0),
             glam::vec3(0.0, 1.0, 0.0),
         );
         self.program.set_mat4("view", view);
 
-        let mut model = glam::Mat4::from_translation(glam::vec3(0.0,0.0,0.0));
-        model = glam::Mat4::from_rotation_x(45.0);
-        self.program.set_mat4("model", model);
+        // let mut model = glam::Mat4::IDENTITY.mul_vec4(glam::vec4(0.0,0.0,-1.0, 1.0));
+
+        // let mut model = glam::Mat4::from_translation(glam::vec3(1.0,1.0,3.0));
+        self.program.set_mat4("model",  glam::Mat4::IDENTITY);
         // todo:  end of camera specific stuff to be moved away
 
         self.vao.bind();
