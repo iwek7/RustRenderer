@@ -28,7 +28,7 @@ impl<'a> Renderer<'a> {
         }
 
         for obj_render in objects.iter() {
-            obj_render.render(&RenderUtil::new());
+            obj_render.render(&RenderUtil::new(active_camera_config.clone()));
         }
         self.context.window.gl_swap_window();
     }
@@ -39,10 +39,25 @@ impl<'a> Renderer<'a> {
     }
 }
 
-pub struct RenderUtil {}
+pub struct RenderUtil {
+    camera_config: CameraConfig
+}
 
 impl RenderUtil {
-    fn new() -> RenderUtil {
-        RenderUtil {}
+    fn new(camera_config: CameraConfig) -> RenderUtil {
+        RenderUtil {
+            camera_config
+        }
+    }
+
+    pub fn calculate_camera_PVM(&self, position: glam::Vec3) -> glam::Mat4 {
+        let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
+        let mut view = glam::Mat4::look_at_rh(
+            self.camera_config.get_eye_position().clone(),
+            self.camera_config.get_direction().clone(),
+            self.camera_config.get_up_vector().clone()
+        );
+        let model = glam::Mat4::from_translation(position); // todo is this correct?
+        return projection * view * model;
     }
 }

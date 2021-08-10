@@ -6,11 +6,29 @@ pub trait GameController {
 
 #[derive(Clone)]
 pub struct CameraConfig {
-
+    eye_position: glam::Vec3,
+    up_vector: glam::Vec3,
+    direction: glam::Vec3,
 }
 
 impl CameraConfig {
-    pub fn new() -> CameraConfig {
-        CameraConfig{}
+    pub fn new(eye_position: glam::Vec3, up_vector: glam::Vec3, direction: glam::Vec3) -> CameraConfig {
+        CameraConfig {
+            eye_position,
+            up_vector,
+            direction,
+        }
+    }
+
+    pub fn get_eye_position(&self) -> &glam::Vec3 {
+        &self.eye_position
+    }
+
+    pub fn get_up_vector(&self) -> &glam::Vec3 {
+        &self.up_vector
+    }
+
+    pub fn get_direction(&self) -> &glam::Vec3 {
+        &self.direction
     }
 }

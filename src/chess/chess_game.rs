@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use sdl2::EventPump;
+use sdl2::keyboard::Keycode;
 
 use crate::{create_rect_coords_in_opengl_space, render_gl};
 use crate::api::camera::CameraGameObject;
@@ -15,6 +16,8 @@ use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
+
+const CAMERA_SPEED: f32 = 0.1;
 
 pub struct ChessGame<'a> {
     chessboard: Chessboard<'a>,
@@ -105,7 +108,7 @@ impl<'a> ChessGame<'a> {
             chessboard,
             black_win_banner,
             white_win_banner,
-            camera: CameraGameObject::new(),
+            camera: CameraGameObject::new(glam::vec3(2.0, 4.0, 2.0)),
         }
     }
 
@@ -133,6 +136,24 @@ impl<'a> ChessGame<'a> {
             sdl2::event::Event::MouseMotion { .. } => {
                 self.chessboard.handle_piece_dragging_attempt(mouse_coords_opengl);
             }
+
+            sdl2::event::Event::KeyDown { keycode, .. } => {
+                match keycode.unwrap() {
+                    Keycode::Left => {
+                        self.camera.move_by(glam::Vec3::new(-CAMERA_SPEED, 0.0, 0.0))
+                    }
+                    Keycode::Right => {
+                        self.camera.move_by(glam::Vec3::new(CAMERA_SPEED, 0.0, 0.0))
+                    }
+                    Keycode::Down => {
+                        self.camera.move_by(glam::Vec3::new(0.0, -CAMERA_SPEED, 0.0))
+                    }
+                    Keycode::Up => {
+                        self.camera.move_by(glam::Vec3::new(0.0, CAMERA_SPEED, 0.0))
+                    }
+                    _ => {}
+                }
+            }
             _ => {}
         }
     }
@@ -155,6 +176,6 @@ impl<'a> Drawable for ChessGame<'a> {
 
 impl<'a> GameController for ChessGame<'a> {
     fn get_camera_config(&self) -> CameraConfig {
-        CameraConfig::new()
+        self.camera.get_current_config()
     }
 }
