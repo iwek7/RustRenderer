@@ -2,7 +2,7 @@ use core::fmt;
 use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
 
-use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::{create_rect_coords, render_gl};
 use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
@@ -21,7 +21,6 @@ pub struct Piece<'a> {
     pub logic: PieceLogic,
     quad: Quadrangle<'a, TexturedVertexData>,
     initial_drag_pos_opengl: (f32, f32, f32),
-
 }
 
 
@@ -32,8 +31,8 @@ impl<'a> Drawable for Piece<'a> {
 }
 
 impl<'a> Piece<'a> {
-    pub fn is_mouse_over(&self, mouse_coords_opengl: &(f32, f32)) -> bool {
-        self.quad.contains_point(mouse_coords_opengl)
+    pub fn is_mouse_over(&self, opengl_mouse_position: &(f32, f32)) -> bool {
+        self.quad.contains_point(opengl_mouse_position)
     }
 
     pub fn handle_start_drag(&mut self) {
@@ -80,14 +79,12 @@ static KING_COL: u32 = 0;
 
 pub struct PieceFactory<'a> {
     shader: &'a render_gl::Program,
-    opengl_context: &'a OpenglContext,
 }
 
 impl<'a> PieceFactory<'a> {
-    pub fn new(opengl_context: &'a OpenglContext, shader: &'a render_gl::Program) -> PieceFactory<'a> {
+    pub fn new(shader: &'a render_gl::Program) -> PieceFactory<'a> {
         return PieceFactory {
-            shader,
-            opengl_context,
+            shader
         };
     }
 
@@ -96,8 +93,7 @@ impl<'a> PieceFactory<'a> {
         let f_pos = field.get_position_3d();
         let q_pos = (f_pos.0, f_pos.1, 0);
         let quad = Quadrangle::new(
-            create_rect_coords_in_opengl_space(
-                &self.opengl_context,
+            create_rect_coords(
                 q_pos,
                 size,
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),

@@ -93,6 +93,19 @@ impl Program {
         }
     }
 
+    pub fn set_vec2(&self, name: &str, vec2: glam::Vec2) {
+        unsafe {
+            let cname = std::ffi::CString::new(name).expect("CString::new failed");
+            let loc = gl::GetUniformLocation(self.id, cname.as_ptr());
+            gl::Uniform2fv(
+                loc as gl::types::GLint,
+                1,
+                &vec2.as_ref()[0]
+            );
+        }
+    }
+
+
 }
 
 impl Drop for Program {

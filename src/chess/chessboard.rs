@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::{create_rect_coords, render_gl};
 use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
@@ -28,19 +28,19 @@ pub struct Chessboard<'a> {
 }
 
 impl<'a> Chessboard<'a> {
-    pub fn new(opengl_context: &'a OpenglContext, resource_manager: ResourceManager<'a>) -> Chessboard<'a> {
+    pub fn new(resource_manager: ResourceManager<'a>) -> Chessboard<'a> {
         let field_size = 87;
         let board_size = field_size * 8;
         let position = (100, 0, 0);
         let quad = Quadrangle::new(
-            create_rect_coords_in_opengl_space(&opengl_context, position.clone(), (board_size, board_size),
-                                               &resource_manager.get_chessboard_texture().topology.get_sprite_coords(0, 0).unwrap()),
+            create_rect_coords(position.clone(), (board_size, board_size),
+                               &resource_manager.get_chessboard_texture().topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             &resource_manager.get_chessboard_shader(),
             Some(&resource_manager.get_chessboard_texture()),
         );
 
-        let piece_factory = PieceFactory::new(opengl_context, &resource_manager.get_chessboard_shader());
+        let piece_factory = PieceFactory::new(&resource_manager.get_chessboard_shader());
 
         let mut fields = Vec::new();
         for row_idx in 0..8 as u32 {
@@ -53,7 +53,6 @@ impl<'a> Chessboard<'a> {
                     row_idx as i32 * field_size + position.1,
                     field_size,
                     &resource_manager.get_possible_move_shader(),
-                    opengl_context,
                 ));
             }
             fields.push(row);

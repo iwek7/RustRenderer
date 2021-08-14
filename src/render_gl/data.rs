@@ -35,6 +35,12 @@ impl From<(f32, f32, f32)> for f32_f32_f32 {
     }
 }
 
+impl From<(i32, i32, i32)> for f32_f32_f32 {
+    fn from(other: (i32, i32, i32)) -> Self {
+        f32_f32_f32::new(other.0 as f32, other.1 as f32, other.2 as f32)
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]

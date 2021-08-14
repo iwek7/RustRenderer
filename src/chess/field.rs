@@ -1,4 +1,4 @@
-use crate::{create_rect_coords_in_opengl_space_colored, render_gl};
+use crate::{create_rect_coords_colored, render_gl};
 use crate::chess::allowed_move::ActionType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
@@ -20,23 +20,23 @@ pub struct Field<'a> {
 }
 
 impl<'a> Field<'a> {
-    pub fn new(col: u32, row: u32, x: i32, y: i32, field_size: i32, possible_move_shader: &'a render_gl::Program, opengl_context: &OpenglContext) -> Field<'a> {
+    pub fn new(col: u32, row: u32, x: i32, y: i32, field_size: i32, possible_move_shader: &'a render_gl::Program) -> Field<'a> {
         let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
+            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
         );
 
         let possible_capture_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
+            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
         );
 
         let current_field_overlay = Quadrangle::new(
-            create_rect_coords_in_opengl_space_colored(&opengl_context, (x, y, 0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
+            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,

@@ -28,7 +28,7 @@ impl<'a> Renderer<'a> {
         }
 
         for obj_render in objects.iter() {
-            obj_render.render(&RenderUtil::new(active_camera_config.clone()));
+            obj_render.render(&RenderUtil::new(active_camera_config.clone(), self.context));
         }
         self.context.window.gl_swap_window();
     }
@@ -39,18 +39,20 @@ impl<'a> Renderer<'a> {
     }
 }
 
-pub struct RenderUtil {
-    camera_config: CameraConfig
+pub struct RenderUtil<'a> {
+    camera_config: CameraConfig,
+    opengl_context: &'a OpenglContext
 }
 
-impl RenderUtil {
-    fn new(camera_config: CameraConfig) -> RenderUtil {
+impl<'a> RenderUtil<'a> {
+    fn new(camera_config: CameraConfig, opengl_context: &'a OpenglContext) -> RenderUtil<'a> {
         RenderUtil {
-            camera_config
+            camera_config,
+            opengl_context
         }
     }
 
-    pub fn calculate_camera_PVM(&self, position: glam::Vec3) -> glam::Mat4 {
+    pub fn calculate_camera_MVP(&self, position: glam::Vec3) -> glam::Mat4 {
         let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
         let mut view = glam::Mat4::look_at_rh(
             self.camera_config.get_eye_position().clone(),
@@ -59,5 +61,10 @@ impl RenderUtil {
         );
         let model = glam::Mat4::from_translation(position); // todo is this correct?
         return projection * view * model;
+    }
+
+    pub fn get_window_size(&self) -> glam::Vec2 {
+        let win_size = self.opengl_context.window.size();
+        glam::Vec2::new(win_size.0 as f32, win_size.1 as f32)
     }
 }

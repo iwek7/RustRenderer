@@ -3,7 +3,7 @@ use std::path::Path;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
-use crate::{create_rect_coords_in_opengl_space, render_gl};
+use crate::{create_rect_coords, render_gl};
 use crate::api::camera::CameraGameObject;
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
@@ -52,7 +52,6 @@ impl<'a> ChessGame<'a> {
 
         let mut chess_game = ChessGame::initialize(&chessboard_texture,
                                                    &pieces_texture,
-                                                   &context,
                                                    &tx_shader_program,
                                                    &shader_program,
                                                    &white_win_banner_texture,
@@ -90,19 +89,18 @@ impl<'a> ChessGame<'a> {
 
     fn initialize(chessboard_texture: &'a Texture,
                   pieces_texture: &'a Texture,
-                  opengl_context: &'a OpenglContext,
                   chessboard_shader: &'a render_gl::Program,
                   possible_move_shader: &'a render_gl::Program,
                   white_win_banner_texture: &'a Texture,
                   black_win_banner_texture: &'a Texture,
     ) -> ChessGame<'a> {
         let resource_manager = ResourceManager::new(chessboard_texture, chessboard_shader, possible_move_shader, pieces_texture);
-        let mut chessboard = Chessboard::new(&opengl_context, resource_manager);
+        let mut chessboard = Chessboard::new(resource_manager);
 
         chessboard.init_pieces();
 
-        let white_win_banner = ChessGame::create_win_banner(white_win_banner_texture, chessboard_shader, opengl_context);
-        let black_win_banner = ChessGame::create_win_banner(black_win_banner_texture, chessboard_shader, opengl_context);
+        let white_win_banner = ChessGame::create_win_banner(white_win_banner_texture, chessboard_shader);
+        let black_win_banner = ChessGame::create_win_banner(black_win_banner_texture, chessboard_shader);
 
         ChessGame {
             chessboard,
@@ -113,10 +111,10 @@ impl<'a> ChessGame<'a> {
     }
 
 
-    fn create_win_banner(tx: &'a Texture, shader: &'a render_gl::Program, opengl_context: &'a OpenglContext) -> Quadrangle<'a, TexturedVertexData> {
+    fn create_win_banner(tx: &'a Texture, shader: &'a render_gl::Program) -> Quadrangle<'a, TexturedVertexData> {
         Quadrangle::new(
-            create_rect_coords_in_opengl_space(&opengl_context, (200, 100, 0), (512, 512),
-                                               &tx.topology.get_sprite_coords(0, 0).unwrap()),
+            create_rect_coords((200, 100, 0), (512, 512),
+                               &tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             &shader,
             Some(&tx),
