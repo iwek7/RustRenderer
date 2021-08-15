@@ -19,8 +19,8 @@ pub struct Chessboard<'a> {
     piece_factory: PieceFactory<'a>,
     field_size: u32,
     board_size: u32,
-    position: (i32, i32, i32),
-    prev_mouse_pos: (f32, f32),
+    position: (f32, f32, f32),
+    prev_mouse_pos: (f32, f32, f32),
     fields: Vec<Vec<Field<'a>>>,
     dragged_piece: Option<usize>,
     global_game_state: GlobalGameState,
@@ -29,9 +29,9 @@ pub struct Chessboard<'a> {
 
 impl<'a> Chessboard<'a> {
     pub fn new(resource_manager: ResourceManager<'a>) -> Chessboard<'a> {
-        let field_size = 87;
-        let board_size = field_size * 8;
-        let position = (100, 0, 0);
+        let field_size = 87.0;
+        let board_size = field_size * 8.0;
+        let position = (100.0, 0.0, 0.0);
         let quad = Quadrangle::new(
             create_rect_coords(position.clone(), (board_size, board_size),
                                &resource_manager.get_chessboard_texture().topology.get_sprite_coords(0, 0).unwrap()),
@@ -49,8 +49,8 @@ impl<'a> Chessboard<'a> {
                 row.push(Field::new(
                     col_idx,
                     row_idx,
-                    col_idx as i32 * field_size + position.0,
-                    row_idx as i32 * field_size + position.1,
+                    col_idx as f32 * field_size + position.0,
+                    row_idx as f32 * field_size + position.1,
                     field_size,
                     &resource_manager.get_possible_move_shader(),
                 ));
@@ -65,7 +65,7 @@ impl<'a> Chessboard<'a> {
             field_size: field_size as u32,
             board_size: board_size as u32,
             position,
-            prev_mouse_pos: (0.0, 0.0),
+            prev_mouse_pos: (0.0, 0.0, 0.0),
             fields,
             dragged_piece: None,
             global_game_state: GlobalGameState::new(),
@@ -74,7 +74,7 @@ impl<'a> Chessboard<'a> {
     }
 
     pub fn init_pieces(&mut self) {
-        let piece_size = (self.field_size as i32, self.field_size as i32);
+        let piece_size = (self.field_size as f32, self.field_size as f32);
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("A1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("B1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("C1"), piece_size));
@@ -112,11 +112,11 @@ impl<'a> Chessboard<'a> {
         self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, self.resource_manager.get_pieces_sheet(), self.get_field_by_name("H7"), piece_size));
     }
 
-    fn get_field_position(&self, field: &Field) -> (i32, i32, i32) {
+    fn get_field_position(&self, field: &Field) -> (f32, f32, f32) {
         (
-            field.logic.col as i32 * self.field_size as i32 + self.position.0,
-            field.logic.row as i32 * self.field_size as i32 + self.position.1,
-            0
+            field.logic.col as f32 * self.field_size as f32 + self.position.0,
+            field.logic.row as f32 * self.field_size as f32 + self.position.1,
+            0.0
         )
     }
 
@@ -124,12 +124,12 @@ impl<'a> Chessboard<'a> {
     // todo even context is needed here to translate them...
     // todo horror
     // mouse_coords_px is sdl coords (y down)
-    pub fn handle_start_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+    pub fn handle_start_piece_dragging_attempt(&mut self, world_mouse_position: &(f32, f32, f32)) {
         if self.is_game_over() {
             return;
         }
         for (i, piece_obj) in self.pieces.iter_mut().enumerate() {
-            if piece_obj.is_mouse_over(mouse_coords_opengl) {
+            if piece_obj.is_mouse_over(world_mouse_position) {
                 if piece_obj.logic.get_side() == self.global_game_state.get_side_to_move() {
                     self.dragged_piece = Some(i);
                     piece_obj.handle_start_drag();
@@ -147,14 +147,14 @@ impl<'a> Chessboard<'a> {
             let occupied_field_logic = &self.pieces[self.dragged_piece.unwrap()].logic.get_occupied_field().clone();
             self.get_field_by_logic_mut(occupied_field_logic).is_current_field = true;
         }
-        self.prev_mouse_pos = mouse_coords_opengl.clone()
+        self.prev_mouse_pos = world_mouse_position.clone()
     }
 
-    pub fn handle_piece_drop_attempt(&mut self, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &(f32, f32, f32), context: &OpenglContext) {
         if self.is_game_over() {
             return;
         }
-        match self.get_field_by_point(mouse_coords_px) {
+        match self.get_field_by_point(&(world_mouse_coords.0, world_mouse_coords.1)) {
             None => {
                 if self.dragged_piece != None {
                     self.pieces[self.dragged_piece.unwrap()].return_to_initial_pos();
@@ -208,22 +208,22 @@ impl<'a> Chessboard<'a> {
 
         self.clear_allowed_fields();
         self.dragged_piece = None;
-        self.prev_mouse_pos = mouse_coords_opengl.clone()
+        self.prev_mouse_pos = world_mouse_coords.clone()
     }
 
-    pub fn handle_piece_dragging_attempt(&mut self, mouse_coords_opengl: &(f32, f32)) {
+    pub fn handle_piece_dragging_attempt(&mut self, world_mouse_coords: &(f32, f32, f32)) {
         if self.is_game_over() {
             return;
         }
         let drag_offset = &(
-            (mouse_coords_opengl.0 - self.prev_mouse_pos.0) as f32,
-            (mouse_coords_opengl.1 - self.prev_mouse_pos.1) as f32
+            (world_mouse_coords.0 - self.prev_mouse_pos.0) as f32,
+            (world_mouse_coords.1 - self.prev_mouse_pos.1) as f32
         );
 
         if self.dragged_piece != None {
             self.pieces[self.dragged_piece.unwrap()].handle_drag_pointer_move(drag_offset);
         }
-        self.prev_mouse_pos = mouse_coords_opengl.clone()
+        self.prev_mouse_pos = world_mouse_coords.clone()
     }
 
     pub fn get_winner(&self) -> &Option<Side> {
@@ -240,7 +240,6 @@ impl<'a> Chessboard<'a> {
     }
 
     fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove, context: &OpenglContext) {
-        println!("here!");
         let source_field = accompanying_move.get_piece().get_occupied_field();
         let target_field_pos = self.get_field_by_logic_mut(accompanying_move.get_target()).get_position_3d();
         match self.get_piece_by_field(source_field) {
@@ -254,7 +253,7 @@ impl<'a> Chessboard<'a> {
     fn handle_promotion(&mut self, promoted_piece: &PieceLogic) {
         self.remove_piece_by_logic(promoted_piece);
         // todo: support promotion to different figures
-        let piece_size = (self.field_size as i32, self.field_size as i32);
+        let piece_size = (self.field_size as f32, self.field_size as f32);
         let new_piece = self.piece_factory.init_piece(
             PieceType::QUEEN,
             promoted_piece.get_side().clone(),
@@ -296,7 +295,7 @@ impl<'a> Chessboard<'a> {
 
 
     // could also move it to field.contains() or something
-    fn get_field_by_point(&self, point: &(i32, i32)) -> Option<&Field> {
+    fn get_field_by_point(&self, point: &(f32, f32)) -> Option<&Field> {
         return match self.get_field_coords_by_point(point) {
             None => None,
             Some(coords) => {
@@ -307,17 +306,18 @@ impl<'a> Chessboard<'a> {
     }
 
     // todo: should be get field by point...
-    fn get_field_coords_by_point(&self, point: &(i32, i32)) -> Option<(usize, usize)> {
+    fn get_field_coords_by_point(&self, point: &(f32, f32)) -> Option<(usize, usize)> {
         if point.0 < self.position.0 ||
-            point.0 as i32 > self.position.0 + self.board_size as i32 ||
+            point.0 > self.position.0 + self.board_size as f32 ||
             point.1 < self.position.1 ||
-            point.1 as i32 > self.position.1 + self.board_size as i32 {
+            point.1 > self.position.1 + self.board_size as f32 {
             return None;
         }
+        // todo rounding
         return Some(
             (
-                7 - ((point.1 as i32 - self.position.1) / self.field_size as i32) as usize,
-                ((point.0 as i32 - self.position.0) / self.field_size as i32) as usize,
+                (7 - ((point.1 - self.position.1)).floor() as u32 / self.field_size) as usize,
+                (((point.0 - self.position.0)).floor() as u32 / self.field_size) as usize,
             )
         );
     }

@@ -31,8 +31,8 @@ impl<'a> Drawable for Piece<'a> {
 }
 
 impl<'a> Piece<'a> {
-    pub fn is_mouse_over(&self, opengl_mouse_position: &(f32, f32)) -> bool {
-        self.quad.contains_point(opengl_mouse_position)
+    pub fn is_mouse_over(&self, world_mouse_position: &(f32, f32, f32)) -> bool {
+        self.quad.contains_point(&(world_mouse_position.0, world_mouse_position.1))
     }
 
     pub fn handle_start_drag(&mut self) {
@@ -43,7 +43,7 @@ impl<'a> Piece<'a> {
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
-    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
+    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (f32, f32, f32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
         return match self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
             None => {
@@ -61,8 +61,9 @@ impl<'a> Piece<'a> {
         self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
     }
 
-    pub fn force_move(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (i32, i32, i32)) {
-        let opengl_pos = context.engine_to_opengl_space(&pos);
+    pub fn force_move(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (f32, f32, f32)) {
+        // wrong!!! kappa
+        let opengl_pos = context.engine_to_opengl_space_f(&pos);
         self.quad.move_to(&opengl_pos);
         self.logic = self.logic.move_to(&target_field);
     }
@@ -88,10 +89,11 @@ impl<'a> PieceFactory<'a> {
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, field: &Field, size: (i32, i32)) -> Piece<'a> {
+    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, field: &Field, size: (f32, f32)) -> Piece<'a> {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
         let f_pos = field.get_position_3d();
-        let q_pos = (f_pos.0, f_pos.1, 0);
+        // todo: all types here should be either i32 or f32
+        let q_pos = (f_pos.0 as f32, f_pos.1 as f32, 0 as f32);
         let quad = Quadrangle::new(
             create_rect_coords(
                 q_pos,

@@ -58,9 +58,13 @@ impl<'a> ChessGame<'a> {
                                                    &black_win_banner_texture);
 
         'main: loop {
-            let mouse_coords_px = &(event_pump.mouse_state().x(), event_pump.mouse_state().y());
-            let mouse_opengl_coords = context.sdl_window_to_opengl_space(mouse_coords_px);
 
+            let sdl_pos = (event_pump.mouse_state().x().clone(), event_pump.mouse_state().y().clone());
+            let world_mouse_position = context.sdl_space_to_world_space( &sdl_pos,
+                                                                         &chess_game.get_camera_config());
+
+            println!("world pos {:?}", world_mouse_position);
+            println!("---");
             for event in event_pump.poll_iter() {
                 match event {
                     sdl2::event::Event::Quit { .. } => break 'main,
@@ -77,7 +81,7 @@ impl<'a> ChessGame<'a> {
                     _ => {}
                 }
 
-                chess_game.handle_event(&event, mouse_coords_px, &mouse_opengl_coords, &context)
+                chess_game.handle_event(&event, &world_mouse_position, &context)
             }
 
             renderer.render(
@@ -113,7 +117,7 @@ impl<'a> ChessGame<'a> {
 
     fn create_win_banner(tx: &'a Texture, shader: &'a render_gl::Program) -> Quadrangle<'a, TexturedVertexData> {
         Quadrangle::new(
-            create_rect_coords((200, 100, 0), (512, 512),
+            create_rect_coords((200.0, 100.0, 0.0), (512.0, 512.0),
                                &tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             &shader,
@@ -121,18 +125,18 @@ impl<'a> ChessGame<'a> {
         )
     }
 
-    fn handle_event(&mut self, event: &sdl2::event::Event, mouse_coords_px: &(i32, i32), mouse_coords_opengl: &(f32, f32), context: &OpenglContext) {
+    fn handle_event(&mut self, event: &sdl2::event::Event, world_mouse_position: &(f32, f32, f32), context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
-                self.chessboard.handle_start_piece_dragging_attempt(mouse_coords_opengl);
+                self.chessboard.handle_start_piece_dragging_attempt(world_mouse_position);
             }
 
             sdl2::event::Event::MouseButtonUp { .. } => {
-                self.chessboard.handle_piece_drop_attempt(mouse_coords_px, mouse_coords_opengl, context);
+                self.chessboard.handle_piece_drop_attempt(world_mouse_position, context);
             }
 
             sdl2::event::Event::MouseMotion { .. } => {
-                self.chessboard.handle_piece_dragging_attempt(mouse_coords_opengl);
+                self.chessboard.handle_piece_dragging_attempt(world_mouse_position);
             }
 
             sdl2::event::Event::KeyDown { keycode, .. } => {

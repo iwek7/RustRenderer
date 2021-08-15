@@ -9,8 +9,8 @@ use crate::renderer::RenderUtil;
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow
     pub logic: FieldLogic,
-    pub x: i32,
-    pub y: i32,
+    pub x: f32,
+    pub y: f32,
     possible_move_overlay: Quadrangle<'a, ColoredVertexData>,
     possible_capture_overlay: Quadrangle<'a, ColoredVertexData>,
     current_field_overlay: Quadrangle<'a, ColoredVertexData>,
@@ -20,23 +20,23 @@ pub struct Field<'a> {
 }
 
 impl<'a> Field<'a> {
-    pub fn new(col: u32, row: u32, x: i32, y: i32, field_size: i32, possible_move_shader: &'a render_gl::Program) -> Field<'a> {
+    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: &'a render_gl::Program) -> Field<'a> {
         let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
+            create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
         );
 
         let possible_capture_overlay = Quadrangle::new(
-            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
+            create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
         );
 
         let current_field_overlay = Quadrangle::new(
-            create_rect_coords_colored((x, y, 0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
+            create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
             [0, 1, 3, 1, 2, 3],
             &possible_move_shader,
             None,
@@ -55,8 +55,8 @@ impl<'a> Field<'a> {
         }
     }
 
-    pub fn get_position_3d(&self) -> (i32, i32, i32) {
-        (self.x, self.y, 0)
+    pub fn get_position_3d(&self) -> (f32, f32, f32) {
+        (self.x, self.y, 0.0)
     }
 
     pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {

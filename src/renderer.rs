@@ -59,7 +59,8 @@ impl<'a> RenderUtil<'a> {
             self.camera_config.get_direction().clone(),
             self.camera_config.get_up_vector().clone()
         );
-        let model = glam::Mat4::from_translation(position); // todo is this correct?
+        let model = glam::Mat4::from_translation(position);
+        let pv = projection * view;
         return projection * view * model;
     }
 

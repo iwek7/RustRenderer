@@ -24,7 +24,7 @@ fn main() {
 }
 
 // todo: this should be encapsulated into shapes
-fn create_rect_coords(pos: (i32, i32, i32), size: (i32, i32), sprite_coords: &SpriteCoords) -> [TexturedVertexData; 4] {
+fn create_rect_coords(pos: (f32, f32, f32), size: (f32, f32), sprite_coords: &SpriteCoords) -> [TexturedVertexData; 4] {
     return [
         vertex::TexturedVertexData { pos: (pos.0 + size.0, pos.1 + size.1, pos.2).into(), clr: (1.0, 1.0, 0.0, 1.0).into(), tx_coords: sprite_coords.top_right.into() },
         vertex::TexturedVertexData { pos: (pos.0 + size.0, pos.1, pos.2).into(), clr: (1.0, 1.0, 0.0, 1.0).into(), tx_coords: sprite_coords.bottom_right.into() },
@@ -34,7 +34,7 @@ fn create_rect_coords(pos: (i32, i32, i32), size: (i32, i32), sprite_coords: &Sp
 }
 
 // todo: size should be u32
-fn create_rect_coords_colored(pos: (i32, i32, i32), size: (i32, i32), clr: (f32, f32, f32, f32)) -> [ColoredVertexData; 4] {
+fn create_rect_coords_colored(pos: (f32, f32, f32), size: (f32, f32), clr: (f32, f32, f32, f32)) -> [ColoredVertexData; 4] {
     return [
         vertex::ColoredVertexData { pos: (pos.0 + size.0, pos.1 + size.1, pos.2).into(), clr: clr.into() },
         vertex::ColoredVertexData { pos: (pos.0 + size.0, pos.1, pos.2).into(), clr: clr.into() },

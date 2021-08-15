@@ -58,7 +58,7 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<'a, T> {
     pub fn render(&self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3, render_util: &RenderUtil) {
         self.program.set_used();
 
-        let mvp = render_util.calculate_camera_MVP(glam::vec3(0.5, 1.0, -1.0));
+        let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, -1.0));
         self.program.set_mat4("mvp", mvp);
 
         self.program.set_vec2("win_size", render_util.get_window_size());
