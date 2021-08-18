@@ -1,3 +1,5 @@
+use std::ops::{Div, Sub, Add, Mul};
+
 use crate::engine::game_controller::CameraConfig;
 
 pub struct OpenglContext {
@@ -72,7 +74,6 @@ impl OpenglContext {
     // based on https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
     // todo: what about z (glReadPixels)
     pub fn sdl_space_to_world_space(&self, pos: &(i32, i32), camera_config: &CameraConfig) -> (f32, f32, f32) {
-
         println!("sdl pos {:?}", pos);
 
         // todo projection is duplicated, how to solve this?
@@ -90,11 +91,35 @@ impl OpenglContext {
 
 
         let opengl_mouse_pos = self.sdl_window_to_opengl_space(pos);
-        let v = glam::Vec4::new(opengl_mouse_pos.0 as f32, opengl_mouse_pos.1 as f32, 1.0, 1.0);
+        let v = glam::Vec4::new(opengl_mouse_pos.0 as f32, opengl_mouse_pos.1 as f32, -1.0, 1.0);
         println!("pre raw {:?}", v);
 
         let res = reverse_vp * v;
         println!("raw {:?}", res);
+
+        let ray_direction = glam::Vec3::new(
+            camera_config.get_eye_position().x - res.x,
+            camera_config.get_eye_position().y - res.y,
+            -1.0
+        );
+        println!("ray direction {:?}", ray_direction);
+
+        let n = glam::Vec3::new(0., 0., -1.);
+        let b = ray_direction.dot(n);
+        if b < 0.01 {
+            println!("b too small: {:?}, does not cross!", b);
+            return (res.x / res.w, res.y / res.w, res.z);
+        }
+
+
+
+        let mut s = glam::Vec3::new(0.0, 0.0, 0.0);
+        s.sub(camera_config.get_eye_position().clone());
+        let t = s.dot(n) / s.div(b);
+
+        let cross_point =  camera_config.get_eye_position().clone().add(ray_direction.mul(t));
+        println!("final point is {:?}", cross_point);
+
         return (res.x / res.w, res.y / res.w, res.z);
     }
 }

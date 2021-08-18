@@ -31,7 +31,7 @@ impl<'a> Chessboard<'a> {
     pub fn new(resource_manager: ResourceManager<'a>) -> Chessboard<'a> {
         let field_size = 87.0;
         let board_size = field_size * 8.0;
-        let position = (100.0, 0.0, 0.0);
+        let position = (0.0, 0.0, 0.0);
         let quad = Quadrangle::new(
             create_rect_coords(position.clone(), (board_size, board_size),
                                &resource_manager.get_chessboard_texture().topology.get_sprite_coords(0, 0).unwrap()),
@@ -150,7 +150,7 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = world_mouse_position.clone()
     }
 
-    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &(f32, f32, f32), context: &OpenglContext) {
+    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &(f32, f32, f32)) {
         if self.is_game_over() {
             return;
         }
@@ -168,7 +168,6 @@ impl<'a> Chessboard<'a> {
                     let chessboard_state = &self.create_chessboard_state();
 
                     let action = &self.pieces[self.dragged_piece.unwrap()].handle_drop(
-                        context,
                         field_data.clone(),
                         pos,
                         chessboard_state,
@@ -182,7 +181,7 @@ impl<'a> Chessboard<'a> {
                             self.global_game_state = self.global_game_state.with_switched_side();
                             match allowed_action.get_action_type() {
                                 ActionType::CAPTURE { captured_piece } => { self.handle_piece_capture(&captured_piece.clone()) }
-                                ActionType::COMPOSITE_MOVE { accompanying_move } => { self.handle_accompanying_move(accompanying_move, context); }
+                                ActionType::COMPOSITE_MOVE { accompanying_move } => { self.handle_accompanying_move(accompanying_move); }
                                 ActionType::PROMOTION => { self.handle_promotion(&new_logic) }
                                 ActionType::CAPTURE_PROMOTION { captured_piece } => {
                                     self.handle_piece_capture(&captured_piece.clone());
@@ -239,13 +238,13 @@ impl<'a> Chessboard<'a> {
         self.remove_piece_by_logic(capture);
     }
 
-    fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove, context: &OpenglContext) {
+    fn handle_accompanying_move(&mut self, accompanying_move: &AccompanyingMove) {
         let source_field = accompanying_move.get_piece().get_occupied_field();
         let target_field_pos = self.get_field_by_logic_mut(accompanying_move.get_target()).get_position_3d();
         match self.get_piece_by_field(source_field) {
             None => { panic!("Accompanying move failed") }
             Some(piece) => {
-                piece.force_move(context, accompanying_move.get_target().clone(), target_field_pos);
+                piece.force_move(accompanying_move.get_target().clone(), target_field_pos);
             }
         }
     }

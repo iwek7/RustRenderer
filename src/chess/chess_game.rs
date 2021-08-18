@@ -60,8 +60,8 @@ impl<'a> ChessGame<'a> {
         'main: loop {
 
             let sdl_pos = (event_pump.mouse_state().x().clone(), event_pump.mouse_state().y().clone());
-            let world_mouse_position = context.sdl_space_to_world_space( &sdl_pos,
-                                                                         &chess_game.get_camera_config());
+            let world_mouse_position = context.sdl_space_to_world_space(&sdl_pos,
+                                                                              &chess_game.get_camera_config());
 
             println!("world pos {:?}", world_mouse_position);
             println!("---");
@@ -132,7 +132,7 @@ impl<'a> ChessGame<'a> {
             }
 
             sdl2::event::Event::MouseButtonUp { .. } => {
-                self.chessboard.handle_piece_drop_attempt(world_mouse_position, context);
+                self.chessboard.handle_piece_drop_attempt(world_mouse_position);
             }
 
             sdl2::event::Event::MouseMotion { .. } => {

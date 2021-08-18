@@ -43,7 +43,7 @@ impl<'a> Piece<'a> {
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 
-    pub fn handle_drop(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (f32, f32, f32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
+    pub fn handle_drop(&mut self, target_field: FieldLogic, pos: (f32, f32, f32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
         return match self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
             None => {
@@ -51,7 +51,7 @@ impl<'a> Piece<'a> {
                 None
             }
             Some(allowed_move) => {
-                self.force_move(context, target_field.clone(), pos);
+                self.force_move(target_field.clone(), pos);
                 Some(allowed_move)
             }
         };
@@ -61,10 +61,8 @@ impl<'a> Piece<'a> {
         self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
     }
 
-    pub fn force_move(&mut self, context: &OpenglContext, target_field: FieldLogic, pos: (f32, f32, f32)) {
-        // wrong!!! kappa
-        let opengl_pos = context.engine_to_opengl_space_f(&pos);
-        self.quad.move_to(&opengl_pos);
+    pub fn force_move(&mut self, target_field: FieldLogic, pos: (f32, f32, f32)) {
+        self.quad.move_to(&pos);
         self.logic = self.logic.move_to(&target_field);
     }
 }
