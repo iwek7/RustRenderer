@@ -11,7 +11,10 @@ uniform vec2 win_size;
 
 void main()
 {
-    gl_Position = mvp * vec4(2.0 * aPos.x / win_size.x - 1.0, 2.0 * aPos.y / win_size.y - 1.0, 0.0, 1.0f);
+    // todo this needs to be done in engine code
+    // for instance, now there is discrepency in camera position and pieces position
+    // camera is not rendered so that this transform is not applied!
+    gl_Position = mvp * vec4(aPos.x, aPos.y, 0.0, 1.0f);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }

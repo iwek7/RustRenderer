@@ -31,4 +31,12 @@ impl CameraConfig {
     pub fn get_direction(&self) -> &glam::Vec3 {
         &self.direction
     }
+
+    pub fn get_view_matrix(&self) -> glam::Mat4 {
+        glam::Mat4::look_at_rh(
+            self.get_eye_position().clone(),
+            self.get_direction().clone(),
+            self.get_up_vector().clone(),
+        )
+    }
 }

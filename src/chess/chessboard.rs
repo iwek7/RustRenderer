@@ -20,7 +20,7 @@ pub struct Chessboard<'a> {
     field_size: u32,
     board_size: u32,
     position: (f32, f32, f32),
-    prev_mouse_pos: (f32, f32, f32),
+    prev_mouse_pos: glam::Vec3,
     fields: Vec<Vec<Field<'a>>>,
     dragged_piece: Option<usize>,
     global_game_state: GlobalGameState,
@@ -65,7 +65,7 @@ impl<'a> Chessboard<'a> {
             field_size: field_size as u32,
             board_size: board_size as u32,
             position,
-            prev_mouse_pos: (0.0, 0.0, 0.0),
+            prev_mouse_pos: glam::Vec3::new(0.0, 0.0, 0.0),
             fields,
             dragged_piece: None,
             global_game_state: GlobalGameState::new(),
@@ -124,7 +124,7 @@ impl<'a> Chessboard<'a> {
     // todo even context is needed here to translate them...
     // todo horror
     // mouse_coords_px is sdl coords (y down)
-    pub fn handle_start_piece_dragging_attempt(&mut self, world_mouse_position: &(f32, f32, f32)) {
+    pub fn handle_start_piece_dragging_attempt(&mut self, world_mouse_position: &glam::Vec3) {
         if self.is_game_over() {
             return;
         }
@@ -150,11 +150,11 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = world_mouse_position.clone()
     }
 
-    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &(f32, f32, f32)) {
+    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3) {
         if self.is_game_over() {
             return;
         }
-        match self.get_field_by_point(&(world_mouse_coords.0, world_mouse_coords.1)) {
+        match self.get_field_by_point(&(world_mouse_coords.x, world_mouse_coords.y)) {
             None => {
                 if self.dragged_piece != None {
                     self.pieces[self.dragged_piece.unwrap()].return_to_initial_pos();
@@ -210,13 +210,13 @@ impl<'a> Chessboard<'a> {
         self.prev_mouse_pos = world_mouse_coords.clone()
     }
 
-    pub fn handle_piece_dragging_attempt(&mut self, world_mouse_coords: &(f32, f32, f32)) {
+    pub fn handle_piece_dragging_attempt(&mut self, world_mouse_coords: &glam::Vec3) {
         if self.is_game_over() {
             return;
         }
         let drag_offset = &(
-            (world_mouse_coords.0 - self.prev_mouse_pos.0) as f32,
-            (world_mouse_coords.1 - self.prev_mouse_pos.1) as f32
+            (world_mouse_coords.x - self.prev_mouse_pos.x) as f32,
+            (world_mouse_coords.y - self.prev_mouse_pos.y) as f32
         );
 
         if self.dragged_piece != None {

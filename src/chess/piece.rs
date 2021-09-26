@@ -31,8 +31,8 @@ impl<'a> Drawable for Piece<'a> {
 }
 
 impl<'a> Piece<'a> {
-    pub fn is_mouse_over(&self, world_mouse_position: &(f32, f32, f32)) -> bool {
-        self.quad.contains_point(&(world_mouse_position.0, world_mouse_position.1))
+    pub fn is_mouse_over(&self, world_mouse_position: &glam::Vec3) -> bool {
+        self.quad.contains_point(&(world_mouse_position.x, world_mouse_position.y))
     }
 
     pub fn handle_start_drag(&mut self) {

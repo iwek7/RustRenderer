@@ -16,6 +16,7 @@ use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
+use glam::Vec3;
 
 const CAMERA_SPEED: f32 = 0.1;
 
@@ -74,15 +75,17 @@ impl<'a> ChessGame<'a> {
                         keycode,
                         ..
                     } => {
-                        let world_mouse_position = context.sdl_space_to_world_space(&sdl_pos,
-                                                                                    &chess_game.get_camera_config());
 
-                        println!("world pos {:?}", world_mouse_position);
-                        println!("---");
-                        chess_game.handle_event(&event, &world_mouse_position, &context)
 
                     }
                     _ => {}
+                }
+
+                match  context.sdl_space_to_world_space_at_z0(&sdl_pos,&chess_game.get_camera_config()) {
+                    None => {}
+                    Some(world_mouse_position) => {
+                        chess_game.handle_event(&event, &world_mouse_position, &context)
+                    }
                 }
 
             }
@@ -113,7 +116,7 @@ impl<'a> ChessGame<'a> {
             chessboard,
             black_win_banner,
             white_win_banner,
-            camera: CameraGameObject::new(glam::vec3(2.0, 4.0, 2.0)),
+            camera: CameraGameObject::new(glam::vec3(2.0, 4.0, 200.0)),
         }
     }
 
@@ -128,7 +131,7 @@ impl<'a> ChessGame<'a> {
         )
     }
 
-    fn handle_event(&mut self, event: &sdl2::event::Event, world_mouse_position: &(f32, f32, f32), context: &OpenglContext) {
+    fn handle_event(&mut self, event: &sdl2::event::Event, world_mouse_position: &glam::Vec3, context: &OpenglContext) {
         match event {
             sdl2::event::Event::MouseButtonDown { .. } => {
                 self.chessboard.handle_start_piece_dragging_attempt(world_mouse_position);

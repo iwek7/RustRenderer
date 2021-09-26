@@ -54,13 +54,8 @@ impl<'a> RenderUtil<'a> {
 
     pub fn calculate_camera_MVP(&self, position: glam::Vec3) -> glam::Mat4 {
         let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
-        let mut view = glam::Mat4::look_at_rh(
-            self.camera_config.get_eye_position().clone(),
-            self.camera_config.get_direction().clone(),
-            self.camera_config.get_up_vector().clone()
-        );
+        let mut view = self.camera_config.get_view_matrix();
         let model = glam::Mat4::from_translation(position);
-        let pv = projection * view;
         return projection * view * model;
     }
 
