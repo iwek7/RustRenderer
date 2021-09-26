@@ -60,11 +60,7 @@ impl<'a> ChessGame<'a> {
         'main: loop {
 
             let sdl_pos = (event_pump.mouse_state().x().clone(), event_pump.mouse_state().y().clone());
-            let world_mouse_position = context.sdl_space_to_world_space(&sdl_pos,
-                                                                              &chess_game.get_camera_config());
 
-            println!("world pos {:?}", world_mouse_position);
-            println!("---");
             for event in event_pump.poll_iter() {
                 match event {
                     sdl2::event::Event::Quit { .. } => break 'main,
@@ -77,11 +73,18 @@ impl<'a> ChessGame<'a> {
                     sdl2::event::Event::KeyDown {
                         keycode,
                         ..
-                    } => {}
+                    } => {
+                        let world_mouse_position = context.sdl_space_to_world_space(&sdl_pos,
+                                                                                    &chess_game.get_camera_config());
+
+                        println!("world pos {:?}", world_mouse_position);
+                        println!("---");
+                        chess_game.handle_event(&event, &world_mouse_position, &context)
+
+                    }
                     _ => {}
                 }
 
-                chess_game.handle_event(&event, &world_mouse_position, &context)
             }
 
             renderer.render(
