@@ -11,14 +11,15 @@ use crate::chess::resource_manager::ResourceManager;
 use crate::engine::game_controller::{CameraConfig, GameController};
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::TexturedVertexData;
+use crate::maths::vertex::{TexturedVertexData, ColoredVertexData};
 use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
 use glam::Vec3;
+use crate::maths::segment::Segment;
 
-const CAMERA_SPEED: f32 = 0.1;
+const CAMERA_SPEED: f32 = 0.3;
 
 pub struct ChessGame<'a> {
     chessboard: Chessboard<'a>,
@@ -30,6 +31,7 @@ pub struct ChessGame<'a> {
 impl<'a> ChessGame<'a> {
     // todo wrap this sdl event pump in adapter
     pub fn play(renderer: &mut Renderer, event_pump: &mut EventPump, context: &OpenglContext) {
+
         let res = Resources::from_relative_exe_path(Path::new("assets/chess")).unwrap();
 
         let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
@@ -50,6 +52,34 @@ impl<'a> ChessGame<'a> {
 
         let white_win_banner_data = res.load_image("textures/white_win_banner.png");
         let white_win_banner_texture = Texture::from_image(white_win_banner_data, banner_tx_params);
+
+
+        // todo: this should be editor code
+        // todo: move all of this to single object
+        let mut z_axis = Segment::new(
+            [
+                ColoredVertexData { pos: (0.0, 0.0, -100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+                ColoredVertexData { pos: (0.0,0.0, 100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+            ],
+            [0, 1],
+            &shader_program
+        );
+        let mut x_axis = Segment::new(
+            [
+                ColoredVertexData { pos: (-100.0, 0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+                ColoredVertexData { pos: (100.0,0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+            ],
+            [0, 1],
+            &shader_program
+        );
+        let mut y_axis = Segment::new(
+            [
+                ColoredVertexData { pos: (0.0, -100.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+                ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+            ],
+            [0, 1],
+            &shader_program
+        );
 
         let mut chess_game = ChessGame::initialize(&chessboard_texture,
                                                    &pieces_texture,
@@ -91,7 +121,7 @@ impl<'a> ChessGame<'a> {
             }
 
             renderer.render(
-                &[&chess_game],
+                &[&chess_game, &z_axis, &x_axis, &y_axis],
                 &chess_game.get_camera_config(),
             );
         }
