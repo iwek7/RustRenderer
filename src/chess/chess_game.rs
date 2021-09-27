@@ -116,7 +116,7 @@ impl<'a> ChessGame<'a> {
             chessboard,
             black_win_banner,
             white_win_banner,
-            camera: CameraGameObject::new(glam::vec3(2.0, 4.0, 200.0)),
+            camera: CameraGameObject::new(glam::vec3(0.0, 0.0, 20.0)),
         }
     }
 

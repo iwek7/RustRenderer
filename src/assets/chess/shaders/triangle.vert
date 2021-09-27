@@ -12,6 +12,6 @@ uniform vec2 win_size;
 
 void main()
 {
-    gl_Position = mvp * vec4(2.0 * aPos.x / win_size.x - 1.0, 2.0 * aPos.y / win_size.y - 1.0, aPos.z, 1.0f);
+    gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0f);
     OUT.Color = Color;
 }

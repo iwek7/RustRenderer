@@ -29,7 +29,7 @@ pub struct Chessboard<'a> {
 
 impl<'a> Chessboard<'a> {
     pub fn new(resource_manager: ResourceManager<'a>) -> Chessboard<'a> {
-        let field_size = 87.0;
+        let field_size = 1.0;
         let board_size = field_size * 8.0;
         let position = (0.0, 0.0, 0.0);
         let quad = Quadrangle::new(
@@ -151,6 +151,8 @@ impl<'a> Chessboard<'a> {
     }
 
     pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3) {
+
+        println!("Handling piece drop at {:?}", world_mouse_coords);
         if self.is_game_over() {
             return;
         }
@@ -315,8 +317,8 @@ impl<'a> Chessboard<'a> {
         // todo rounding
         return Some(
             (
-                (7 - ((point.1 - self.position.1)).floor() as u32 / self.field_size) as usize,
-                (((point.0 - self.position.0)).floor() as u32 / self.field_size) as usize,
+                ((point.1 - self.position.1).floor() as u32 / self.field_size) as usize,
+                ((point.0 - self.position.0).floor() as u32 / self.field_size) as usize,
             )
         );
     }

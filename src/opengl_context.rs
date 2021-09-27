@@ -74,9 +74,6 @@ impl OpenglContext {
     // based on https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
     // todo: what about z (glReadPixels)
     pub fn sdl_space_to_world_space_at_z0(&self, pos: &(i32, i32), camera_config: &CameraConfig) -> Option<glam::Vec3> {
-        let res = glam::Vec4::new(0.0, 0.0, 0.0, 1.0);
-
-
         // println!("sdl pos {:?}", pos);
         // println!("camera pos {:?}", camera_config.get_eye_position());
 
@@ -87,7 +84,7 @@ impl OpenglContext {
 
         // 2. Calculate ray
         // todo projection is duplicated, how to solve this?
-        let eye_coords = OpenglContext::get_eye_coords(clip_coords);
+        let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config);
         let world_coords = OpenglContext::get_world_coords(eye_coords, camera_config);
         let ray_direction = world_coords.normalize();
         // println!("ray direction {:?}", ray_direction);
@@ -106,18 +103,12 @@ impl OpenglContext {
         // println!("top {:?} bot {:?} t {:?} ", top, bot, t);
 
         let z_zero_plane_intersection = camera_config.get_eye_position().clone().add(ray_direction.clone().mul(t));
-        println!("final point {:?} ", z_zero_plane_intersection);
-
-
-        let f = z_zero_plane_intersection.mul(glam::Vec3::new(self.window.size().0 as f32, (self.window.size().1 as f32 / 2.0) as f32, 1.0));
-        println!("final point corrected {:?} ", f);
 
         return Some(z_zero_plane_intersection);
     }
 
-    fn get_eye_coords(clip_coords: glam::Vec4) -> glam::Vec4 {
-        let projection = glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0);
-        let inverted_projection = projection.inverse();
+    fn get_eye_coords(clip_coords: glam::Vec4, camera_config: &CameraConfig) -> glam::Vec4 {
+        let inverted_projection = camera_config.get_projection_matrix().inverse();
         let eye_coords = inverted_projection * clip_coords;
         return glam::Vec4::new(eye_coords.x, eye_coords.y, -1.0, 0.0);
     }

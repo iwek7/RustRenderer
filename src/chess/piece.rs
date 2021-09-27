@@ -36,10 +36,12 @@ impl<'a> Piece<'a> {
     }
 
     pub fn handle_start_drag(&mut self) {
+        println!("Started dragging piece {}", self.logic);
         self.initial_drag_pos_opengl = self.quad.get_pos();
     }
 
     pub fn return_to_initial_pos(&mut self) {
+        println!("Resetting position of piece {}", self.logic);
         self.quad.move_to(&self.initial_drag_pos_opengl);
     }
 

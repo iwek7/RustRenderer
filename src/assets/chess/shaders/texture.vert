@@ -14,7 +14,7 @@ void main()
     // todo this needs to be done in engine code
     // for instance, now there is discrepency in camera position and pieces position
     // camera is not rendered so that this transform is not applied!
-    gl_Position = mvp * vec4(aPos.x, aPos.y, 0.0, 1.0f);
+    gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0f);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }
