@@ -40,7 +40,7 @@ impl CameraConfig {
         )
     }
 
-    pub fn get_projection_matrix(&self) -> glam::Mat4 {
-       glam::Mat4::perspective_rh_gl(45.0, 3.0 / 3.0, 0.1, 100.0)
+    pub fn get_projection_matrix(&self, aspect_ration: f32) -> glam::Mat4 {
+       glam::Mat4::perspective_rh_gl(45.0, aspect_ration, 0.1, 100.0)
     }
 }

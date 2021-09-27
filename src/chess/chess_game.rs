@@ -82,7 +82,7 @@ impl<'a> ChessGame<'a> {
         );
 
         let mut test_mouse_point = Point::new(
-            [ColoredVertexData { pos: (-1.0, -1.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+            [ColoredVertexData { pos: (0.0, -0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
             &shader_program,
         );
 
@@ -147,7 +147,7 @@ impl<'a> ChessGame<'a> {
             chessboard,
             black_win_banner,
             white_win_banner,
-            camera: CameraGameObject::new(glam::vec3(0.0, 0.0, 20.0)),
+            camera: CameraGameObject::new(glam::vec3(4.0, 4.0, 20.0)),
         }
     }
 

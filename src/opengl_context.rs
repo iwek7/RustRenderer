@@ -84,17 +84,17 @@ impl OpenglContext {
 
         // 2. Calculate ray
         // todo projection is duplicated, how to solve this?
-        let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config);
+        let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config, self.get_aspect_ratio());
         let world_coords = OpenglContext::get_world_coords(eye_coords, camera_config);
         let ray_direction = world_coords.normalize();
         // println!("ray direction {:?}", ray_direction);
 
         // 3. Ray plane intersection - for simplicity we only consider plane located at z == 0
-        let plane_normal = glam::Vec3::new(0., 0., 1.);
+        let plane_normal = glam::Vec3::new(0., 0., 1.0);
 
         let bot = ray_direction.clone().dot(plane_normal.clone());
         if bot.abs() < 0.01 {
-            // println!("bot too small: {:?}, does not cross!", bot);
+            println!("bot too small: {:?}, does not cross!", bot);
             return None;
         }
 
@@ -107,8 +107,12 @@ impl OpenglContext {
         return Some(z_zero_plane_intersection);
     }
 
-    fn get_eye_coords(clip_coords: glam::Vec4, camera_config: &CameraConfig) -> glam::Vec4 {
-        let inverted_projection = camera_config.get_projection_matrix().inverse();
+    pub fn get_aspect_ratio(&self) -> f32 {
+        self.window.size().0 as f32 / self.window.size().1 as f32
+    }
+
+    fn get_eye_coords(clip_coords: glam::Vec4, camera_config: &CameraConfig, aspect_ratio: f32) -> glam::Vec4 {
+        let inverted_projection = camera_config.get_projection_matrix(aspect_ratio).inverse();
         let eye_coords = inverted_projection * clip_coords;
         return glam::Vec4::new(eye_coords.x, eye_coords.y, -1.0, 0.0);
     }
@@ -118,4 +122,5 @@ impl OpenglContext {
         let ray_world = inverted_view * eye_coords;
         return glam::Vec3::new(ray_world.x, ray_world.y, ray_world.z);
     }
+
 }
