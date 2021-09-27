@@ -39,7 +39,7 @@ impl<'a, T: VertexShaderDataConfigurer> Quadrangle<'a, T> {
     // opengl coords :(
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
         for vertex in self.vertices.iter_mut() {
-            vertex.transpose(x, y, z);
+            vertex.transpose_deprecated(x, y, z);
         }
         self.drawing_component.bind_data(&self.vertices)
     }
@@ -47,7 +47,7 @@ impl<'a, T: VertexShaderDataConfigurer> Quadrangle<'a, T> {
     // moves first vertex
     // does not support rotation
     pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
-        let current_pos = self.vertices[REFERENCE_INDEX].get_pos();
+        let current_pos = self.vertices[REFERENCE_INDEX].get_pos_deprecated();
         self.move_by(
             final_pos.0 - current_pos.0,
             final_pos.1 - current_pos.1,
@@ -67,7 +67,7 @@ impl<'a, T: VertexShaderDataConfigurer> Area for Quadrangle<'a, T> {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32){
-                                                      let p = v.get_pos();
+                                                      let p = v.get_pos_deprecated();
                                                       (p.0, p.1)
                                                   })
                                                   .collect(),
@@ -83,6 +83,6 @@ impl<'a, T: VertexShaderDataConfigurer> Area for Quadrangle<'a, T> {
     }
 
     fn get_pos(&self) -> (f32, f32, f32) {
-        self.vertices[REFERENCE_INDEX].get_pos()
+        self.vertices[REFERENCE_INDEX].get_pos_deprecated()
     }
 }

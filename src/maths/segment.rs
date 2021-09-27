@@ -13,17 +13,17 @@ pub struct Segment<'a, T> where T: VertexShaderDataConfigurer {
 }
 
 /**
-    usage example:
-   ```
-       let mut segment = Segment::new(
-           [
-               ColoredVertexData { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-               ColoredVertexData { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-           ],
-           [0, 1],
-           &shader_program
-       );
-   ```
+   usage example:
+  ```
+      let mut segment = Segment::new(
+          [
+              ColoredVertexData { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
+              ColoredVertexData { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
+          ],
+          [0, 1],
+          &shader_program
+      );
+  ```
  */
 impl<'a, T: VertexShaderDataConfigurer> Segment<'a, T> {
     pub fn new(vertices: [T; 2], indices: [i32; 2], program: &render_gl::Program) -> Segment<T> {
@@ -44,13 +44,13 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<'a, T> {
 
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
         for vertex in self.vertices.iter_mut() {
-            vertex.transpose(x, y, z);
+            vertex.transpose_deprecated(x, y, z);
         }
         self.drawing_component.bind_data(&self.vertices)
     }
 
     pub fn get_pos(&self) -> glam::Vec3 {
-        to_glam_vec(&self.vertices[0].get_pos())
+        to_glam_vec(&self.vertices[0].get_pos_deprecated())
     }
 }
 

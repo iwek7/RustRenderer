@@ -32,7 +32,7 @@ impl<'a, T: VertexShaderDataConfigurer> Triangle<'a, T> {
     // some algebra lib?
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
         for vertex in self.vertices.iter_mut() {
-            vertex.transpose(x, y, z);
+            vertex.transpose_deprecated(x, y, z);
         }
         self.open_gl_context.bind_data(&self.vertices)
     }
@@ -49,7 +49,7 @@ impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<'a, T> {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32) {
-                                                     let p = v.get_pos();
+                                                     let p = v.get_pos_deprecated();
                                                       (p.0, p.1)
                                                   })
                                                   .collect(), );

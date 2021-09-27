@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use glam::Vec3;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
@@ -9,15 +10,15 @@ use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
 use crate::chess::resource_manager::ResourceManager;
 use crate::engine::game_controller::{CameraConfig, GameController};
+use crate::maths::point::Point;
 use crate::maths::quadrangle::Quadrangle;
+use crate::maths::segment::Segment;
 use crate::maths::triangle::Drawable;
-use crate::maths::vertex::{TexturedVertexData, ColoredVertexData};
+use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
-use glam::Vec3;
-use crate::maths::segment::Segment;
 
 const CAMERA_SPEED: f32 = 0.3;
 
@@ -31,7 +32,6 @@ pub struct ChessGame<'a> {
 impl<'a> ChessGame<'a> {
     // todo wrap this sdl event pump in adapter
     pub fn play(renderer: &mut Renderer, event_pump: &mut EventPump, context: &OpenglContext) {
-
         let res = Resources::from_relative_exe_path(Path::new("assets/chess")).unwrap();
 
         let shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
@@ -59,18 +59,18 @@ impl<'a> ChessGame<'a> {
         let mut z_axis = Segment::new(
             [
                 ColoredVertexData { pos: (0.0, 0.0, -100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-                ColoredVertexData { pos: (0.0,0.0, 100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+                ColoredVertexData { pos: (0.0, 0.0, 100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
             ],
             [0, 1],
-            &shader_program
+            &shader_program,
         );
         let mut x_axis = Segment::new(
             [
                 ColoredVertexData { pos: (-100.0, 0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-                ColoredVertexData { pos: (100.0,0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
+                ColoredVertexData { pos: (100.0, 0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
             ],
             [0, 1],
-            &shader_program
+            &shader_program,
         );
         let mut y_axis = Segment::new(
             [
@@ -78,7 +78,12 @@ impl<'a> ChessGame<'a> {
                 ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
             ],
             [0, 1],
-            &shader_program
+            &shader_program,
+        );
+
+        let mut test_mouse_point = Point::new(
+            [ColoredVertexData { pos: (-1.0, -1.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+            &shader_program,
         );
 
         let mut chess_game = ChessGame::initialize(&chessboard_texture,
@@ -89,7 +94,6 @@ impl<'a> ChessGame<'a> {
                                                    &black_win_banner_texture);
 
         'main: loop {
-
             let sdl_pos = (event_pump.mouse_state().x().clone(), event_pump.mouse_state().y().clone());
 
             for event in event_pump.poll_iter() {
@@ -104,24 +108,21 @@ impl<'a> ChessGame<'a> {
                     sdl2::event::Event::KeyDown {
                         keycode,
                         ..
-                    } => {
-
-
-                    }
+                    } => {}
                     _ => {}
                 }
 
-                match  context.sdl_space_to_world_space_at_z0(&sdl_pos,&chess_game.get_camera_config()) {
+                match context.sdl_space_to_world_space_at_z0(&sdl_pos, &chess_game.get_camera_config()) {
                     None => {}
                     Some(world_mouse_position) => {
+                        test_mouse_point.move_to(&world_mouse_position);
                         chess_game.handle_event(&event, &world_mouse_position, &context)
                     }
                 }
-
             }
 
             renderer.render(
-                &[&chess_game, &z_axis, &x_axis, &y_axis],
+                &[&chess_game, &z_axis, &x_axis, &y_axis, &test_mouse_point],
                 &chess_game.get_camera_config(),
             );
         }
