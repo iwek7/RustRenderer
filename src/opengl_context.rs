@@ -72,28 +72,19 @@ impl OpenglContext {
     }
 
     // based on https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
-    // todo: what about z (glReadPixels)
+    // and https://antongerdelan.net/opengl/raycasting.html
     pub fn sdl_space_to_world_space_at_z0(&self, pos: &(i32, i32), camera_config: &CameraConfig) -> Option<glam::Vec3> {
-        println!("sdl pos {:?}", pos);
-
         // 1. screen mouse coords to normalized space
         let opengl_mouse_pos = self.sdl_window_to_opengl_space(pos);
         let clip_coords = glam::Vec4::new(opengl_mouse_pos.0 as f32, opengl_mouse_pos.1 as f32, -1.0, 1.0);
-        println!("opengl mouse pos {:?}", clip_coords);
 
         // 2. Calculate ray
         let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config, self.get_aspect_ratio());
-        println!("eye coords {:?}", eye_coords);
-
         let world_coords = OpenglContext::get_world_coords(eye_coords, camera_config);
-        println!("world coords {:?}", world_coords);
-
         let ray_direction = world_coords.normalize();
-        println!("ray direction {:?}", ray_direction);
 
         // 3. Ray plane intersection - for simplicity we only consider plane located at z == 0
         let plane_normal = glam::Vec3::new(0., 0., -1.0).normalize();
-
         let bot = ray_direction.clone().dot(plane_normal.clone());
         if bot.abs() < 0.01 {
             println!("bot too small: {:?}, does not cross!", bot);
@@ -102,7 +93,6 @@ impl OpenglContext {
 
         let top = -(camera_config.get_eye_position().clone().dot(plane_normal.clone()));
         let t = top / bot;
-        println!("t is {:?}", t);
 
         if t < 0.0 {
             println!("t too small: {:?}, does not cross!", t);

@@ -19,6 +19,7 @@ use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
+use crate::api::coordinate_system::CoordinateSystem;
 
 const CAMERA_SPEED: f32 = 0.3;
 
@@ -53,51 +54,9 @@ impl<'a> ChessGame<'a> {
         let white_win_banner_data = res.load_image("textures/white_win_banner.png");
         let white_win_banner_texture = Texture::from_image(white_win_banner_data, banner_tx_params);
 
-
-        // todo: this should be editor code
-        // todo: move all of this to single object
-        let mut z_axis = Segment::new(
-            [
-                ColoredVertexData { pos: (0.0, 0.0, -100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-                ColoredVertexData { pos: (0.0, 0.0, 100.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-            ],
-            [0, 1],
-            &shader_program,
-        );
-        let mut x_axis = Segment::new(
-            [
-                ColoredVertexData { pos: (-100.0, 0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-                ColoredVertexData { pos: (100.0, 0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-            ],
-            [0, 1],
-            &shader_program,
-        );
-        let mut y_axis = Segment::new(
-            [
-                ColoredVertexData { pos: (0.0, -100.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-                ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() },
-            ],
-            [0, 1],
-            &shader_program,
-        );
-
         let mut test_mouse_point = Point::new(
             [ColoredVertexData { pos: (0.0, -0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
             &shader_program,
-        );
-
-        let test_rect1 = Quadrangle::new(
-            create_rect_coords_colored((0.0, 0.0, 0.0), (1.0, 1.0), (0.992, 0.070, 0.070, 0.5)),
-            [0, 1, 3, 1, 2, 3],
-            &shader_program,
-            None,
-        );
-
-        let test_rect2 = Quadrangle::new(
-            create_rect_coords_colored((-2.0, 0.0, -2.0), (1.0, 1.0), (0.992, 0.070, 0.070, 0.5)),
-            [0, 1, 3, 1, 2, 3],
-            &shader_program,
-            None,
         );
 
         let mut chess_game = ChessGame::initialize(&chessboard_texture,
@@ -106,6 +65,8 @@ impl<'a> ChessGame<'a> {
                                                    &shader_program,
                                                    &white_win_banner_texture,
                                                    &black_win_banner_texture);
+
+        let mut coordinate_system = CoordinateSystem::new(&shader_program);
 
         'main: loop {
             let sdl_pos = (event_pump.mouse_state().x().clone(), event_pump.mouse_state().y().clone());
@@ -136,7 +97,7 @@ impl<'a> ChessGame<'a> {
             }
 
             renderer.render(
-                &[&chess_game, &z_axis, &x_axis, &y_axis, &test_mouse_point],
+                &[&chess_game, &coordinate_system, &test_mouse_point],
                 &chess_game.get_camera_config(),
             );
         }

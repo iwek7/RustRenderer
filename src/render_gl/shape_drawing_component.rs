@@ -59,6 +59,7 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<'a, T> {
         self.program.set_used();
 
         // todo wtf this position
+        // it does not work!
         let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, 0.0));
         self.program.set_mat4("mvp", mvp);
 
