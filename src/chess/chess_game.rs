@@ -4,7 +4,7 @@ use glam::Vec3;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
-use crate::{create_rect_coords, render_gl};
+use crate::{create_rect_coords, create_rect_coords_colored, render_gl};
 use crate::api::camera::CameraGameObject;
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
@@ -86,6 +86,20 @@ impl<'a> ChessGame<'a> {
             &shader_program,
         );
 
+        let test_rect1 = Quadrangle::new(
+            create_rect_coords_colored((0.0, 0.0, 0.0), (1.0, 1.0), (0.992, 0.070, 0.070, 0.5)),
+            [0, 1, 3, 1, 2, 3],
+            &shader_program,
+            None,
+        );
+
+        let test_rect2 = Quadrangle::new(
+            create_rect_coords_colored((-2.0, 0.0, -2.0), (1.0, 1.0), (0.992, 0.070, 0.070, 0.5)),
+            [0, 1, 3, 1, 2, 3],
+            &shader_program,
+            None,
+        );
+
         let mut chess_game = ChessGame::initialize(&chessboard_texture,
                                                    &pieces_texture,
                                                    &tx_shader_program,
@@ -122,7 +136,7 @@ impl<'a> ChessGame<'a> {
             }
 
             renderer.render(
-                &[&z_axis, &x_axis, &y_axis,&chess_game, &test_mouse_point],
+                &[&chess_game, &z_axis, &x_axis, &y_axis, &test_mouse_point],
                 &chess_game.get_camera_config(),
             );
         }
