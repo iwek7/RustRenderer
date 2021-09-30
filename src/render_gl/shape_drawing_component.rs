@@ -61,8 +61,6 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<'a, T> {
         let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, -1.0));
         self.program.set_mat4("mvp", mvp);
 
-        self.program.set_vec2("win_size", render_util.get_window_size());
-
         self.vao.bind();
         self.ebo.bind();
         unsafe {

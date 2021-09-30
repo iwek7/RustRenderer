@@ -10,7 +10,7 @@ impl CameraGameObject {
     }
 
     pub fn get_current_config(&self) -> CameraConfig {
-        CameraConfig::new(self.position, glam::vec3(0.0, 1.0, 0.0), glam::vec3(4.0, 4.0, 0.0))
+        CameraConfig::new(self.position, glam::vec3(0.0, 1.0, 0.0), glam::vec3(0.0, 0.0, -1.0))
     }
 
     pub fn set_position(&mut self, new_position: glam::Vec3) {

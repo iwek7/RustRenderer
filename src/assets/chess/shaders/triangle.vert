@@ -8,7 +8,6 @@ out VS_OUTPUT {
 } OUT;
 
 uniform mat4 mvp;
-uniform vec2 win_size;
 
 void main()
 {

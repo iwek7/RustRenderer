@@ -10,7 +10,7 @@ pub struct Renderer<'a> {
 
 impl<'a> Renderer<'a> {
     pub fn new(context: &OpenglContext) -> Renderer {
-        let viewport = render_gl::Viewport::for_window(900, 700);
+        let viewport = render_gl::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
         viewport.set_used();
         unsafe {
             gl::ClearColor(0.3, 0.3, 0.5, 1.0);

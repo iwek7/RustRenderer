@@ -122,7 +122,7 @@ impl<'a> ChessGame<'a> {
             }
 
             renderer.render(
-                &[&chess_game, &z_axis, &x_axis, &y_axis, &test_mouse_point],
+                &[&z_axis, &x_axis, &y_axis,&chess_game, &test_mouse_point],
                 &chess_game.get_camera_config(),
             );
         }
@@ -147,7 +147,7 @@ impl<'a> ChessGame<'a> {
             chessboard,
             black_win_banner,
             white_win_banner,
-            camera: CameraGameObject::new(glam::vec3(4.0, 4.0, 20.0)),
+            camera: CameraGameObject::new(glam::vec3(0.0, 0.0, 10.0)),
         }
     }
 

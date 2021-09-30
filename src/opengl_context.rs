@@ -21,7 +21,7 @@ impl OpenglContext {
 
         // todo: can window be moved to renderer?
         let window = video_subsystem
-            .window("Game", 900, 700)
+            .window("Game", 800, 800)
             .opengl()
             .resizable()
             .build()
@@ -74,23 +74,25 @@ impl OpenglContext {
     // based on https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
     // todo: what about z (glReadPixels)
     pub fn sdl_space_to_world_space_at_z0(&self, pos: &(i32, i32), camera_config: &CameraConfig) -> Option<glam::Vec3> {
-        // println!("sdl pos {:?}", pos);
-        // println!("camera pos {:?}", camera_config.get_eye_position());
+        println!("sdl pos {:?}", pos);
 
         // 1. screen mouse coords to normalized space
         let opengl_mouse_pos = self.sdl_window_to_opengl_space(pos);
         let clip_coords = glam::Vec4::new(opengl_mouse_pos.0 as f32, opengl_mouse_pos.1 as f32, -1.0, 1.0);
-        // println!("opengl mouse pos {:?}", clip_coords);
+        println!("opengl mouse pos {:?}", clip_coords);
 
         // 2. Calculate ray
-        // todo projection is duplicated, how to solve this?
         let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config, self.get_aspect_ratio());
+        println!("eye coords {:?}", eye_coords);
+
         let world_coords = OpenglContext::get_world_coords(eye_coords, camera_config);
+        println!("world coords {:?}", world_coords);
+
         let ray_direction = world_coords.normalize();
-        // println!("ray direction {:?}", ray_direction);
+        println!("ray direction {:?}", ray_direction);
 
         // 3. Ray plane intersection - for simplicity we only consider plane located at z == 0
-        let plane_normal = glam::Vec3::new(0., 0., 1.0);
+        let plane_normal = glam::Vec3::new(0., 0., -1.0).normalize();
 
         let bot = ray_direction.clone().dot(plane_normal.clone());
         if bot.abs() < 0.01 {
@@ -100,9 +102,13 @@ impl OpenglContext {
 
         let top = -(camera_config.get_eye_position().clone().dot(plane_normal.clone()));
         let t = top / bot;
-        // println!("top {:?} bot {:?} t {:?} ", top, bot, t);
+        println!("t is {:?}", t);
 
-        let z_zero_plane_intersection = camera_config.get_eye_position().clone().add(ray_direction.clone().mul(t));
+        if t < 0.0 {
+            println!("t too small: {:?}, does not cross!", t);
+            return None;
+        }
+        let z_zero_plane_intersection = camera_config.get_eye_position().clone().add(ray_direction.mul(t));
 
         return Some(z_zero_plane_intersection);
     }
@@ -112,15 +118,17 @@ impl OpenglContext {
     }
 
     fn get_eye_coords(clip_coords: glam::Vec4, camera_config: &CameraConfig, aspect_ratio: f32) -> glam::Vec4 {
-        let inverted_projection = camera_config.get_projection_matrix(aspect_ratio).inverse();
+        let projection = camera_config.get_projection_matrix(aspect_ratio);
+        let inverted_projection = projection.inverse();
         let eye_coords = inverted_projection * clip_coords;
-        return glam::Vec4::new(eye_coords.x, eye_coords.y, -1.0, 0.0);
+        return glam::vec4(eye_coords.x, eye_coords.y,-1.0, 0.0);
     }
 
     fn get_world_coords(eye_coords: glam::Vec4, camera_config: &CameraConfig) -> glam::Vec3 {
-        let inverted_view = camera_config.get_view_matrix().inverse();
+        let view_matrix = camera_config.get_view_matrix();
+        let inverted_view = view_matrix.inverse();
         let ray_world = inverted_view * eye_coords;
-        return glam::Vec3::new(ray_world.x, ray_world.y, ray_world.z);
+        return glam::vec3(ray_world.x, ray_world.y, ray_world.z);
     }
 
 }
