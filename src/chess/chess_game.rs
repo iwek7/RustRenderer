@@ -1,10 +1,9 @@
 use std::path::Path;
 
-use glam::Vec3;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
-use crate::{create_rect_coords, create_rect_coords_colored, render_gl};
+use crate::{create_rect_coords, render_gl};
 use crate::api::camera::CameraGameObject;
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
@@ -12,14 +11,13 @@ use crate::chess::resource_manager::ResourceManager;
 use crate::engine::game_controller::{CameraConfig, GameController};
 use crate::maths::point::Point;
 use crate::maths::quadrangle::Quadrangle;
-use crate::maths::segment::Segment;
-use crate::maths::triangle::Drawable;
 use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::Resources;
 use crate::texture::{Texture, TextureFilterType, TextureParams};
 use crate::api::coordinate_system::CoordinateSystem;
+use crate::api::drawable::Drawable;
 
 const CAMERA_SPEED: f32 = 0.3;
 

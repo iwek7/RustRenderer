@@ -1,9 +1,9 @@
 use crate::glam_utils::to_glam_vec;
-use crate::maths::triangle::Drawable;
 use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 pub struct Segment<'a, T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<'a, T>,

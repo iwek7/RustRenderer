@@ -1,17 +1,15 @@
 use std::collections::HashMap;
 
-use crate::{create_rect_coords, render_gl};
+use crate::{create_rect_coords};
 use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::chess::resource_manager::ResourceManager;
 use crate::maths::quadrangle::Quadrangle;
-use crate::maths::triangle::Drawable;
 use crate::maths::vertex::TexturedVertexData;
-use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
-use crate::texture::Texture;
+use crate::api::drawable::Drawable;
 
 pub struct Chessboard<'a> {
     board: Quadrangle<'a, TexturedVertexData>,

@@ -1,8 +1,8 @@
 use crate::maths::segment::Segment;
 use crate::maths::vertex::ColoredVertexData;
 use crate::render_gl::Program;
-use crate::maths::triangle::Drawable;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 pub struct CoordinateSystem<'a> {
     x_axis: Segment<'a, ColoredVertexData>,

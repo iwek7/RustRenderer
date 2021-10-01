@@ -1,10 +1,10 @@
 use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::render_gl;
-use crate::maths::triangle::Drawable;
 use crate::renderer::RenderUtil;
 use crate::glam_utils::to_glam_vec;
 use std::ops::Sub;
+use crate::api::drawable::Drawable;
 
 pub struct Point<'a, T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<'a, T>,

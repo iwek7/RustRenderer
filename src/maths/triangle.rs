@@ -5,6 +5,7 @@ use crate::texture::Texture;
 use crate::vertex::VertexShaderDataConfigurer;
 use crate::glam_utils::to_glam_vec;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 pub struct Triangle<'a, T: VertexShaderDataConfigurer> {
     open_gl_context: ShapeDrawingComponent<'a, T>,
@@ -67,11 +68,4 @@ impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<'a, T> {
         todo!()
     }
 }
-
-// todo: to separate file
-// todo: Rename to game object?
-pub trait Drawable {
-    fn render(&self, render_util: &RenderUtil);
-}
-
 

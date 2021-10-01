@@ -1,7 +1,7 @@
-use crate::maths::triangle::Drawable;
 use crate::opengl_context::OpenglContext;
 use crate::render_gl;
 use crate::engine::game_controller::CameraConfig;
+use crate::api::drawable::Drawable;
 
 pub struct Renderer<'a> {
     context: &'a OpenglContext,

@@ -1,11 +1,11 @@
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
-use crate::maths::triangle::Drawable;
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::texture::Texture;
 use crate::vertex::VertexShaderDataConfigurer;
 use crate::glam_utils::to_glam_vec;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<'a, T> where T: VertexShaderDataConfigurer {

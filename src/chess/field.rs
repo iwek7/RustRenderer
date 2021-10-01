@@ -1,10 +1,9 @@
 use crate::{create_rect_coords_colored, render_gl};
 use crate::chess::allowed_move::ActionType;
 use crate::maths::quadrangle::Quadrangle;
-use crate::maths::triangle::Drawable;
 use crate::maths::vertex::ColoredVertexData;
-use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 pub struct Field<'a> {
     // todo: those variables should not be mutable anyhow

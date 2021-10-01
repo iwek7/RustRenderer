@@ -11,18 +11,16 @@ use crate::chess::move_logic::PieceMoveComponent;
 use crate::chess::move_logic::create_move_component;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
-use crate::maths::triangle::Drawable;
 use crate::maths::vertex::TexturedVertexData;
-use crate::opengl_context::OpenglContext;
 use crate::texture::Texture;
 use crate::renderer::RenderUtil;
+use crate::api::drawable::Drawable;
 
 pub struct Piece<'a> {
     pub logic: PieceLogic,
     quad: Quadrangle<'a, TexturedVertexData>,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
-
 
 impl<'a> Drawable for Piece<'a> {
     fn render(&self, render_util: &RenderUtil) {
