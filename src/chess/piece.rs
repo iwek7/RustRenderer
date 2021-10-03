@@ -1,34 +1,35 @@
 use core::fmt;
 use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
+use std::rc::Rc;
 
 use crate::{create_rect_coords, render_gl};
+use crate::api::drawable::Drawable;
 use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
-use crate::chess::move_logic::PieceMoveComponent;
 use crate::chess::move_logic::create_move_component;
+use crate::chess::move_logic::PieceMoveComponent;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
 use crate::maths::vertex::TexturedVertexData;
-use crate::texture::Texture;
 use crate::renderer::RenderUtil;
-use crate::api::drawable::Drawable;
+use crate::texture::Texture;
 
-pub struct Piece<'a> {
+pub struct Piece {
     pub logic: PieceLogic,
-    quad: Quadrangle<'a, TexturedVertexData>,
+    quad: Quadrangle<TexturedVertexData>,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
 
-impl<'a> Drawable for Piece<'a> {
+impl Drawable for Piece {
     fn render(&self, render_util: &RenderUtil) {
         self.quad.render(render_util)
     }
 }
 
-impl<'a> Piece<'a> {
+impl Piece {
     pub fn is_mouse_over(&self, world_mouse_position: &glam::Vec3) -> bool {
         self.quad.contains_point(&(world_mouse_position.x, world_mouse_position.y))
     }
@@ -76,18 +77,18 @@ static BISHOP_COL: u32 = 2;
 static QUEEN_COL: u32 = 1;
 static KING_COL: u32 = 0;
 
-pub struct PieceFactory<'a> {
-    shader: &'a render_gl::Program,
+pub struct PieceFactory {
+    shader: Rc<render_gl::Program>,
 }
 
-impl<'a> PieceFactory<'a> {
-    pub fn new(shader: &'a render_gl::Program) -> PieceFactory<'a> {
+impl PieceFactory {
+    pub fn new(shader: Rc<render_gl::Program>) -> PieceFactory {
         return PieceFactory {
             shader
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: &'a Texture, field: &Field, size: (f32, f32)) -> Piece<'a> {
+    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: Rc<Texture>, field: &Field, size: (f32, f32)) -> Piece {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
         let f_pos = field.get_position_3d();
         // todo: all types here should be either i32 or f32
@@ -99,7 +100,7 @@ impl<'a> PieceFactory<'a> {
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),
             ),
             [0, 1, 3, 1, 2, 3],
-            self.shader,
+            Rc::clone(&self.shader),
             Some(pieces_sheet),
         );
         let move_component = create_move_component(&piece_type);

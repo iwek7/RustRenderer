@@ -4,15 +4,24 @@ use crate::render_gl;
 use crate::renderer::RenderUtil;
 use crate::glam_utils::to_glam_vec;
 use std::ops::Sub;
+use std::rc::Rc;
 use crate::api::drawable::Drawable;
-
-pub struct Point<'a, T> where T: VertexShaderDataConfigurer {
-    drawing_component: ShapeDrawingComponent<'a, T>,
+/*
+example:
+```
+Point::new(
+            [ColoredVertexData { pos: (0.0, -0.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+            Rc::clone(&shader_program),
+        )
+        ```
+ */
+pub struct Point<T> where T: VertexShaderDataConfigurer {
+    drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 1],
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Point<'a, T> {
-    pub fn new(vertices: [T; 1], program: &render_gl::Program) -> Point<T> {
+impl<T: VertexShaderDataConfigurer> Point<T> {
+    pub fn new(vertices: [T; 1], program: Rc<render_gl::Program>) -> Point<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &[0],
@@ -41,7 +50,7 @@ impl<'a, T: VertexShaderDataConfigurer> Point<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Point<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Point<T> {
     fn render(&self, render_util: &RenderUtil) {
         self.drawing_component.render(1, gl::POINTS, self.get_pos(), render_util)
     }

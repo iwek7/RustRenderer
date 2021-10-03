@@ -1,14 +1,13 @@
+use crate::api::drawable::Drawable;
+use crate::engine::game_controller::CameraConfig;
 use crate::opengl_context::OpenglContext;
 use crate::render_gl;
-use crate::engine::game_controller::CameraConfig;
-use crate::api::drawable::Drawable;
 
-pub struct Renderer<'a> {
-    context: &'a OpenglContext,
+pub struct Renderer {
     viewport: render_gl::Viewport,
 }
 
-impl<'a> Renderer<'a> {
+impl Renderer {
     pub fn new(context: &OpenglContext) -> Renderer {
         let viewport = render_gl::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
         viewport.set_used();
@@ -17,20 +16,19 @@ impl<'a> Renderer<'a> {
         }
 
         Renderer {
-            context,
             viewport,
         }
     }
 
-    pub fn render(&mut self, objects: &[&dyn Drawable], active_camera_config: &CameraConfig) {
+    pub fn render(&mut self, objects: &[&dyn Drawable], active_camera_config: &CameraConfig, context: &OpenglContext) {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
         for obj_render in objects.iter() {
-            obj_render.render(&RenderUtil::new(active_camera_config.clone(), self.context));
+            obj_render.render(&RenderUtil::new(active_camera_config.clone(), context));
         }
-        self.context.window.gl_swap_window();
+        context.window.gl_swap_window();
     }
 
     pub fn resize_viewport(&mut self, w: i32, h: i32) {
@@ -41,20 +39,20 @@ impl<'a> Renderer<'a> {
 
 pub struct RenderUtil<'a> {
     camera_config: CameraConfig,
-    opengl_context: &'a OpenglContext
+    opengl_context: &'a OpenglContext,
 }
 
 impl<'a> RenderUtil<'a> {
     fn new(camera_config: CameraConfig, opengl_context: &'a OpenglContext) -> RenderUtil<'a> {
         RenderUtil {
             camera_config,
-            opengl_context
+            opengl_context,
         }
     }
 
     pub fn calculate_camera_MVP(&self, position: glam::Vec3) -> glam::Mat4 {
         let projection = self.camera_config.get_projection_matrix(self.opengl_context.get_aspect_ratio());
-        let mut view = self.camera_config.get_view_matrix();
+        let view = self.camera_config.get_view_matrix();
         let model = glam::Mat4::from_translation(position);
         return projection * view * model;
     }

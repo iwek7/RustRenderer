@@ -6,7 +6,7 @@ pub struct Texture {
     texture_id: gl::types::GLuint,
     // todo: make this private
     pub topology: SpriteSheetTopology,
-    texture_params: TextureParams
+    texture_params: TextureParams // todo: this should be part of sprite, not texture
 }
 
 impl Texture {

@@ -4,7 +4,7 @@ use std::ffi::{CStr, CString};
 use gl;
 
 use crate::resources;
-use crate::resources::Resources;
+use crate::resources::ResourceLoader;
 
 pub struct Program {
     id: gl::types::GLuint,
@@ -55,7 +55,7 @@ impl Program {
         Ok(Program { id: program_id , name: name.parse().unwrap() })
     }
 
-    pub fn from_res(res: &Resources, name: &str) -> Result<Program, ShaderError> {
+    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<Program, ShaderError> {
         const POSSIBLE_EXT: [&str; 2] = [
             ".vert",
             ".frag",
@@ -116,12 +116,13 @@ impl Drop for Program {
     }
 }
 
+#[derive(Clone)]
 pub struct Shader {
     id: gl::types::GLuint,
 }
 
 impl Shader {
-    pub fn from_res(res: &Resources, name: &str) -> Result<Shader, ShaderError> {
+    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<Shader, ShaderError> {
         const POSSIBLE_EXT: [(&str, gl::types::GLenum); 2] = [
             (".vert", gl::VERTEX_SHADER),
             (".frag", gl::FRAGMENT_SHADER),

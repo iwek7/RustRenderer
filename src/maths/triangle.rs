@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
@@ -7,15 +8,15 @@ use crate::glam_utils::to_glam_vec;
 use crate::renderer::RenderUtil;
 use crate::api::drawable::Drawable;
 
-pub struct Triangle<'a, T: VertexShaderDataConfigurer> {
-    open_gl_context: ShapeDrawingComponent<'a, T>,
+pub struct Triangle<T: VertexShaderDataConfigurer> {
+    open_gl_context: ShapeDrawingComponent<T>,
     vertices: [T; 3],
     indices: [i32; 3],
 }
 
 // todo: pass reference of texture here
-impl<'a, T: VertexShaderDataConfigurer> Triangle<'a, T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], program: &'a render_gl::Program, texture: Option<&'a Texture>) -> Triangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], program:Rc<render_gl::Program>, texture: Option<Rc<Texture>>) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,
@@ -39,13 +40,13 @@ impl<'a, T: VertexShaderDataConfigurer> Triangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Triangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Triangle<T> {
     fn render(&self,  render_util: &RenderUtil) {
         self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()

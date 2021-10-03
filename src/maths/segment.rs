@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use crate::glam_utils::to_glam_vec;
 use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
@@ -5,8 +6,8 @@ use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::renderer::RenderUtil;
 use crate::api::drawable::Drawable;
 
-pub struct Segment<'a, T> where T: VertexShaderDataConfigurer {
-    drawing_component: ShapeDrawingComponent<'a, T>,
+pub struct Segment<T> where T: VertexShaderDataConfigurer {
+    drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 2],
     indices: [i32; 2],
     is_dragged: bool,
@@ -21,12 +22,12 @@ pub struct Segment<'a, T> where T: VertexShaderDataConfigurer {
               ColoredVertexData { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
           ],
           [0, 1],
-          &shader_program
+          Rc::clone(&shader_program)
       );
   ```
  */
-impl<'a, T: VertexShaderDataConfigurer> Segment<'a, T> {
-    pub fn new(vertices: [T; 2], indices: [i32; 2], program: &render_gl::Program) -> Segment<T> {
+impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
+    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<render_gl::Program>) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
@@ -54,7 +55,7 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<T> {
     fn render(&self, render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos(), render_util)
     }

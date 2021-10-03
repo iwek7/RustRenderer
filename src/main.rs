@@ -1,4 +1,9 @@
+use std::rc::Rc;
+use osu::osu_game::OsuGame;
+use crate::api::resource_manager::ResourceManager;
 use crate::chess::chess_game::ChessGame;
+use crate::engine::Engine;
+use crate::games_root::GamesRoot;
 use crate::maths::vertex;
 use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
@@ -15,12 +20,17 @@ mod maths;
 mod chess;
 mod engine;
 mod api;
+mod games_root;
+mod osu;
 
 fn main() {
-    let context = OpenglContext::init();
-    let mut event_pump = context.sdl.event_pump().unwrap();
-    let mut renderer = renderer::Renderer::new(&context);
-    ChessGame::play(&mut renderer, &mut event_pump, &context);
+    let opengl_context = OpenglContext::init();
+    let osu_game = OsuGame::new();
+    let mut resource_manager = Rc::new(ResourceManager::new());
+    let chess_game = ChessGame::new(Rc::clone(&resource_manager));
+    let games_root = GamesRoot::new(vec![Box::new(osu_game), Box::new(chess_game)]);
+    let mut engine = Engine::new(games_root, resource_manager, opengl_context);
+    engine.start();
 }
 
 // todo: this should be encapsulated into shapes

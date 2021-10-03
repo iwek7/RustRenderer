@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
@@ -8,8 +9,8 @@ use crate::renderer::RenderUtil;
 use crate::api::drawable::Drawable;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
-pub struct Quadrangle<'a, T> where T: VertexShaderDataConfigurer {
-    drawing_component: ShapeDrawingComponent<'a, T>,
+pub struct Quadrangle<T> where T: VertexShaderDataConfigurer {
+    drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 4],
     indices: [i32; 6],
 }
@@ -17,11 +18,11 @@ pub struct Quadrangle<'a, T> where T: VertexShaderDataConfigurer {
 
 const REFERENCE_INDEX: usize = 2;
 
-impl<'a, T: VertexShaderDataConfigurer> Quadrangle<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
-               program: &'a render_gl::Program,
-               texture: Option<&'a Texture>) -> Quadrangle<'a, T> {
+               program: Rc<render_gl::Program>,
+               texture: Option<Rc<Texture>>) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
@@ -56,13 +57,13 @@ impl<'a, T: VertexShaderDataConfigurer> Quadrangle<'a, T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Quadrangle<'a, T> {
+impl<T: VertexShaderDataConfigurer> Drawable for Quadrangle<T> {
     fn render(&self,  render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Area for Quadrangle<'a, T> {
+impl<T: VertexShaderDataConfigurer> Area for Quadrangle<T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()

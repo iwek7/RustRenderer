@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::rc::Rc;
 
 use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
@@ -8,18 +9,18 @@ use crate::texture::Texture;
 use crate::renderer::RenderUtil;
 
 // todo: this class should be probably on engine side
-pub struct ShapeDrawingComponent<'a, T> where T: VertexShaderDataConfigurer {
+pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
-    texture: Option<&'a Texture>,
-    program: &'a render_gl::Program,
+    texture: Option<Rc<Texture>>,
+    program: Rc<render_gl::Program>,
     _marker: PhantomData<T>,
 }
 
-impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<'a, T> {
+impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<&'a Texture>, program: &'a render_gl::Program) -> ShapeDrawingComponent<'a, T> {
+               texture: Option<Rc<Texture>>, program: Rc<render_gl::Program>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();

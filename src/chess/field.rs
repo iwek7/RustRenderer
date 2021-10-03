@@ -1,43 +1,45 @@
+use std::rc::Rc;
+
 use crate::{create_rect_coords_colored, render_gl};
+use crate::api::drawable::Drawable;
 use crate::chess::allowed_move::ActionType;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::vertex::ColoredVertexData;
 use crate::renderer::RenderUtil;
-use crate::api::drawable::Drawable;
 
-pub struct Field<'a> {
+pub struct Field {
     // todo: those variables should not be mutable anyhow
     pub logic: FieldLogic,
     pub x: f32,
     pub y: f32,
-    possible_move_overlay: Quadrangle<'a, ColoredVertexData>,
-    possible_capture_overlay: Quadrangle<'a, ColoredVertexData>,
-    current_field_overlay: Quadrangle<'a, ColoredVertexData>,
+    possible_move_overlay: Quadrangle<ColoredVertexData>,
+    possible_capture_overlay: Quadrangle<ColoredVertexData>,
+    current_field_overlay: Quadrangle<ColoredVertexData>,
     is_possible_move: bool,
     is_possible_capture: bool,
     pub is_current_field: bool,
 }
 
-impl<'a> Field<'a> {
-    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: &'a render_gl::Program) -> Field<'a> {
+impl Field {
+    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<render_gl::Program>) -> Field {
         let possible_move_overlay = Quadrangle::new(
             create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
-            &possible_move_shader,
+            Rc::clone(&possible_move_shader),
             None,
         );
 
         let possible_capture_overlay = Quadrangle::new(
             create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
             [0, 1, 3, 1, 2, 3],
-            &possible_move_shader,
+            Rc::clone(&possible_move_shader),
             None,
         );
 
         let current_field_overlay = Quadrangle::new(
             create_rect_coords_colored((x, y, 0.0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
             [0, 1, 3, 1, 2, 3],
-            &possible_move_shader,
+            Rc::clone(&possible_move_shader),
             None,
         );
 
@@ -75,7 +77,7 @@ impl<'a> Field<'a> {
     }
 }
 
-impl<'a> Drawable for Field<'a> {
+impl Drawable for Field {
     fn render(&self, render_util: &RenderUtil) {
         if self.is_possible_move {
             self.possible_move_overlay.render(render_util)

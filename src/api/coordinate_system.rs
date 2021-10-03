@@ -1,17 +1,18 @@
+use std::rc::Rc;
 use crate::maths::segment::Segment;
 use crate::maths::vertex::ColoredVertexData;
 use crate::render_gl::Program;
 use crate::renderer::RenderUtil;
 use crate::api::drawable::Drawable;
 
-pub struct CoordinateSystem<'a> {
-    x_axis: Segment<'a, ColoredVertexData>,
-    y_axis: Segment<'a, ColoredVertexData>,
-    z_axis: Segment<'a, ColoredVertexData>
+pub struct CoordinateSystem {
+    x_axis: Segment<ColoredVertexData>,
+    y_axis: Segment<ColoredVertexData>,
+    z_axis: Segment<ColoredVertexData>
 }
 
-impl<'a> CoordinateSystem<'a> {
-    pub fn new(shader: &Program) -> CoordinateSystem {
+impl CoordinateSystem {
+    pub fn new(shader: Rc<Program>) -> CoordinateSystem {
 
         let clr =  (0.0, 0.0, 0.0, 1.0);
 
@@ -21,7 +22,7 @@ impl<'a> CoordinateSystem<'a> {
                 ColoredVertexData { pos: (100.0, 0.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            &shader,
+            Rc::clone(&shader),
         );
         let mut y_axis = Segment::new(
             [
@@ -29,7 +30,7 @@ impl<'a> CoordinateSystem<'a> {
                 ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            &shader,
+            Rc::clone(&shader),
         );
         let mut z_axis = Segment::new(
             [
@@ -37,7 +38,7 @@ impl<'a> CoordinateSystem<'a> {
                 ColoredVertexData { pos: (0.0, 0.0, 100.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            &shader,
+            Rc::clone(&shader),
         );
         return CoordinateSystem {
             x_axis,
@@ -47,7 +48,7 @@ impl<'a> CoordinateSystem<'a> {
     }
 }
 
-impl<'a> Drawable for CoordinateSystem<'a> {
+impl Drawable for CoordinateSystem {
     fn render(&self, render_util: &RenderUtil) {
         self.x_axis.render(render_util);
         self.y_axis.render(render_util);

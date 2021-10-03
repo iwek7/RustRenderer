@@ -50,11 +50,11 @@ impl OpenglContext {
         }
     }
 
-    pub fn sdl_window_to_opengl_space(&self, pos: &(i32, i32)) -> (f32, f32) {
+    pub fn sdl_window_to_opengl_space(&self, pos: &glam::Vec2) -> glam::Vec2 {
         let win_size = self.window.size();
-        return (
-            2.0 * pos.0 as f32 / win_size.0 as f32 - 1.0,
-            -(2.0 * pos.1 as f32 / win_size.1 as f32 - 1.0),
+        return glam::vec2(
+            2.0 * pos.x as f32 / win_size.0 as f32 - 1.0,
+            -(2.0 * pos.y as f32 / win_size.1 as f32 - 1.0),
         );
     }
 
@@ -73,10 +73,10 @@ impl OpenglContext {
 
     // based on https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
     // and https://antongerdelan.net/opengl/raycasting.html
-    pub fn sdl_space_to_world_space_at_z0(&self, pos: &(i32, i32), camera_config: &CameraConfig) -> Option<glam::Vec3> {
+    pub fn sdl_space_to_world_space_at_z0(&self, pos: &glam::Vec2, camera_config: &CameraConfig) -> Option<glam::Vec3> {
         // 1. screen mouse coords to normalized space
         let opengl_mouse_pos = self.sdl_window_to_opengl_space(pos);
-        let clip_coords = glam::Vec4::new(opengl_mouse_pos.0 as f32, opengl_mouse_pos.1 as f32, -1.0, 1.0);
+        let clip_coords = glam::vec4(opengl_mouse_pos.x as f32, opengl_mouse_pos.y as f32, -1.0, 1.0);
 
         // 2. Calculate ray
         let eye_coords = OpenglContext::get_eye_coords(clip_coords, camera_config, self.get_aspect_ratio());
