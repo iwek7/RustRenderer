@@ -3,26 +3,42 @@ use std::f32::consts::PI;
 use std::ops::Add;
 use std::rc::Rc;
 
+use crate::api::drawable::Drawable;
+use crate::glam_utils::to_glam_vec;
 use crate::maths::vertex::{ColoredVertexData, VertexShaderDataConfigurer};
+use crate::render_gl::data::f32_f32_f32;
 use crate::render_gl::Program;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::renderer::RenderUtil;
 
-pub struct Circle<T> where T: VertexShaderDataConfigurer {
-    drawing_component: ShapeDrawingComponent<T>,
-    vertices: [T; 300],
-    indices: [i32; 900],
+// we have n vertices that form n - 1 triangles. -1  because vertex in the middle is shared
+// therefore number indices is 3 * (n - 1)
+pub struct Circle {
+    drawing_component: ShapeDrawingComponent<ColoredVertexData>,
+    vertices: [ColoredVertexData; 32],
+    indices: [i32; 93],
+    middle: glam::Vec3,
 }
 
-impl<T: VertexShaderDataConfigurer> Circle<T> {
-    fn new_colored(position: glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<Program>) -> Circle<ColoredVertexData> {
-        let num_vertices = 300;
+impl Circle {
+    pub fn new_colored(position: glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<Program>) -> Circle {
+        let num_vertices = 32;
 
         let mut vertices = vec!();
         let mut indices = vec!();
 
         // todo: is it possible to use macro instead of this?
-        for i in 0..num_vertices {
-            let angle = 2.0 * PI * (i as f32) / num_vertices as f32;
+
+        let p: f32_f32_f32 = position.clone().into();
+        vertices.push(
+            ColoredVertexData {
+                pos: p,
+                clr: color.into(),
+            }
+        );
+
+        for i in 0..num_vertices - 1 {
+            let angle = 2.0 * PI * (i as f32) / (num_vertices - 1) as f32;
             vertices.push(
                 ColoredVertexData {
                     pos: position.add(glam::vec3(
@@ -36,11 +52,18 @@ impl<T: VertexShaderDataConfigurer> Circle<T> {
         }
 
         // todo move to single loop
-        for i in 0..num_vertices {
+        // todo we need some kind of wraping iterator
+        for i in 0..num_vertices - 2 {
             indices.push(0);
-            indices.push(1);
-            indices.push(2);
+            indices.push(i + 1);
+            indices.push(i + 2);
         }
+
+        indices.push(0);
+
+        indices.push(1);
+        indices.push(num_vertices - 2 + 1);
+
 
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
@@ -53,6 +76,13 @@ impl<T: VertexShaderDataConfigurer> Circle<T> {
             drawing_component,
             vertices: vertices.try_into().unwrap(),
             indices: indices.try_into().unwrap(),
+            middle: position,
         }
+    }
+}
+
+impl Drawable for Circle {
+    fn render(&self, render_util: &RenderUtil) {
+        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, self.middle.clone(), render_util)
     }
 }

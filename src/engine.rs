@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::path::Path;
 use std::rc::Rc;
 use sdl2::EventPump;
@@ -9,6 +10,8 @@ use crate::{render_gl, renderer};
 use crate::api::resource_manager::ResourceManager;
 use crate::engine::game_controller::GameController;
 use crate::games_root::GamesRoot;
+use crate::maths::point::Point;
+use crate::maths::vertex::ColoredVertexData;
 use crate::renderer::Renderer;
 use crate::resources::ResourceLoader;
 
@@ -46,6 +49,11 @@ impl Engine {
     }
 
     pub fn start(&mut self) {
+        let shader_program = self.resource_manager.fetch_shader_program( "shaders/triangle");
+        let point = Point::new(
+            [ColoredVertexData { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+            Rc::clone(&shader_program),
+        );
         'main: loop {
             let mouse_state = self.event_pump.mouse_state();
 
@@ -65,7 +73,9 @@ impl Engine {
                 let update_context = UpdateContext::new(sdl_pos, camera_config, Rc::clone(&self.resource_manager));
                 self.game.handle_event(&event, &self.opengl_context, &update_context)
             }
-            self.renderer.render(&[&self.game], &self.game.get_camera_config(), &self.opengl_context)
+
+
+            self.renderer.render(&[ &self.game, self.coordinate_system.borrow(), &point,], &self.game.get_camera_config(), &self.opengl_context)
         }
     }
 }
