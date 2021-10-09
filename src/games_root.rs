@@ -1,5 +1,6 @@
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::mouse::MouseWheelDirection;
 
 use crate::api::camera::CameraGameObject;
 use crate::api::drawable::{Drawable, UpdateContext};
@@ -13,14 +14,18 @@ const CAMERA_SPEED: f32 = 0.3;
 
 pub struct GamesRoot {
     games: Vec<Box<dyn Drawable>>,
-    camera: CameraGameObject,
+    camera: CameraGameObject, //todo: camera should be game object
 }
 
 impl GamesRoot {
     pub fn new(games: Vec<Box<dyn Drawable>>) -> GamesRoot {
         GamesRoot {
             games,
-            camera: CameraGameObject::new(glam::vec3(0.0, 0.0, 20.0)),
+            camera: CameraGameObject::new(
+                glam::vec3(-10.0, -10.0, 20.0),
+                glam::vec3(0.0, 1.0, 0.0),
+                glam::vec3(-10.0, -10.0, -1.0),
+            ),
         }
     }
 }
@@ -49,6 +54,16 @@ impl Drawable for GamesRoot {
                         self.camera.move_by(glam::Vec3::new(0.0, CAMERA_SPEED, 0.0))
                     }
                     _ => {}
+                }
+            }
+            sdl2::event::Event::MouseWheel {
+                y, direction, ..
+            } => {
+                if y != &0 {
+                    let amount = *y as f32 * {
+                        if direction == &MouseWheelDirection::Normal { 1.0 } else { -1.0 }
+                    };
+                    self.camera.zoom_by(amount);
                 }
             }
             _ => {

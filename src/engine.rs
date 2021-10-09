@@ -75,7 +75,7 @@ impl Engine {
             }
 
 
-            self.renderer.render(&[ &self.game, self.coordinate_system.borrow(), &point,], &self.game.get_camera_config(), &self.opengl_context)
+            self.renderer.render(&[ &self.game, /*self.coordinate_system.borrow(), */&point,], &self.game.get_camera_config(), &self.opengl_context)
         }
     }
 }

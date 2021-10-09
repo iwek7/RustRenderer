@@ -21,7 +21,7 @@ impl OpenglContext {
 
         // todo: can window be moved to renderer?
         let window = video_subsystem
-            .window("Game", 800, 800)
+            .window("Game", 1920, 1080)
             .opengl()
             .resizable()
             .build()

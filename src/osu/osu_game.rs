@@ -20,7 +20,7 @@ impl OsuGame {
         let shader = resource_manager.fetch_shader_program("shaders/triangle");
 
         let test_circle = Circle::new_colored(
-            glam::vec3(-2.0, -2.0, 0.0),
+            glam::vec3(-10.0, -10.0, 0.0),
             glam::vec4(0.5, 0.5, 0.5, 1.0),
             1.0,
             Rc::clone(&shader)
