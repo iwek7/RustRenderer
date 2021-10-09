@@ -124,10 +124,6 @@ impl Chessboard {
         )
     }
 
-    // todo holy shit we operate in both coordinate systems at the same time...
-    // todo even context is needed here to translate them...
-    // todo horror
-    // mouse_coords_px is sdl coords (y down)
     pub fn handle_start_piece_dragging_attempt(&mut self, world_mouse_position: &glam::Vec3) {
         if self.is_game_over() {
             return;
