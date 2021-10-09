@@ -25,8 +25,8 @@ mod osu;
 
 fn main() {
     let opengl_context = OpenglContext::init();
-    let osu_game = OsuGame::new();
     let mut resource_manager = Rc::new(ResourceManager::new());
+    let osu_game = OsuGame::new(Rc::clone(&resource_manager));
     let chess_game = ChessGame::new(Rc::clone(&resource_manager));
     let games_root = GamesRoot::new(vec![Box::new(osu_game), Box::new(chess_game)]);
     let mut engine = Engine::new(games_root, resource_manager, opengl_context);

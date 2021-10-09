@@ -1,3 +1,5 @@
+use glam::{Vec3, Vec4};
+
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
@@ -38,6 +40,12 @@ impl From<(f32, f32, f32)> for f32_f32_f32 {
 impl From<(i32, i32, i32)> for f32_f32_f32 {
     fn from(other: (i32, i32, i32)) -> Self {
         f32_f32_f32::new(other.0 as f32, other.1 as f32, other.2 as f32)
+    }
+}
+
+impl From<glam::Vec3> for f32_f32_f32 {
+    fn from(other: glam::Vec3) -> Self {
+        f32_f32_f32::new(other.x, other.y, other.z)
     }
 }
 
@@ -115,5 +123,11 @@ impl f32_f32_f32_f32 {
 impl From<(f32, f32, f32, f32)> for f32_f32_f32_f32 {
     fn from(other: (f32, f32, f32, f32)) -> Self {
         f32_f32_f32_f32::new(other.0, other.1, other.2, other.3)
+    }
+}
+
+impl From<glam::Vec4> for f32_f32_f32_f32 {
+    fn from(other: Vec4) -> Self {
+        f32_f32_f32_f32::new(other.x, other.y, other.z, other.w)
     }
 }

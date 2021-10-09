@@ -4,3 +4,4 @@ pub mod quadrangle;
 pub mod segment;
 pub mod shapes_common;
 pub mod point;
+mod circle;

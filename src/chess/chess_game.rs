@@ -28,28 +28,7 @@ pub struct ChessGame {
 }
 
 impl ChessGame {
-    // todo wrap this sdl event pump in adapter
     pub fn new(resource_manager: Rc<ResourceManager>) -> ChessGame {
-
-        // let color_shader_program = render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
-        // let tx_shader_program = render_gl::Program::from_res(&res, "shaders/texture").unwrap();
-        //
-        // let chessboard_data = res.load_image("textures/chessboard.png");
-        // let chessboard_texture = Texture::from_image(chessboard_data, TextureParams::new());
-        //
-        // let pieces = res.load_image("textures/pieces.png");
-        // let pieces_texture = Texture::spritesheet_from_image(pieces, 2, 6, TextureParams::new());
-
-        let banner_tx_params = TextureParams::new()
-            .with_mag_filter(TextureFilterType::NEAREST)
-            .with_min_filter(TextureFilterType::NEAREST);
-
-        // let black_win_banner_data = res.load_image("textures/black_win_banner.png");
-        // let black_win_banner_texture = Texture::from_image(black_win_banner_data, banner_tx_params.clone());
-        //
-        // let white_win_banner_data = res.load_image("textures/white_win_banner.png");
-        // let white_win_banner_texture = Texture::from_image(white_win_banner_data, banner_tx_params);
-
         let mut chessboard = Chessboard::new(Rc::clone(&resource_manager));
         chessboard.init_pieces(Rc::clone(&resource_manager));
 
