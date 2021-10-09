@@ -151,7 +151,7 @@ impl Chessboard {
     }
 
     pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3, resource_manager: Rc<ResourceManager>) {
-        println!("Handling piece drop at {:?}", world_mouse_coords);
+
         if self.is_game_over() {
             return;
         }
@@ -162,6 +162,7 @@ impl Chessboard {
                 }
             }
             Some(field) => {
+                println!("Handling piece drop at {:?}", world_mouse_coords);
                 // todo: i dont know how to do this without two clones, thanks rust, I'm safe :D
                 if self.dragged_piece != None {
                     let field_data = field.logic.clone();

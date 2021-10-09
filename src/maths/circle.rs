@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use crate::api::drawable::Drawable;
 use crate::glam_utils::to_glam_vec;
+use crate::maths::shapes_common::Area;
 use crate::maths::vertex::{ColoredVertexData, VertexShaderDataConfigurer};
 use crate::render_gl::data::f32_f32_f32;
 use crate::render_gl::Program;
@@ -18,6 +19,7 @@ pub struct Circle {
     vertices: [ColoredVertexData; 32],
     indices: [i32; 93],
     middle: glam::Vec3,
+    radius: f32
 }
 
 impl Circle {
@@ -77,6 +79,7 @@ impl Circle {
             vertices: vertices.try_into().unwrap(),
             indices: indices.try_into().unwrap(),
             middle: position,
+            radius
         }
     }
 }
@@ -84,5 +87,23 @@ impl Circle {
 impl Drawable for Circle {
     fn render(&self, render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, self.middle.clone(), render_util)
+    }
+}
+
+impl Area for Circle {
+    fn contains_point(&self, point: &(f32, f32)) -> bool {
+        (self.middle.x - point.0).powf(2.0) + (self.middle.y - point.1).powf(2.0) <= self.radius.powf(2.0)
+    }
+
+    fn area(&self) -> f32 {
+        PI * self.radius * self.radius
+    }
+
+    fn num_vertices(&self) -> usize {
+        panic!("Circle does not have any vertices!")
+    }
+
+    fn get_pos(&self) -> (f32, f32, f32) {
+        (self.middle.x, self.middle.y, self.middle.z)
     }
 }
