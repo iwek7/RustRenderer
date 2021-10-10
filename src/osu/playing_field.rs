@@ -1,6 +1,8 @@
+use std::process::id;
 use std::rc::Rc;
-use rand::prelude::*;
 use std::time::SystemTime;
+
+use rand::prelude::*;
 use sdl2::event::Event;
 
 use crate::{create_rect_coords, create_rect_coords_colored, create_rect_coords_colored_deprecated, create_rect_coords_deprecated};
@@ -14,14 +16,15 @@ use crate::opengl_context::OpenglContext;
 use crate::osu::ring::{Ring, RING_RADIUS};
 use crate::renderer::RenderUtil;
 
-const SPAWN_INTERVAL_MILLIS : u128 = 500;
+const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
 pub struct PlayingField {
     background: Quadrangle<TexturedVertexData>,
     rings: Vec<Ring>,
     total_score: i32,
-    size: glam::Vec2, // todo: this should be part of rectangle,
-    spawn_time: SystemTime
+    size: glam::Vec2,
+    // todo: this should be part of rectangle,
+    spawn_time: SystemTime,
 }
 
 impl PlayingField {
@@ -42,15 +45,15 @@ impl PlayingField {
             rings: vec!(ring),
             total_score: 0,
             size: size.clone(),
-            spawn_time: SystemTime::now()
+            spawn_time: SystemTime::now(),
         }
     }
 
-    pub fn calc_random_ring_position(pos: &glam::Vec3, size: &glam::Vec2) -> glam::Vec3{
+    pub fn calc_random_ring_position(pos: &glam::Vec3, size: &glam::Vec2) -> glam::Vec3 {
         let mut rng = thread_rng();
 
         let x = rng.gen_range((pos.x + RING_RADIUS)..(pos.x + size.x - RING_RADIUS));
-        let y =  rng.gen_range((pos.y + RING_RADIUS)..(pos.y + size.y - RING_RADIUS));
+        let y = rng.gen_range((pos.y + RING_RADIUS)..(pos.y + size.y - RING_RADIUS));
         glam::vec3(x, y, 0.0)
     }
 }
@@ -88,9 +91,13 @@ impl Drawable for PlayingField {
                             }
                         }
 
-                        for idx in to_remove {
-                            self.total_score += self.rings[idx].get_score();
-                            self.rings.remove(idx);
+                        for i in 0..to_remove.len() {
+                            // this takes into account items
+                            // that were already removed during iteration of this loop
+                            // its super bad :D
+                            let actual_index = to_remove[i] - i;
+                            self.total_score += self.rings[actual_index].get_score();
+                            self.rings.remove(actual_index);
                             println!("TOTAL SCORE IS {:?}", self.total_score)
                         }
                     }
