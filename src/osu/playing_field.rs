@@ -1,5 +1,6 @@
 use std::rc::Rc;
-
+use rand::prelude::*;
+use std::time::SystemTime;
 use sdl2::event::Event;
 
 use crate::{create_rect_coords, create_rect_coords_colored, create_rect_coords_colored_deprecated, create_rect_coords_deprecated};
@@ -7,14 +8,20 @@ use crate::api::colour::Colour;
 use crate::api::drawable::{Drawable, UpdateContext};
 use crate::api::resource_manager::ResourceManager;
 use crate::maths::quadrangle::Quadrangle;
+use crate::maths::shapes_common::Area;
 use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
-use crate::osu::ring::Ring;
+use crate::osu::ring::{Ring, RING_RADIUS};
 use crate::renderer::RenderUtil;
+
+const SPAWN_INTERVAL_MILLIS : u128 = 500;
 
 pub struct PlayingField {
     background: Quadrangle<TexturedVertexData>,
     rings: Vec<Ring>,
+    total_score: i32,
+    size: glam::Vec2, // todo: this should be part of rectangle,
+    spawn_time: SystemTime
 }
 
 impl PlayingField {
@@ -28,12 +35,23 @@ impl PlayingField {
             Some(bg_tx),
         );
 
-        let test_ring = Ring::new(&glam::vec3(-10.0, -10.0, 0.0), resource_manager);
+        let ring = Ring::new(&PlayingField::calc_random_ring_position(position, size), resource_manager);
 
         PlayingField {
             background,
-            rings: vec!(test_ring),
+            rings: vec!(ring),
+            total_score: 0,
+            size: size.clone(),
+            spawn_time: SystemTime::now()
         }
+    }
+
+    pub fn calc_random_ring_position(pos: &glam::Vec3, size: &glam::Vec2) -> glam::Vec3{
+        let mut rng = thread_rng();
+
+        let x = rng.gen_range((pos.x + RING_RADIUS)..(pos.x + size.x - RING_RADIUS));
+        let y =  rng.gen_range((pos.y + RING_RADIUS)..(pos.y + size.y - RING_RADIUS));
+        glam::vec3(x, y, 0.0)
     }
 }
 
@@ -43,18 +61,37 @@ impl Drawable for PlayingField {
         self.rings.iter().for_each(|ring| ring.render(render_util));
     }
 
+    fn update(&mut self, update_context: &UpdateContext) {
+        let now = SystemTime::now();
+        let difference = now.duration_since(self.spawn_time);
+        if difference.unwrap().as_millis() > SPAWN_INTERVAL_MILLIS {
+            self.spawn_time = now;
+
+            let pos = glam::vec3(self.background.get_pos().0, self.background.get_pos().1, self.background.get_pos().2);
+
+            let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), Rc::clone(&update_context.resource_manager));
+            self.rings.push(ring);
+        }
+    }
+
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
         match context.sdl_space_to_world_space_at_z0(update_context.get_sdl_mouse_position(), &update_context.get_camera_config()) {
             None => {}
             Some(world_mouse_position) => {
                 match event {
                     sdl2::event::Event::MouseButtonDown { .. } => {
-                        for ring in self.rings.iter() {
-                            if ring.contains_point(&world_mouse_position) {
-                                println!("INSIDE")
-                            } else {
-                                println!("OUTSIDE")
+                        let mut to_remove = vec!();
+
+                        for idx in 0..self.rings.len() {
+                            if self.rings[idx].contains_point(&world_mouse_position) {
+                                to_remove.push(idx);
                             }
+                        }
+
+                        for idx in to_remove {
+                            self.total_score += self.rings[idx].get_score();
+                            self.rings.remove(idx);
+                            println!("TOTAL SCORE IS {:?}", self.total_score)
                         }
                     }
                     _ => {}

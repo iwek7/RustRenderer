@@ -64,6 +64,8 @@ impl Engine {
             let camera_config = self.game.get_camera_config();
             let update_context = UpdateContext::new(sdl_pos, camera_config, Rc::clone(&self.resource_manager));
 
+            self.game.update(&update_context);
+
             for event in self.event_pump.poll_iter() {
                 if ENGINE_FEATURES_ON {
                     match event {

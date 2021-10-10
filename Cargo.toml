@@ -9,6 +9,7 @@ sdl2 = { version = "0.34.2", features = ["bundled", "static-link", "image"] }
 gl = "0.6.0"
 image = "0.23.14"
 glam = "0.17.3"
+rand = "0.8.4"
 
 [build-dependencies]
 walkdir = "2.3.2"

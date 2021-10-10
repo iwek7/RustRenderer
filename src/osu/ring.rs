@@ -10,7 +10,7 @@ use crate::maths::vertex::TexturedVertexData;
 use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
 
-const RING_RADIUS : f32 = 0.9;
+pub const RING_RADIUS : f32 = 0.9;
 
 pub struct Ring {
     hitbox: Circle,
@@ -47,6 +47,10 @@ impl Ring {
 
     pub fn contains_point(&self, position: &glam::Vec3) -> bool {
        self.hitbox.contains_point(&(position.x, position.y))
+    }
+
+    pub fn get_score(&self) -> i32 {
+        1
     }
 }
 

@@ -31,9 +31,12 @@ impl OsuGame {
 }
 
 impl<'a> Drawable for OsuGame {
-    fn render(&self, render_util: &RenderUtil)
-    {
+    fn render(&self, render_util: &RenderUtil) {
         self.playing_field.render(render_util);
+    }
+
+    fn update(&mut self, update_context: &UpdateContext) {
+        self.playing_field.update(update_context);
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {

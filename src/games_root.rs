@@ -38,6 +38,12 @@ impl Drawable for GamesRoot {
         }
     }
 
+    fn update(&mut self, update_context: &UpdateContext) {
+        for game in self.games.iter_mut() {
+            game.update(update_context);
+        }
+    }
+
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
         match event {
             sdl2::event::Event::KeyDown { keycode, .. } => {
