@@ -23,7 +23,8 @@ pub struct Circle {
 }
 
 impl Circle {
-    pub fn new_colored(position: glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<Program>) -> Circle {
+    // position here is the middle of a circle
+    pub fn new_colored(position: &glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<Program>) -> Circle {
         let num_vertices = 32;
 
         let mut vertices = vec!();
@@ -78,7 +79,7 @@ impl Circle {
             drawing_component,
             vertices: vertices.try_into().unwrap(),
             indices: indices.try_into().unwrap(),
-            middle: position,
+            middle: position.clone(),
             radius
         }
     }
