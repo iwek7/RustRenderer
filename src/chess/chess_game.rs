@@ -5,7 +5,7 @@ use sdl2::event::Event;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
-use crate::{create_rect_coords, render_gl};
+use crate::{create_rect_coords_deprecated, render_gl};
 use crate::api::camera::CameraGameObject;
 use crate::api::coordinate_system::CoordinateSystem;
 use crate::api::drawable::{Drawable, UpdateContext};
@@ -32,15 +32,15 @@ impl ChessGame {
         let mut chessboard = Chessboard::new(Rc::clone(&resource_manager));
         chessboard.init_pieces(Rc::clone(&resource_manager));
 
-        let texture_shader = resource_manager.fetch_shader_program("shaders/texture");
+        let texture_shader = resource_manager.fetch_shader_program("chess/shaders/texture");
 
         let white_win_banner = ChessGame::create_win_banner(
-            resource_manager.fetch_texture("textures/white_win_banner.png"),
+            resource_manager.fetch_texture("chess/textures/white_win_banner.png"),
             Rc::clone(&texture_shader),
         );
 
         let black_win_banner = ChessGame::create_win_banner(
-            resource_manager.fetch_texture("textures/black_win_banner.png"),
+            resource_manager.fetch_texture("chess/textures/black_win_banner.png"),
             Rc::clone(&texture_shader),
         );
 
@@ -53,8 +53,8 @@ impl ChessGame {
 
     fn create_win_banner(tx: Rc<Texture>, shader: Rc<render_gl::Program>) -> Quadrangle<TexturedVertexData> {
         Quadrangle::new(
-            create_rect_coords((200.0, 100.0, 0.0), (512.0, 512.0),
-                               &tx.topology.get_sprite_coords(0, 0).unwrap()),
+            create_rect_coords_deprecated((200.0, 100.0, 0.0), (512.0, 512.0),
+                                          &tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             shader,
             Some(Rc::clone(&tx)),

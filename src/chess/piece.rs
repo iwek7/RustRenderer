@@ -3,7 +3,7 @@ use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
-use crate::{create_rect_coords, render_gl};
+use crate::{create_rect_coords_deprecated, render_gl};
 use crate::api::drawable::Drawable;
 use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
@@ -94,7 +94,7 @@ impl PieceFactory {
         // todo: all types here should be either i32 or f32
         let q_pos = (f_pos.0 as f32, f_pos.1 as f32, 0 as f32);
         let quad = Quadrangle::new(
-            create_rect_coords(
+            create_rect_coords_deprecated(
                 q_pos,
                 size,
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),

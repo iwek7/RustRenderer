@@ -1,6 +1,6 @@
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::mouse::MouseWheelDirection;
+use sdl2::mouse::{MouseButton, MouseWheelDirection};
 
 use crate::api::camera::CameraGameObject;
 use crate::api::drawable::{Drawable, UpdateContext};
@@ -11,6 +11,7 @@ use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
 
 const CAMERA_SPEED: f32 = 0.3;
+
 
 pub struct GamesRoot {
     games: Vec<Box<dyn Drawable>>,
@@ -65,7 +66,7 @@ impl Drawable for GamesRoot {
                     };
                     self.camera.zoom_by(amount);
                 }
-            }
+            },
             _ => {
                 for game in self.games.iter_mut() {
                     game.handle_event(event, context, update_context);

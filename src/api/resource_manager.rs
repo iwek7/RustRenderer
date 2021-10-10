@@ -21,7 +21,7 @@ impl ResourceManager {
         ResourceManager {
             textures: RefCell::new(HashMap::new()),
             shaders: RefCell::new(HashMap::new()),
-            resource_loader: ResourceLoader::from_relative_exe_path(Path::new("assets/chess")).unwrap(), // todo: parametrize
+            resource_loader: ResourceLoader::from_relative_exe_path(Path::new("assets")).unwrap(), // todo: parametrize
         }
     }
 

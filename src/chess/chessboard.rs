@@ -7,7 +7,7 @@ use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
-use crate::create_rect_coords;
+use crate::create_rect_coords_deprecated;
 use crate::maths::quadrangle::Quadrangle;
 use crate::maths::vertex::TexturedVertexData;
 use crate::renderer::RenderUtil;
@@ -31,13 +31,13 @@ impl Chessboard {
         let board_size = field_size * 8.0;
         let position = (0.0, 0.0, 0.0);
 
-        let chessboard_texture = resource_manager.fetch_texture("textures/chessboard.png");
-        let chessboard_shader = resource_manager.fetch_shader_program("shaders/texture");
-        let possible_move_shader = resource_manager.fetch_shader_program("shaders/triangle");
+        let chessboard_texture = resource_manager.fetch_texture("chess/textures/chessboard.png");
+        let chessboard_shader = resource_manager.fetch_shader_program("chess/shaders/texture");
+        let possible_move_shader = resource_manager.fetch_shader_program("chess/shaders/triangle");
 
         let quad = Quadrangle::new(
-            create_rect_coords(position.clone(), (board_size, board_size),
-                               &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
+            create_rect_coords_deprecated(position.clone(), (board_size, board_size),
+                                          &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
             Rc::clone(&chessboard_shader),
             Some(Rc::clone(&chessboard_texture)),
@@ -77,7 +77,7 @@ impl Chessboard {
 
     pub fn init_pieces(&mut self, resource_manager: Rc<ResourceManager>) {
         let piece_size = (self.field_size as f32, self.field_size as f32);
-        let pieces_sheet = resource_manager.fetch_sprite_sheet("textures/pieces.png", 2, 6);
+        let pieces_sheet = resource_manager.fetch_sprite_sheet("chess/textures/pieces.png", 2, 6);
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("A1"), piece_size));
         self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("B1"), piece_size));
@@ -258,7 +258,7 @@ impl Chessboard {
         let new_piece = self.piece_factory.init_piece(
             PieceType::QUEEN,
             promoted_piece.get_side().clone(),
-            resource_manager.fetch_sprite_sheet("textures/pieces.png", 2, 6),
+            resource_manager.fetch_sprite_sheet("chess/textures/pieces.png", 2, 6),
             self.get_field_by_logic(promoted_piece.get_occupied_field()),
             piece_size);
         self.pieces.push(new_piece);
