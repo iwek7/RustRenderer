@@ -29,9 +29,9 @@ impl OsuGame {
         let mut sl = Soloud::default().unwrap();
         let wav = resource_manager.fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
         sl.play(&wav);
-        while sl.voice_count() > 0 {
-            std::thread::sleep(std::time::Duration::from_millis(100));
-        }
+        // while sl.voice_count() > 0 {
+        //     std::thread::sleep(std::time::Duration::from_millis(100));
+        // }
         OsuGame {
             playing_field,
         }
