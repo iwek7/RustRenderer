@@ -4,7 +4,7 @@ use sdl2::mouse::MouseButton;
 use crate::engine::api::coordinate_system::CoordinateSystem;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::resource_manager::ResourceManager;
-use crate::engine::api::game_controller::GameController;
+use crate::engine::api::game_api::GameController;
 use crate::games_root::GamesRoot;
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::vertex::ColoredVertexData;

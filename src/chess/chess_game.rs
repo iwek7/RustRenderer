@@ -16,7 +16,7 @@ use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
-use crate::engine::api::game_controller::{CameraConfig, GameController};
+use crate::engine::api::game_api::{CameraConfig, GameController};
 use crate::engine::render_gl;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::resources::ResourceLoader;

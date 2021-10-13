@@ -1,4 +1,4 @@
-use crate::engine::api::game_controller::CameraConfig;
+use crate::engine::api::game_api::CameraConfig;
 use crate::engine::opengl_context::OpenglContext;
 
 pub struct RenderUtil<'a> {

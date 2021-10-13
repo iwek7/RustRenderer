@@ -8,4 +8,4 @@ pub mod texture;
 pub mod maths;
 pub mod render_util;
 // todo: only api should be public here
-pub mod game_controller;
+pub mod game_api;
