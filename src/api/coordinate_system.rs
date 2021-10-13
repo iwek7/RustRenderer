@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use crate::maths::segment::Segment;
 use crate::maths::vertex::ColoredVertexData;
-use crate::render_gl::Program;
+use crate::render_gl::ShaderProgram;
 use crate::renderer::RenderUtil;
 use crate::api::drawable::Drawable;
 
@@ -12,7 +12,7 @@ pub struct CoordinateSystem {
 }
 
 impl CoordinateSystem {
-    pub fn new(shader: Rc<Program>) -> CoordinateSystem {
+    pub fn new(shader: Rc<ShaderProgram>) -> CoordinateSystem {
 
         let clr =  (0.0, 0.0, 0.0, 1.0);
 

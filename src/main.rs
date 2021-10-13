@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
+use api::texture::SpriteCoords;
 use osu::osu_game::OsuGame;
 
-use crate::api::colour::{Colour};
+use crate::api::colour::Colour;
 use crate::api::resource_manager::ResourceManager;
 use crate::chess::chess_game::ChessGame;
 use crate::engine::Engine;
@@ -10,13 +11,11 @@ use crate::games_root::GamesRoot;
 use crate::maths::vertex;
 use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
-use crate::texture::SpriteCoords;
 
 pub mod render_gl;
 pub mod resources;
 pub mod renderer;
 pub mod opengl_context;
-pub mod texture;
 pub mod glam_utils;
 
 mod maths;

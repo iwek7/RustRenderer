@@ -6,14 +6,14 @@ use std::rc::Rc;
 use soloud::Wav;
 
 use crate::render_gl;
-use crate::render_gl::{Program, Shader};
+use crate::render_gl::{ShaderProgram, Shader};
 use crate::resources::ResourceLoader;
-use crate::texture::{Texture, TextureFilterType, TextureParams};
+use crate::api::texture::{Texture, TextureFilterType, TextureParams};
 
 // todo: this probably should not be here but be more generic class in engine
 pub struct ResourceManager {
     textures: RefCell<HashMap<String, Rc<Texture>>>,
-    shaders: RefCell<HashMap<String, Rc<Program>>>,
+    shaders: RefCell<HashMap<String, Rc<ShaderProgram>>>,
     resource_loader: ResourceLoader,
 }
 
@@ -27,11 +27,11 @@ impl ResourceManager {
     }
 
     // todo: fetch shader and fetch texture contains the same logic
-    pub fn fetch_shader_program(&self, id: &str) -> Rc<Program> {
+    pub fn fetch_shader_program(&self, id: &str) -> Rc<ShaderProgram> {
         match self.shaders.borrow_mut().entry(id.to_string()) {
             Entry::Occupied(o) => { Rc::clone(&o.get()) }
             Entry::Vacant(v) => {
-                let new_shader = Program::from_res(&self.resource_loader, &id).unwrap();
+                let new_shader = ShaderProgram::from_res(&self.resource_loader, &id).unwrap();
                 Rc::clone(v.insert(Rc::new(new_shader)))
             }
         }

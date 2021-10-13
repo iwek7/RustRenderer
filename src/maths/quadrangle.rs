@@ -2,7 +2,7 @@ use std::rc::Rc;
 use crate::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::render_gl;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
-use crate::texture::Texture;
+use crate::api::texture::Texture;
 use crate::vertex::VertexShaderDataConfigurer;
 use crate::glam_utils::to_glam_vec;
 use crate::renderer::RenderUtil;
@@ -21,7 +21,7 @@ const REFERENCE_INDEX: usize = 2;
 impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
-               program: Rc<render_gl::Program>,
+               program: Rc<render_gl::ShaderProgram>,
                texture: Option<Rc<Texture>>) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,

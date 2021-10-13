@@ -21,7 +21,7 @@ pub struct Point<T> where T: VertexShaderDataConfigurer {
 }
 
 impl<T: VertexShaderDataConfigurer> Point<T> {
-    pub fn new(vertices: [T; 1], program: Rc<render_gl::Program>) -> Point<T> {
+    pub fn new(vertices: [T; 1], program: Rc<render_gl::ShaderProgram>) -> Point<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &[0],

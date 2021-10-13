@@ -15,7 +15,7 @@ use crate::maths::quadrangle::Quadrangle;
 use crate::maths::shapes_common::Area;
 use crate::maths::vertex::TexturedVertexData;
 use crate::renderer::RenderUtil;
-use crate::texture::Texture;
+use crate::api::texture::Texture;
 
 pub struct Piece {
     pub logic: PieceLogic,
@@ -78,11 +78,11 @@ static QUEEN_COL: u32 = 1;
 static KING_COL: u32 = 0;
 
 pub struct PieceFactory {
-    shader: Rc<render_gl::Program>,
+    shader: Rc<render_gl::ShaderProgram>,
 }
 
 impl PieceFactory {
-    pub fn new(shader: Rc<render_gl::Program>) -> PieceFactory {
+    pub fn new(shader: Rc<render_gl::ShaderProgram>) -> PieceFactory {
         return PieceFactory {
             shader
         };

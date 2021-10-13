@@ -21,7 +21,7 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<render_gl::Program>) -> Field {
+    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<render_gl::ShaderProgram>) -> Field {
         let possible_move_overlay = Quadrangle::new(
             create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],

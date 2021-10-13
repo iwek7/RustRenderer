@@ -8,7 +8,7 @@ use crate::glam_utils::to_glam_vec;
 use crate::maths::shapes_common::Area;
 use crate::maths::vertex::{ColoredVertexData, VertexShaderDataConfigurer};
 use crate::render_gl::data::f32_f32_f32;
-use crate::render_gl::Program;
+use crate::render_gl::ShaderProgram;
 use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::renderer::RenderUtil;
 
@@ -24,7 +24,7 @@ pub struct Circle {
 
 impl Circle {
     // position here is the middle of a circle
-    pub fn new_colored(position: &glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<Program>) -> Circle {
+    pub fn new_colored(position: &glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<ShaderProgram>) -> Circle {
         let num_vertices = 32;
 
         let mut vertices = vec!();

@@ -19,7 +19,7 @@ use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
 use crate::resources::ResourceLoader;
-use crate::texture::{Texture, TextureFilterType, TextureParams};
+use crate::api::texture::{Texture, TextureFilterType, TextureParams};
 
 pub struct ChessGame {
     chessboard: Chessboard,
@@ -51,7 +51,7 @@ impl ChessGame {
         }
     }
 
-    fn create_win_banner(tx: Rc<Texture>, shader: Rc<render_gl::Program>) -> Quadrangle<TexturedVertexData> {
+    fn create_win_banner(tx: Rc<Texture>, shader: Rc<render_gl::ShaderProgram>) -> Quadrangle<TexturedVertexData> {
         Quadrangle::new(
             create_rect_coords_deprecated((200.0, 100.0, 0.0), (512.0, 512.0),
                                           &tx.topology.get_sprite_coords(0, 0).unwrap()),

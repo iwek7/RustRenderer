@@ -6,13 +6,13 @@ use gl;
 use crate::resources;
 use crate::resources::ResourceLoader;
 
-pub struct Program {
+pub struct ShaderProgram {
     id: gl::types::GLuint,
     name: String,
 }
 
-impl Program {
-    pub fn from_shaders(shaders: &[Shader], name: &str) -> Result<Program, ShaderError> {
+impl ShaderProgram {
+    pub fn from_shaders(shaders: &[Shader], name: &str) -> Result<ShaderProgram, ShaderError> {
         let program_id = unsafe { gl::CreateProgram() };
 
         for shader in shaders {
@@ -52,10 +52,10 @@ impl Program {
             unsafe { gl::DetachShader(program_id, shader.id()); }
         }
 
-        Ok(Program { id: program_id , name: name.parse().unwrap() })
+        Ok(ShaderProgram { id: program_id , name: name.parse().unwrap() })
     }
 
-    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<Program, ShaderError> {
+    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<ShaderProgram, ShaderError> {
         const POSSIBLE_EXT: [&str; 2] = [
             ".vert",
             ".frag",
@@ -67,7 +67,7 @@ impl Program {
             })
             .collect::<Result<Vec<Shader>, ShaderError>>()?;
 
-        Program::from_shaders(&shaders[..], name)
+        ShaderProgram::from_shaders(&shaders[..], name)
     }
 
     pub fn id(&self) -> gl::types::GLuint {
@@ -108,7 +108,7 @@ impl Program {
 
 }
 
-impl Drop for Program {
+impl Drop for ShaderProgram {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteProgram(self.id);

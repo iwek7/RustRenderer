@@ -27,7 +27,7 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
   ```
  */
 impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
-    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<render_gl::Program>) -> Segment<T> {
+    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<render_gl::ShaderProgram>) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,

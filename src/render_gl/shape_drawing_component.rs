@@ -5,7 +5,7 @@ use crate::maths::vertex::VertexShaderDataConfigurer;
 use crate::render_gl;
 use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::render_gl::buffer;
-use crate::texture::Texture;
+use crate::api::texture::Texture;
 use crate::renderer::RenderUtil;
 
 // todo: this class should be probably on engine side
@@ -14,13 +14,13 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     vao: VertexArray,
     ebo: ElementArrayBuffer,
     texture: Option<Rc<Texture>>,
-    program: Rc<render_gl::Program>,
+    program: Rc<render_gl::ShaderProgram>,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Rc<Texture>>, program: Rc<render_gl::Program>) -> ShapeDrawingComponent<T> {
+               texture: Option<Rc<Texture>>, program: Rc<render_gl::ShaderProgram>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = render_gl::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
