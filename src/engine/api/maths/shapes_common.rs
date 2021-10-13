@@ -1,4 +1,4 @@
-use crate::maths::shapes_common::Side::{LEFT, NONE, RIGHT};
+use crate::engine::api::maths::shapes_common::Side::{LEFT, NONE, RIGHT};
 
 pub trait Area {
     fn contains_point(&self, point: &(f32, f32)) -> bool;

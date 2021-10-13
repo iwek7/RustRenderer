@@ -1,27 +1,23 @@
 use std::rc::Rc;
 
-use api::texture::SpriteCoords;
+use engine::api::colour::Colour;
+use engine::api::maths::vertex;
+use engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
+use engine::api::resource_manager::ResourceManager;
+use engine::api::texture::SpriteCoords;
 use osu::osu_game::OsuGame;
 
-use crate::api::colour::Colour;
-use crate::api::resource_manager::ResourceManager;
 use crate::chess::chess_game::ChessGame;
-use crate::engine::Engine;
+use crate::engine::engine::Engine;
 use crate::games_root::GamesRoot;
-use crate::maths::vertex;
-use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
 
-pub mod render_gl;
-pub mod resources;
 pub mod renderer;
 pub mod opengl_context;
 pub mod glam_utils;
 
-mod maths;
 mod chess;
 mod engine;
-mod api;
 mod games_root;
 mod osu;
 

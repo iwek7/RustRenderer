@@ -3,13 +3,12 @@ use std::f32::consts::PI;
 use std::ops::Add;
 use std::rc::Rc;
 
-use crate::api::drawable::Drawable;
-use crate::glam_utils::to_glam_vec;
-use crate::maths::shapes_common::Area;
-use crate::maths::vertex::{ColoredVertexData, VertexShaderDataConfigurer};
-use crate::render_gl::data::f32_f32_f32;
-use crate::render_gl::ShaderProgram;
-use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::engine::api::drawable::Drawable;
+use crate::engine::api::maths::shapes_common::Area;
+use crate::engine::api::maths::vertex::{ColoredVertexData};
+use crate::engine::render_gl::data::f32_f32_f32;
+use crate::engine::render_gl::ShaderProgram;
+use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::renderer::RenderUtil;
 
 // we have n vertices that form n - 1 triangles. -1  because vertex in the middle is shared

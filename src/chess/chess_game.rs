@@ -5,21 +5,22 @@ use sdl2::event::Event;
 use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
-use crate::{create_rect_coords_deprecated, render_gl};
-use crate::api::camera::CameraGameObject;
-use crate::api::coordinate_system::CoordinateSystem;
-use crate::api::drawable::{Drawable, UpdateContext};
-use crate::api::resource_manager::ResourceManager;
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
+use crate::create_rect_coords_deprecated;
+use crate::engine::api::camera::CameraGameObject;
+use crate::engine::api::coordinate_system::CoordinateSystem;
+use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::maths::point::Point;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
+use crate::engine::api::resource_manager::ResourceManager;
+use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
 use crate::engine::game_controller::{CameraConfig, GameController};
-use crate::maths::point::Point;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
+use crate::engine::render_gl;
+use crate::engine::resources::ResourceLoader;
 use crate::opengl_context::OpenglContext;
 use crate::renderer::{Renderer, RenderUtil};
-use crate::resources::ResourceLoader;
-use crate::api::texture::{Texture, TextureFilterType, TextureParams};
 
 pub struct ChessGame {
     chessboard: Chessboard,

@@ -1,6 +1,6 @@
 use std::ffi::c_void;
 
-use crate::resources::ImageData;
+use crate::engine::resources::ImageData;
 
 pub struct Texture {
     texture_id: gl::types::GLuint,

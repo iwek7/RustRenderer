@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use soloud::*;
 
 use image::{DynamicImage, GenericImageView, RgbaImage};
-use crate::api::audio::AudioResource;
+use crate::engine::api::audio::AudioResource;
 
 #[derive(Debug)]
 pub enum Error {

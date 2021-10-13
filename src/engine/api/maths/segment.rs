@@ -1,10 +1,10 @@
 use std::rc::Rc;
 use crate::glam_utils::to_glam_vec;
-use crate::maths::vertex::VertexShaderDataConfigurer;
-use crate::render_gl;
-use crate::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::render_gl;
+use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::renderer::RenderUtil;
-use crate::api::drawable::Drawable;
+use crate::engine::api::drawable::Drawable;
 
 pub struct Segment<T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<T>,

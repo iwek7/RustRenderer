@@ -4,7 +4,7 @@ pub trait BufferType {
 
 pub struct Buffer<B> where B: BufferType {
     vbo: gl::types::GLuint,
-    _marker: ::std::marker::PhantomData<B>,
+    _marker: std::marker::PhantomData<B>,
 }
 
 impl<B> Buffer<B> where B: BufferType {

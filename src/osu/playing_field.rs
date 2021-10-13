@@ -6,12 +6,12 @@ use rand::prelude::*;
 use sdl2::event::Event;
 
 use crate::{create_rect_coords, create_rect_coords_colored, create_rect_coords_colored_deprecated, create_rect_coords_deprecated};
-use crate::api::colour::Colour;
-use crate::api::drawable::{Drawable, UpdateContext};
-use crate::api::resource_manager::ResourceManager;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::shapes_common::Area;
-use crate::maths::vertex::{ColoredVertexData, TexturedVertexData};
+use crate::engine::api::colour::Colour;
+use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::resource_manager::ResourceManager;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::shapes_common::Area;
+use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use crate::opengl_context::OpenglContext;
 use crate::osu::ring::{Ring, RING_RADIUS};
 use crate::renderer::RenderUtil;

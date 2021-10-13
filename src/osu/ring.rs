@@ -1,12 +1,12 @@
 use std::rc::Rc;
 use sdl2::event::Event;
-use crate::api::drawable::{Drawable, UpdateContext};
-use crate::api::resource_manager::ResourceManager;
+use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::resource_manager::ResourceManager;
 use crate::create_rect_coords;
-use crate::maths::circle::Circle;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::shapes_common::Area;
-use crate::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::circle::Circle;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::shapes_common::Area;
+use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
 

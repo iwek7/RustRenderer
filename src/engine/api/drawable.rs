@@ -2,7 +2,7 @@ use std::rc::Rc;
 use crate::renderer::RenderUtil;
 use crate::opengl_context::OpenglContext;
 use sdl2::event::Event;
-use crate::api::resource_manager::ResourceManager;
+use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::game_controller::CameraConfig;
 
 // todo rename

@@ -5,39 +5,41 @@ use std::path::Path;
 use std::rc::Rc;
 
 use soloud::Wav;
+use crate::engine::api::audio::AudioResource;
 
-use crate::api::texture::{Texture, TextureFilterType, TextureParams};
-use crate::render_gl;
-use crate::render_gl::{Shader, ShaderProgram};
-use crate::resources::ResourceLoader;
+use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
+use crate::engine::render_gl;
+use crate::engine::render_gl::{Shader, ShaderProgram};
+use crate::engine::resources::ResourceLoader;
 
 // todo: this probably should not be here but be more generic class in engine
 pub struct ResourceManager {
-    textures: ResourceCache<Texture>,
-    shaders: ResourceCache<ShaderProgram>,
+    textures_cache: ResourceCache<Texture>,
+    shaders_cache: ResourceCache<ShaderProgram>,
+    audio_cache: ResourceCache<AudioResource>,
     resource_loader: ResourceLoader,
 }
 
 impl ResourceManager {
     pub fn new() -> ResourceManager {
         ResourceManager {
-            textures: ResourceCache::new(),
-            shaders: ResourceCache::new(),
+            textures_cache: ResourceCache::new(),
+            shaders_cache: ResourceCache::new(),
+            audio_cache: ResourceCache::new(),
             resource_loader: ResourceLoader::from_relative_exe_path(Path::new("assets")).unwrap(), // todo: parametrize
         }
     }
 
     // todo: fetch shader and fetch texture contains the same logic
     pub fn fetch_shader_program(&self, id: &str) -> Rc<ShaderProgram> {
-        self.shaders.fetch(
+        self.shaders_cache.fetch(
             id,
             || ShaderProgram::from_res(&self.resource_loader, &id).unwrap(),
         )
     }
 
     pub fn fetch_texture(&self, id: &str) -> Rc<Texture> {
-        self.textures.fetch(
-            id,
+        self.textures_cache.fetch( id,
             || {
                 let texture_data = self.resource_loader.load_image(&id);
                 Texture::from_image(
@@ -51,8 +53,7 @@ impl ResourceManager {
     }
 
     pub fn fetch_sprite_sheet(&self, id: &str, n_rows: u32, n_cols: u32) -> Rc<Texture> {
-        self.textures.fetch(
-            id,
+        self.textures_cache.fetch(id,
             || {
                 let texture_data = self.resource_loader.load_image(&id);
                 Texture::spritesheet_from_image(
@@ -67,8 +68,8 @@ impl ResourceManager {
         )
     }
 
-    pub fn fetch_audio(&self, id: &str) -> Wav {
-        self.resource_loader.load_audio(id)
+    pub fn fetch_audio(&self, id: &str) -> Rc<AudioResource> {
+        self.audio_cache.fetch(id, || self.resource_loader.load_audio(id))
     }
 }
 

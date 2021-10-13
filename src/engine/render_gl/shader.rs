@@ -3,8 +3,8 @@ use std::ffi::{CStr, CString};
 
 use gl;
 
-use crate::resources;
-use crate::resources::ResourceLoader;
+use crate::engine::resources;
+use crate::engine::resources::ResourceLoader;
 
 pub struct ShaderProgram {
     id: gl::types::GLuint,

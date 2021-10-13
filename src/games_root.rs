@@ -2,11 +2,11 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::mouse::{MouseButton, MouseWheelDirection};
 
-use crate::api::camera::CameraGameObject;
-use crate::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::camera::CameraGameObject;
+use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::game_controller::{CameraConfig, GameController};
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::opengl_context::OpenglContext;
 use crate::renderer::RenderUtil;
 

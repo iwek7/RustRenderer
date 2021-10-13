@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::api::drawable::Drawable;
-use crate::api::resource_manager::ResourceManager;
+use crate::engine::api::drawable::Drawable;
+use crate::engine::api::resource_manager::ResourceManager;
 use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::create_rect_coords_deprecated;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::renderer::RenderUtil;
 
 pub struct Chessboard {

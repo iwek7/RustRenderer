@@ -1,10 +1,11 @@
 use std::rc::Rc;
 
-use crate::{create_rect_coords_colored_deprecated, render_gl};
-use crate::api::drawable::Drawable;
 use crate::chess::allowed_move::ActionType;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::vertex::ColoredVertexData;
+use crate::create_rect_coords_colored_deprecated;
+use crate::engine::api::drawable::Drawable;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::render_gl;
 use crate::renderer::RenderUtil;
 
 pub struct Field {

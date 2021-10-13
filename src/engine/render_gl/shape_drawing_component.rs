@@ -1,11 +1,11 @@
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use crate::maths::vertex::VertexShaderDataConfigurer;
-use crate::render_gl;
-use crate::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
-use crate::render_gl::buffer;
-use crate::api::texture::Texture;
+use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::render_gl;
+use crate::engine::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
+use crate::engine::render_gl::buffer;
+use crate::engine::api::texture::Texture;
 use crate::renderer::RenderUtil;
 
 // todo: this class should be probably on engine side

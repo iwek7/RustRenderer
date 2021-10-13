@@ -3,19 +3,20 @@ use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
-use crate::{create_rect_coords_deprecated, render_gl};
-use crate::api::drawable::Drawable;
 use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::move_logic::create_move_component;
 use crate::chess::move_logic::PieceMoveComponent;
-use crate::maths::quadrangle::Quadrangle;
-use crate::maths::shapes_common::Area;
-use crate::maths::vertex::TexturedVertexData;
+use crate::create_rect_coords_deprecated;
+use crate::engine::api::drawable::Drawable;
+use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::shapes_common::Area;
+use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::texture::Texture;
+use crate::engine::render_gl;
 use crate::renderer::RenderUtil;
-use crate::api::texture::Texture;
 
 pub struct Piece {
     pub logic: PieceLogic,

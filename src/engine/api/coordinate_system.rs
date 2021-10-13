@@ -1,9 +1,9 @@
 use std::rc::Rc;
-use crate::maths::segment::Segment;
-use crate::maths::vertex::ColoredVertexData;
-use crate::render_gl::ShaderProgram;
+use crate::engine::api::maths::segment::Segment;
+use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::render_gl::ShaderProgram;
 use crate::renderer::RenderUtil;
-use crate::api::drawable::Drawable;
+use crate::engine::api::drawable::Drawable;
 
 pub struct CoordinateSystem {
     x_axis: Segment<ColoredVertexData>,
