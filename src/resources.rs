@@ -2,8 +2,10 @@ use std::ffi;
 use std::fs;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+use soloud::*;
 
 use image::{DynamicImage, GenericImageView, RgbaImage};
+use soloud::Wav;
 
 #[derive(Debug)]
 pub enum Error {
@@ -74,6 +76,13 @@ impl ResourceLoader {
                 };
             }
         }
+    }
+
+    pub fn load_audio(&self, resource_name: &str) -> Wav {
+        let path = resource_name_to_path(&self.root_path, resource_name);
+        let mut wav = audio::Wav::default();
+        wav.load(&path);
+        wav
     }
 }
 

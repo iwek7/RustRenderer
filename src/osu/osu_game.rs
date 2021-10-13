@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use sdl2::event::Event;
+use soloud::*;
 
 use crate::api::drawable::{Drawable, UpdateContext};
 use crate::api::resource_manager::ResourceManager;
@@ -22,8 +23,15 @@ impl OsuGame {
         let playing_field = PlayingField::new(
             &glam::vec3(-24.930449, -18.174343, 0.0),
             &glam::vec2(4.9304495 + 24.930449, 18.174343 - 1.8412428), //4.9304495, -1.8412428
-            resource_manager);
+            Rc::clone(&resource_manager));
 
+
+        let mut sl = Soloud::default().unwrap();
+        let wav = resource_manager.fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
+        sl.play(&wav);
+        while sl.voice_count() > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
         OsuGame {
             playing_field,
         }

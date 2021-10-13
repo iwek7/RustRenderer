@@ -3,6 +3,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::Path;
 use std::rc::Rc;
+use soloud::Wav;
 
 use crate::render_gl;
 use crate::render_gl::{Program, Shader};
@@ -68,5 +69,9 @@ impl ResourceManager {
                 Rc::clone(v.insert(Rc::new(texture)))
             }
         }
+    }
+
+    pub fn fetch_audio(&self, id: &str) -> Wav {
+        self.resource_loader.load_audio(id)
     }
 }
