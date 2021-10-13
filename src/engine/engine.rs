@@ -8,9 +8,9 @@ use crate::engine::game_controller::GameController;
 use crate::games_root::GamesRoot;
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::vertex::ColoredVertexData;
-use crate::opengl_context::OpenglContext;
-use crate::renderer;
-use crate::renderer::Renderer;
+use crate::engine::opengl_context::OpenglContext;
+use crate::engine::renderer;
+use crate::engine::renderer::Renderer;
 
 const ENGINE_FEATURES_ON: bool = true;
 

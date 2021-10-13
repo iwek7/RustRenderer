@@ -10,7 +10,7 @@ use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::create_rect_coords_deprecated;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 pub struct Chessboard {
     board: Quadrangle<TexturedVertexData>,

@@ -2,7 +2,7 @@ use std::rc::Rc;
 use crate::engine::api::maths::segment::Segment;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::render_gl::ShaderProgram;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::drawable::Drawable;
 
 pub struct CoordinateSystem {

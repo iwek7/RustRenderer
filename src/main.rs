@@ -5,16 +5,13 @@ use engine::api::maths::vertex;
 use engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
 use engine::api::resource_manager::ResourceManager;
 use engine::api::texture::SpriteCoords;
+use engine::opengl_context::OpenglContext;
 use osu::osu_game::OsuGame;
 
 use crate::chess::chess_game::ChessGame;
 use crate::engine::engine::Engine;
 use crate::games_root::GamesRoot;
-use crate::opengl_context::OpenglContext;
 
-pub mod renderer;
-pub mod opengl_context;
-pub mod glam_utils;
 
 mod chess;
 mod engine;

@@ -9,7 +9,7 @@ use crate::engine::api::maths::vertex::{ColoredVertexData};
 use crate::engine::render_gl::data::f32_f32_f32;
 use crate::engine::render_gl::ShaderProgram;
 use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 // we have n vertices that form n - 1 triangles. -1  because vertex in the middle is shared
 // therefore number indices is 3 * (n - 1)

@@ -1,6 +1,6 @@
 use std::rc::Rc;
-use crate::renderer::RenderUtil;
-use crate::opengl_context::OpenglContext;
+use crate::engine::api::render_util::RenderUtil;
+use crate::engine::opengl_context::OpenglContext;
 use sdl2::event::Event;
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::game_controller::CameraConfig;

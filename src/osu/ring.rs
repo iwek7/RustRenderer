@@ -7,8 +7,8 @@ use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
-use crate::opengl_context::OpenglContext;
-use crate::renderer::RenderUtil;
+use crate::engine::opengl_context::OpenglContext;
+use crate::engine::api::render_util::RenderUtil;
 
 pub const RING_RADIUS : f32 = 0.9;
 

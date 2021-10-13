@@ -6,3 +6,4 @@ pub mod resource_manager;
 pub mod colour;
 pub mod texture;
 pub mod maths;
+pub mod render_util;

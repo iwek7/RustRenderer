@@ -16,7 +16,7 @@ use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::texture::Texture;
 use crate::engine::render_gl;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 pub struct Piece {
     pub logic: PieceLogic,

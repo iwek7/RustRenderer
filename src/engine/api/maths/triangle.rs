@@ -4,8 +4,8 @@ use crate::engine::render_gl;
 use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
 use crate::engine::api::texture::Texture;
 use crate::vertex::VertexShaderDataConfigurer;
-use crate::glam_utils::to_glam_vec;
-use crate::renderer::RenderUtil;
+use crate::engine::glam_utils::to_glam_vec;
+use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::drawable::Drawable;
 
 pub struct Triangle<T: VertexShaderDataConfigurer> {

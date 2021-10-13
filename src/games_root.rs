@@ -7,8 +7,8 @@ use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::game_controller::{CameraConfig, GameController};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
-use crate::opengl_context::OpenglContext;
-use crate::renderer::RenderUtil;
+use crate::engine::opengl_context::OpenglContext;
+use crate::engine::api::render_util::RenderUtil;
 
 const CAMERA_SPEED: f32 = 0.3;
 

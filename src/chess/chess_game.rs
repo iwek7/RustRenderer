@@ -18,9 +18,9 @@ use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
 use crate::engine::game_controller::{CameraConfig, GameController};
 use crate::engine::render_gl;
+use crate::engine::api::render_util::RenderUtil;
 use crate::engine::resources::ResourceLoader;
-use crate::opengl_context::OpenglContext;
-use crate::renderer::{Renderer, RenderUtil};
+use crate::engine::opengl_context::OpenglContext;
 
 pub struct ChessGame {
     chessboard: Chessboard,

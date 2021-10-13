@@ -6,7 +6,7 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::render_gl;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 pub struct Field {
     // todo: those variables should not be mutable anyhow

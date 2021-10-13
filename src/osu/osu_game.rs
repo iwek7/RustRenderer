@@ -10,9 +10,9 @@ use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexData;
-use crate::opengl_context::OpenglContext;
+use crate::engine::opengl_context::OpenglContext;
 use crate::osu::playing_field::PlayingField;
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 pub struct OsuGame {
     playing_field: PlayingField,

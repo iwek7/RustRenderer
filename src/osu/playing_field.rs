@@ -12,9 +12,9 @@ use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
-use crate::opengl_context::OpenglContext;
+use crate::engine::opengl_context::OpenglContext;
 use crate::osu::ring::{Ring, RING_RADIUS};
-use crate::renderer::RenderUtil;
+use crate::engine::api::render_util::RenderUtil;
 
 const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
