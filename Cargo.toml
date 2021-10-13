@@ -5,11 +5,15 @@ authors = ["iwek <miwanczuk7@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+# mixer is not currently supported with bundled feature
+# and won't bother linking it myself so that I decided to use soloud instead
+# https://github.com/Rust-SDL2/rust-sdl2/issues/778
 sdl2 = { version = "0.34.2", features = ["bundled", "static-link", "image"] }
 gl = "0.6.0"
 image = "0.23.14"
 glam = "0.17.3"
 rand = "0.8.4"
+soloud = "0.4"
 
 [build-dependencies]
 walkdir = "2.3.2"
