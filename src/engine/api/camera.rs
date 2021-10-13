@@ -1,5 +1,5 @@
 use std::ops::Mul;
-use crate::engine::game_controller::CameraConfig;
+use crate::engine::api::game_controller::CameraConfig;
 
 pub struct CameraGameObject {
     position: glam::Vec3,

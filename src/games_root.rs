@@ -4,7 +4,7 @@ use sdl2::mouse::{MouseButton, MouseWheelDirection};
 
 use crate::engine::api::camera::CameraGameObject;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
-use crate::engine::game_controller::{CameraConfig, GameController};
+use crate::engine::api::game_controller::{CameraConfig, GameController};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::opengl_context::OpenglContext;

@@ -3,7 +3,7 @@ use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
 use sdl2::event::Event;
 use crate::engine::api::resource_manager::ResourceManager;
-use crate::engine::game_controller::CameraConfig;
+use crate::engine::api::game_controller::CameraConfig;
 
 // todo rename
 pub trait Drawable {

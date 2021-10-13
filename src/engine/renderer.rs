@@ -1,5 +1,5 @@
 use crate::engine::api::drawable::Drawable;
-use crate::engine::game_controller::CameraConfig;
+use crate::engine::api::game_controller::CameraConfig;
 use crate::engine::render_gl;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;

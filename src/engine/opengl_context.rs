@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use crate::engine::game_controller::CameraConfig;
+use crate::engine::api::game_controller::CameraConfig;
 
 pub struct OpenglContext {
     pub sdl: sdl2::Sdl,
