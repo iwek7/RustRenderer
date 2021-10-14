@@ -27,14 +27,9 @@ impl OsuGame {
             &glam::vec2(4.9304495 + 24.930449, 18.174343 - 1.8412428), //4.9304495, -1.8412428
             engine_utilities.get_resource_manager());
 
+        let wav = engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
+        engine_utilities.get_audio_manager().play(wav);
 
-        let mut sl = Soloud::default().unwrap();
-        let wav = &engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg").res;
-        sl.play(wav);
-
-        while sl.voice_count() > 0 {
-            std::thread::sleep(std::time::Duration::from_millis(100));
-        }
         OsuGame {
             playing_field,
         }
