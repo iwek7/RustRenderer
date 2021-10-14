@@ -72,7 +72,7 @@ impl Drawable for PlayingField {
 
             let pos = glam::vec3(self.background.get_pos().0, self.background.get_pos().1, self.background.get_pos().2);
 
-            let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), Rc::clone(&update_context.resource_manager));
+            let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), update_context.get_engine_utilities().get_resource_manager());
             self.rings.push(ring);
         }
     }

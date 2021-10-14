@@ -11,6 +11,7 @@ use crate::create_rect_coords_deprecated;
 use crate::engine::api::camera::CameraGameObject;
 use crate::engine::api::coordinate_system::CoordinateSystem;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
@@ -29,19 +30,22 @@ pub struct ChessGame {
 }
 
 impl ChessGame {
-    pub fn new(resource_manager: Rc<ResourceManager>) -> ChessGame {
-        let mut chessboard = Chessboard::new(Rc::clone(&resource_manager));
-        chessboard.init_pieces(Rc::clone(&resource_manager));
+    pub fn new(engine_utilities: Rc<EngineUtilities>) -> ChessGame {
 
-        let texture_shader = resource_manager.fetch_shader_program("chess/shaders/texture");
+        let res_manager = engine_utilities.get_resource_manager();
+
+        let mut chessboard = Chessboard::new(Rc::clone(&res_manager));
+        chessboard.init_pieces(Rc::clone(&res_manager));
+
+        let texture_shader = res_manager.fetch_shader_program("chess/shaders/texture");
 
         let white_win_banner = ChessGame::create_win_banner(
-            resource_manager.fetch_texture("chess/textures/white_win_banner.png"),
+            res_manager.fetch_texture("chess/textures/white_win_banner.png"),
             Rc::clone(&texture_shader),
         );
 
         let black_win_banner = ChessGame::create_win_banner(
-            resource_manager.fetch_texture("chess/textures/black_win_banner.png"),
+            res_manager.fetch_texture("chess/textures/black_win_banner.png"),
             Rc::clone(&texture_shader),
         );
 
@@ -87,7 +91,7 @@ impl Drawable for ChessGame {
                     }
 
                     sdl2::event::Event::MouseButtonUp { .. } => {
-                        self.chessboard.handle_piece_drop_attempt(&world_mouse_position, Rc::clone(&update_context.resource_manager));
+                        self.chessboard.handle_piece_drop_attempt(&world_mouse_position, Rc::clone(&update_context.get_engine_utilities().get_resource_manager()));
                     }
 
                     sdl2::event::Event::MouseMotion { .. } => {

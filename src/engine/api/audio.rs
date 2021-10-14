@@ -13,7 +13,13 @@ impl AudioResource {
         }
     }
 }
-//
-// struct AudioManager {
-//
-// }
+
+pub struct AudioManager {
+
+}
+
+impl AudioManager {
+    pub fn new() -> AudioManager {
+        AudioManager{}
+    }
+}

@@ -1,16 +1,20 @@
 use std::rc::Rc;
+
 use sdl2::EventPump;
 use sdl2::mouse::MouseButton;
+
+use crate::engine::api::audio::AudioManager;
 use crate::engine::api::coordinate_system::CoordinateSystem;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
-use crate::engine::api::resource_manager::ResourceManager;
+use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::game_api::GameController;
-use crate::games_root::GamesRoot;
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::opengl_context::OpenglContext;
 use crate::engine::renderer;
 use crate::engine::renderer::Renderer;
+use crate::games_root::GamesRoot;
 
 const ENGINE_FEATURES_ON: bool = true;
 
@@ -23,15 +27,15 @@ pub struct Engine {
     event_pump: EventPump,
     renderer: Renderer,
     opengl_context: OpenglContext,
-    resource_manager: Rc<ResourceManager>,
+    engine_utilities: Rc<EngineUtilities>,
 }
 
 impl Engine {
-    pub fn new(game: GamesRoot, resource_manager: Rc<ResourceManager>, opengl_context: OpenglContext) -> Engine {
+    pub fn new(game: GamesRoot, engine_utilities: Rc<EngineUtilities>, opengl_context: OpenglContext) -> Engine {
         let mut event_pump = opengl_context.sdl.event_pump().unwrap();
         let mut renderer = renderer::Renderer::new(&opengl_context);
 
-        let shader_program = resource_manager.fetch_shader_program("chess/shaders/triangle");
+        let shader_program = engine_utilities.get_resource_manager().fetch_shader_program("chess/shaders/triangle");
 
         let mut coordinate_system = Box::new(CoordinateSystem::new(shader_program));
         Engine {
@@ -40,12 +44,12 @@ impl Engine {
             opengl_context,
             event_pump,
             renderer,
-            resource_manager,
+            engine_utilities,
         }
     }
 
     pub fn start(&mut self) {
-        let shader_program = self.resource_manager.fetch_shader_program("chess/shaders/triangle");
+        let shader_program = self.engine_utilities.get_resource_manager().fetch_shader_program("chess/shaders/triangle");
         let point = Point::new(
             [ColoredVertexData { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
             Rc::clone(&shader_program),
@@ -54,7 +58,7 @@ impl Engine {
             let mouse_state = self.event_pump.mouse_state();
             let sdl_pos = glam::vec2(mouse_state.x().clone() as f32, mouse_state.y().clone() as f32);
             let camera_config = self.game.get_camera_config();
-            let update_context = UpdateContext::new(sdl_pos, camera_config, Rc::clone(&self.resource_manager));
+            let update_context = UpdateContext::new(sdl_pos, camera_config, Rc::clone(&self.engine_utilities));
 
             self.game.update(&update_context);
 
