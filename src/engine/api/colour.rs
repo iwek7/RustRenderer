@@ -52,4 +52,8 @@ impl Colour {
     pub fn WHITE() -> Colour {
         Colour::new_f(1.0, 1.0, 1.0, 1.0)
     }
+
+    pub fn GREEN() -> Colour {
+        Colour::new_f(0.0, 0.5, 0.0, 1.0)
+    }
 }

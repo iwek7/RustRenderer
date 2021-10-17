@@ -10,3 +10,4 @@ pub mod render_util;
 // todo: only api should be public here
 pub mod game_api;
 pub mod engine_utilities;
+pub mod text_game_object;

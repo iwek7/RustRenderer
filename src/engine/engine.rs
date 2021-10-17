@@ -28,6 +28,7 @@ pub struct Engine {
     renderer: Renderer,
     opengl_context: OpenglContext,
     engine_utilities: Rc<EngineUtilities>,
+
 }
 
 impl Engine {
@@ -38,6 +39,7 @@ impl Engine {
         let shader_program = engine_utilities.get_resource_manager().fetch_shader_program("chess/shaders/triangle");
 
         let mut coordinate_system = Box::new(CoordinateSystem::new(shader_program));
+
         Engine {
             game,
             coordinate_system,
@@ -93,7 +95,7 @@ impl Engine {
                 self.game.handle_event(&event, &self.opengl_context, &update_context)
             }
 
-            self.renderer.render(&[&self.game, /*self.coordinate_system.borrow(), */&point, ], &self.game.get_camera_config(), &self.opengl_context)
+            self.renderer.render(&[&self.game, /*self.coordinate_system.borrow(),&point */ ], &self.game.get_camera_config(), &self.opengl_context)
         }
     }
 }

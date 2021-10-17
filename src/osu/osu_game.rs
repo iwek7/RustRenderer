@@ -6,6 +6,7 @@ use soloud::*;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::create_rect_coords_colored_deprecated;
+use crate::engine::api::colour::Colour;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
@@ -14,10 +15,12 @@ use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::opengl_context::OpenglContext;
 use crate::osu::playing_field::PlayingField;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::api::text_game_object::TextGameObject;
 use crate::engine::engine::Engine;
 
 pub struct OsuGame {
     playing_field: PlayingField,
+    score: TextGameObject
 }
 
 impl OsuGame {
@@ -30,8 +33,13 @@ impl OsuGame {
         let wav = engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
         engine_utilities.get_audio_manager().play(wav);
 
+        let text_shader = engine_utilities.get_resource_manager().fetch_shader_program("osu/shaders/character");
+        let sized_font = engine_utilities.get_resource_manager().fetch_font("osu/fonts/Raleway-Regular.ttf");
+        let score = TextGameObject::new(sized_font, "Kappa e", glam::vec3(-10.0, -10.0, 0.0), text_shader, Colour::GREEN());
+
         OsuGame {
             playing_field,
+            score
         }
     }
 }
@@ -39,6 +47,7 @@ impl OsuGame {
 impl<'a> Drawable for OsuGame {
     fn render(&self, render_util: &RenderUtil) {
         self.playing_field.render(render_util);
+        self.score.render(render_util);
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
