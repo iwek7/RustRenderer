@@ -52,6 +52,8 @@ impl ShaderProgram {
             unsafe { gl::DetachShader(program_id, shader.id()); }
         }
 
+        println!("Created shader program {:?}, it has id {:?}", name, program_id);
+
         Ok(ShaderProgram { id: program_id , name: name.parse().unwrap() })
     }
 

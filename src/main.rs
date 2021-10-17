@@ -14,7 +14,6 @@ use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::engine::Engine;
 use crate::games_root::GamesRoot;
 
-
 mod chess;
 mod engine;
 mod games_root;
@@ -44,11 +43,15 @@ fn create_rect_coords_deprecated(pos: (f32, f32, f32), size: (f32, f32), sprite_
 }
 
 fn create_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords) -> [TexturedVertexData; 4] {
+    create_colored_rect_coords(pos, size, sprite_coords, Colour::WHITE())
+}
+
+fn create_colored_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords, clr: Colour) -> [TexturedVertexData; 4] {
     return [
-        vertex::TexturedVertexData { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: Colour::WHITE().into(), tx_coords: sprite_coords.top_right.into() },
-        vertex::TexturedVertexData { pos: (pos.x + size.x, pos.y, pos.z).into(), clr: Colour::WHITE().into(), tx_coords: sprite_coords.bottom_right.into() },
-        vertex::TexturedVertexData { pos: (pos.x, pos.y, pos.z).into(), clr: Colour::WHITE().into(), tx_coords: sprite_coords.bottom_left.into() },
-        vertex::TexturedVertexData { pos: (pos.x, pos.y + size.y, pos.z).into(), clr: Colour::WHITE().into(), tx_coords: sprite_coords.top_left.into() },
+        vertex::TexturedVertexData { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.into(), tx_coords: sprite_coords.top_right.into() },
+        vertex::TexturedVertexData { pos: (pos.x + size.x, pos.y, pos.z).into(), clr: clr.into(), tx_coords: sprite_coords.bottom_right.into() },
+        vertex::TexturedVertexData { pos: (pos.x, pos.y, pos.z).into(), clr: clr.into(), tx_coords: sprite_coords.bottom_left.into() },
+        vertex::TexturedVertexData { pos: (pos.x, pos.y + size.y, pos.z).into(), clr: clr.into(), tx_coords: sprite_coords.top_left.into() },
     ];
 }
 

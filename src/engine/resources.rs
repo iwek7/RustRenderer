@@ -20,7 +20,7 @@ impl From<io::Error> for Error {
     }
 }
 
-pub struct ImageData {
+pub struct RgbaImageData {
     pub image: RgbaImage,
     pub width: u32,
     pub height: u32,
@@ -56,7 +56,7 @@ impl ResourceLoader {
         Ok(unsafe { ffi::CString::from_vec_unchecked(buffer) })
     }
 
-    pub fn load_image(&self, resource_name: &str) -> ImageData {
+    pub fn load_image(&self, resource_name: &str) -> RgbaImageData {
         let path = resource_name_to_path(&self.root_path, resource_name);
         match image::open(&path) {
             Err(err) => panic!("Could not load image {}: {}", path.as_os_str().to_str().unwrap(), err),
@@ -69,7 +69,7 @@ impl ResourceLoader {
                     DynamicImage::ImageRgba8(flipped) => flipped,
                     flipped => flipped.to_rgba8()
                 };
-                return ImageData {
+                return RgbaImageData {
                     image: flipped,
                     width,
                     height,
@@ -83,6 +83,11 @@ impl ResourceLoader {
         let mut wav = audio::Wav::default();
         wav.load(&path);
         AudioResource::new(resource_name, wav)
+    }
+
+    pub fn load_font_face(&self, resource_name: &str) -> Vec<u8> {
+        let path = resource_name_to_path(&self.root_path, resource_name);
+        fs::read(path).unwrap()
     }
 }
 

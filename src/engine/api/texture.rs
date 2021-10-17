@@ -1,47 +1,49 @@
+use core::mem;
 use std::ffi::c_void;
 
-use crate::engine::resources::ImageData;
+use crate::engine::resources::RgbaImageData;
 
 pub struct Texture {
     texture_id: gl::types::GLuint,
     // todo: make this private
     pub topology: SpriteSheetTopology,
-    texture_params: TextureParams // todo: this should be part of sprite, not texture
+    texture_params: TextureParams, // todo: this should be part of sprite, not texture
 }
 
 impl Texture {
-    pub fn from_image(img_data: ImageData, texture_params: TextureParams) -> Texture {
+    pub fn from_image(img_data: RgbaImageData, texture_params: TextureParams) -> Texture {
         return Texture::spritesheet_from_image(img_data, 1, 1, texture_params);
     }
 
-    pub fn spritesheet_from_image(img_data: ImageData, n_rows: u32, n_cols: u32, texture_params: TextureParams) -> Texture {
+    pub fn spritesheet_from_image(img_data: RgbaImageData, n_rows: u32, n_cols: u32, texture_params: TextureParams) -> Texture {
+        return Texture::from_raw_data(img_data.image.into_raw(), img_data.width as i32, img_data.height as i32, texture_params, n_rows, n_cols, InternalFormat::RGBA);
+    }
+
+    pub fn from_raw_data(data: Vec<u8>, width: i32, height: i32, texture_params: TextureParams, n_rows: u32, n_cols: u32, internal_format: InternalFormat) -> Texture {
         let mut texture_id: gl::types::GLuint = 0;
         unsafe {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
-        }
 
-        // todo: of course not always RGBA
-        unsafe {
-            gl::TexImage2D(gl::TEXTURE_2D,
-                           0,
-                           gl::RGBA as i32,
-                           img_data.width as i32,
-                           img_data.height as i32,
-                           0,
-                           gl::RGBA,
-                           gl::UNSIGNED_BYTE,
-                           img_data.image.into_raw().as_ptr() as *const _ as *const c_void,
+            gl::TexImage2D(
+                gl::TEXTURE_2D,
+                0,
+                internal_format.to_gl_type() as i32,
+                width,
+                height,
+                0,
+                internal_format.to_gl_type(),
+                gl::UNSIGNED_BYTE,
+                data.as_ptr() as *const _ as *const c_void,
             );
-            gl::GenerateMipmap(gl::TEXTURE_2D);
             texture_params.set_params();
             gl::BindTexture(gl::TEXTURE_2D, 0);
         }
 
         return Texture {
             texture_id,
-            topology: SpriteSheetTopology { spritesheet_size: (img_data.width, img_data.height), n_rows, n_cols },
-            texture_params
+            topology: SpriteSheetTopology { spritesheet_size: (width as u32, height as u32), n_rows, n_cols },
+            texture_params,
         };
     }
 
@@ -152,7 +154,6 @@ impl TextureParams {
         }
     }
 
-    // be weary to not make it public - else everybody will be able to set this anywhere which will lead to mess
     unsafe fn set_params(&self) {
         match &self.texture_min_filter {
             None => {}
@@ -222,6 +223,22 @@ impl TextureFilterType {
             TextureFilterType::LINEAR_MIPMAP_NEAREST => { gl::LINEAR_MIPMAP_NEAREST }
             TextureFilterType::NEAREST_MIPMAP_LINEAR => { gl::NEAREST_MIPMAP_LINEAR }
             TextureFilterType::LINEAR_MIPMAP_LINEAR => { gl::LINEAR_MIPMAP_LINEAR }
+        }
+    }
+}
+
+pub enum InternalFormat {
+    RED,
+    RGBA,
+    RGB,
+}
+
+impl InternalFormat {
+    pub fn to_gl_type(&self) -> u32 {
+        match self {
+            InternalFormat::RED => { gl::RED }
+            InternalFormat::RGBA => { gl::RGBA }
+            InternalFormat::RGB => { gl::RGB }
         }
     }
 }

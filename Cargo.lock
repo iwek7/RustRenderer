@@ -6,6 +6,7 @@ version = 3
 name = "TestRust"
 version = "0.2.0"
 dependencies = [
+ "freetype-rs",
  "gl",
  "glam",
  "image",
@@ -193,6 +194,28 @@ dependencies = [
  "crc32fast",
  "libc",
  "miniz_oxide 0.4.4",
+]
+
+[[package]]
+name = "freetype-rs"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a96ca0b8ae3b1e198988c7609a264b355796356e6898a3b928af10e4ac3bc54"
+dependencies = [
+ "bitflags",
+ "freetype-sys",
+ "libc",
+]
+
+[[package]]
+name = "freetype-sys"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b67cedeffcf3d18fd38769bb9323b374f09441934a0f9096b9d33efddf920fc7"
+dependencies = [
+ "cmake",
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -399,6 +422,12 @@ dependencies = [
  "hermit-abi",
  "libc",
 ]
+
+[[package]]
+name = "pkg-config"
+version = "0.3.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c9b1041b4387893b91ee6746cddfc28516aff326a3519fb2adf820932c5e6cb"
 
 [[package]]
 name = "png"
