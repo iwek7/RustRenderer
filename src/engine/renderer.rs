@@ -13,7 +13,7 @@ impl Renderer {
         let viewport = render_gl::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
         viewport.set_used();
         unsafe {
-            gl::ClearColor(0.3, 0.3, 0.5, 1.0);
+            gl::ClearColor(0.0,0.0,0.0, 1.0);
         }
 
         Renderer {

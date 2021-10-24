@@ -17,6 +17,8 @@ pub struct TextGameObject {
     text: String,
     quads: Vec<Quadrangle<TexturedVertexData>>,
     shader_program: Rc<ShaderProgram>,
+    position: Vec3,
+    colour: Colour,
 }
 
 // resources:
@@ -28,12 +30,14 @@ impl TextGameObject {
         TextGameObject {
             sized_font: Rc::clone(&sized_font),
             text: String::from(text),
-            quads: TextGameObject::init_quads(sized_font, text, position, Rc::clone(&shader_program), colour),
+            quads: TextGameObject::init_quads(sized_font, text, position, Rc::clone(&shader_program), &colour),
             shader_program,
+            position,
+            colour,
         }
     }
 
-    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, shader_program: Rc<ShaderProgram>, colour: Colour) -> Vec<Quadrangle<TexturedVertexData>> {
+    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, shader_program: Rc<ShaderProgram>, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
         let mut shift = 0.0;
         let scale = 0.01;
         let mut quads = vec!();
@@ -71,6 +75,19 @@ impl TextGameObject {
             quads.push(quad);
         }
         quads
+    }
+
+    pub fn set_text(&mut self, new_text: String) {
+        if self.text != new_text {
+            let new_quads = TextGameObject::init_quads(
+                Rc::clone(&self.sized_font),
+                new_text.as_str(),
+                self.position,
+                Rc::clone(&self.shader_program),
+                &self.colour,
+            );
+            self.quads = new_quads;
+        }
     }
 }
 

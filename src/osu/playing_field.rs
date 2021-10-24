@@ -56,6 +56,11 @@ impl PlayingField {
         let y = rng.gen_range((pos.y + RING_RADIUS)..(pos.y + size.y - RING_RADIUS));
         glam::vec3(x, y, 0.0)
     }
+
+    pub fn get_total_score(&self) -> &i32{
+        &self.total_score
+    }
+
 }
 
 impl Drawable for PlayingField {
