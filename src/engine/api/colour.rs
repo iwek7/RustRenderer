@@ -2,8 +2,15 @@ use glam::Vec4;
 
 #[derive(Copy, Clone)]
 pub struct Colour {
-    clr: Vec4,
+    r: f32,
+    g: f32,
+    b: f32,
+    a: f32,
 }
+
+
+pub const WHITE: Colour = Colour { r: 1.0, g: 1.0, b: 1.0, a: 1.0 };
+pub const GREEN: Colour = Colour { r: 0.0, g: 0.5, b: 0.0, a: 1.0 };
 
 impl Colour {
     pub fn new_i(r: i32, g: i32, b: i32, a: f32) -> Colour {
@@ -13,7 +20,10 @@ impl Colour {
         Colour::assert_color_f_value(a);
 
         Colour {
-            clr: glam::vec4(Colour::normalize_clr(r), Colour::normalize_clr(g), Colour::normalize_clr(b), a)
+            r: Colour::normalize_clr(r),
+            g: Colour::normalize_clr(g),
+            b: Colour::normalize_clr(b),
+            a,
         }
     }
 
@@ -24,13 +34,19 @@ impl Colour {
         Colour::assert_color_f_value(a);
 
         Colour {
-            clr: glam::vec4(r, g, b, a)
+            r,
+            g,
+            b,
+            a,
         }
     }
 
 
-    pub fn get_raw(&self) -> &Vec4 {
-        &self.clr
+    // its bad that it always creates structure
+    // but i dont want to keep vec4 as member
+    // because I cant create it directly and make constants
+    pub fn get_raw(&self) -> Vec4 {
+        glam::vec4(self.r, self.g, self.b, self.a)
     }
 
     fn assert_color_i_value(c: i32) {
@@ -43,17 +59,5 @@ impl Colour {
 
     fn normalize_clr(c: i32) -> f32 {
         c as f32 / 255.0
-    }
-
-    /**
-    presets
-   */
-
-    pub fn WHITE() -> Colour {
-        Colour::new_f(1.0, 1.0, 1.0, 1.0)
-    }
-
-    pub fn GREEN() -> Colour {
-        Colour::new_f(0.0, 0.5, 0.0, 1.0)
     }
 }

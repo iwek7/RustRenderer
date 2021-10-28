@@ -10,6 +10,7 @@ use osu::osu_game::OsuGame;
 
 use crate::chess::chess_game::ChessGame;
 use crate::engine::api::audio::AudioManager;
+use crate::engine::api::colour::WHITE;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::engine::Engine;
 use crate::games_root::GamesRoot;
@@ -43,7 +44,7 @@ fn create_rect_coords_deprecated(pos: (f32, f32, f32), size: (f32, f32), sprite_
 }
 
 fn create_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords) -> [TexturedVertexData; 4] {
-    create_colored_rect_coords(pos, size, sprite_coords, &Colour::WHITE())
+    create_colored_rect_coords(pos, size, sprite_coords, &WHITE)
 }
 
 fn create_colored_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords, clr: &Colour) -> [TexturedVertexData; 4] {
