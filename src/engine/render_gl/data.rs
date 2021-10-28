@@ -1,4 +1,5 @@
-use glam::{Vec4};
+use glam::Vec4;
+
 use crate::engine::api::colour::Colour;
 
 #[allow(non_camel_case_types)]

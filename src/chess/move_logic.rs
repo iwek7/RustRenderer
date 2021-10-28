@@ -1,5 +1,5 @@
 use crate::chess::allowed_move::{ActionType, AllowedAction, AllowedMoves};
-use crate::chess::chessboard::{ChessboardState};
+use crate::chess::chessboard::ChessboardState;
 use crate::chess::field::FieldLogic;
 use crate::chess::infrastructure::{PieceType, VectorExtension};
 use crate::chess::piece::PieceLogic;

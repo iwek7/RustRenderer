@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::engine::api::drawable::Drawable;
-use crate::engine::api::resource_manager::ResourceManager;
 use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::create_rect_coords_deprecated;
+use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::api::resource_manager::ResourceManager;
 
 pub struct Chessboard {
     board: Quadrangle<TexturedVertexData>,
@@ -26,7 +26,7 @@ pub struct Chessboard {
 }
 
 impl Chessboard {
-    pub fn new(resource_manager: Rc<ResourceManager>) -> Chessboard {
+    pub fn new(resource_manager: Rc<dyn ResourceManager>) -> Chessboard {
         let field_size = 1.0;
         let board_size = field_size * 8.0;
         let position = (0.0, 0.0, 0.0);
@@ -75,7 +75,7 @@ impl Chessboard {
         };
     }
 
-    pub fn init_pieces(&mut self, resource_manager: Rc<ResourceManager>) {
+    pub fn init_pieces(&mut self, resource_manager: Rc<dyn ResourceManager>) {
         let piece_size = (self.field_size as f32, self.field_size as f32);
         let pieces_sheet = resource_manager.fetch_sprite_sheet("chess/textures/pieces.png", 2, 6);
 
@@ -150,7 +150,7 @@ impl Chessboard {
         self.prev_mouse_pos = world_mouse_position.clone()
     }
 
-    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3, resource_manager: Rc<ResourceManager>) {
+    pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) {
 
         if self.is_game_over() {
             return;
@@ -251,7 +251,7 @@ impl Chessboard {
         }
     }
 
-    fn handle_promotion(&mut self, promoted_piece: &PieceLogic, resource_manager: Rc<ResourceManager>) {
+    fn handle_promotion(&mut self, promoted_piece: &PieceLogic, resource_manager: Rc<dyn ResourceManager>) {
         self.remove_piece_by_logic(promoted_piece);
         // todo: support promotion to different figures
         let piece_size = (self.field_size as f32, self.field_size as f32);

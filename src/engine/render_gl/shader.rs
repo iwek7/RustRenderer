@@ -1,10 +1,8 @@
 use std;
+use std::ffi;
 use std::ffi::{CStr, CString};
 
 use gl;
-
-use crate::engine::resources;
-use crate::engine::resources::ResourceLoader;
 
 pub struct ShaderProgram {
     id: gl::types::GLuint,
@@ -54,21 +52,14 @@ impl ShaderProgram {
 
         println!("Created shader program {:?}, it has id {:?}", name, program_id);
 
-        Ok(ShaderProgram { id: program_id , name: name.parse().unwrap() })
+        Ok(ShaderProgram { id: program_id, name: name.parse().unwrap() })
     }
 
-    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<ShaderProgram, ShaderError> {
-        const POSSIBLE_EXT: [&str; 2] = [
-            ".vert",
-            ".frag",
-        ];
-
-        let shaders = POSSIBLE_EXT.iter()
-            .map(|file_extension| {
-                Shader::from_res(res, &format!("{}{}", name, file_extension))
-            })
-            .collect::<Result<Vec<Shader>, ShaderError>>()?;
-
+    pub fn new(vertex_shader_raw: &ffi::CString, frag_shader_raw: &ffi::CString, name: &str) -> Result<ShaderProgram, ShaderError> {
+        let shaders = vec!(
+            Shader::from_c_ctr(vertex_shader_raw, ShaderType::VERTEX).unwrap(),
+            Shader::from_c_ctr(frag_shader_raw, ShaderType::FRAG).unwrap()
+        );
         ShaderProgram::from_shaders(&shaders[..], name)
     }
 
@@ -90,7 +81,7 @@ impl ShaderProgram {
                 loc as gl::types::GLint,
                 1,
                 gl::FALSE,
-                &mat4.as_ref()[0]
+                &mat4.as_ref()[0],
             );
         }
     }
@@ -102,12 +93,10 @@ impl ShaderProgram {
             gl::Uniform2fv(
                 loc as gl::types::GLint,
                 1,
-                &vec2.as_ref()[0]
+                &vec2.as_ref()[0],
             );
         }
     }
-
-
 }
 
 impl Drop for ShaderProgram {
@@ -118,36 +107,44 @@ impl Drop for ShaderProgram {
     }
 }
 
+pub enum ShaderType {
+    VERTEX,
+    FRAG,
+}
+
+impl ShaderType {
+   pub fn file_extension(&self) -> &str {
+        match &self {
+            ShaderType::VERTEX => { ".vert" }
+            ShaderType::FRAG => { ".frag" }
+        }
+    }
+
+    pub fn gl_type(&self) -> gl::types::GLenum {
+        match &self {
+            ShaderType::VERTEX => { gl::VERTEX_SHADER }
+            ShaderType::FRAG => { gl::FRAGMENT_SHADER }
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Shader {
     id: gl::types::GLuint,
 }
 
 impl Shader {
-    pub fn from_res(res: &ResourceLoader, name: &str) -> Result<Shader, ShaderError> {
-        const POSSIBLE_EXT: [(&str, gl::types::GLenum); 2] = [
-            (".vert", gl::VERTEX_SHADER),
-            (".frag", gl::FRAGMENT_SHADER),
-        ];
+    pub fn from_c_ctr(str: &ffi::CString, shader_type: ShaderType) -> Result<Shader, ShaderError> {
 
-        let shader_kind = POSSIBLE_EXT.iter()
-            .find(|&&(file_extension, _)| {
-                name.ends_with(file_extension)
-            })
-            .map(|&(_, kind)| kind)
-            .ok_or_else(|| ShaderError::CanNotDetermineShaderTypeForResource { name: String::from(name) })?;
 
-        let source = res.load_cstring(name)
-            .map_err(|e| ShaderError::CanNotLoadShader { message: format!("Error loading resource {}", name), inner: e })?;
-
-        Shader::from_source(&source, shader_kind)
+        Shader::from_source(&str, shader_type)
     }
 
     fn from_source(
         source: &CStr,
-        kind: gl::types::GLenum,
+        shader_type: ShaderType,
     ) -> Result<Shader, ShaderError> {
-        let id = shader_from_source(source, kind)?;
+        let id = shader_from_source(source, shader_type)?;
         Ok(Shader { id })
     }
 
@@ -166,9 +163,9 @@ impl Drop for Shader {
 
 fn shader_from_source(
     source: &CStr,
-    kind: gl::types::GLuint,
+    shader_type: ShaderType,
 ) -> Result<gl::types::GLuint, ShaderError> {
-    let id = unsafe { gl::CreateShader(kind) };
+    let id = unsafe { gl::CreateShader(shader_type.gl_type()) };
     unsafe {
         gl::ShaderSource(id, 1, &source.as_ptr(), std::ptr::null());
         gl::CompileShader(id);
@@ -212,5 +209,5 @@ pub enum ShaderError {
     CanNotDetermineShaderTypeForResource { name: String },
     CanNotLinkProgram { message: String },
     CanNotCompileShader { message: String },
-    CanNotLoadShader { message: String, inner: resources::Error },
+    CanNotLoadShader { message: String /* inner: resource_loader::Error */ },
 }

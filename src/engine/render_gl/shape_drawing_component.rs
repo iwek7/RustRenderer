@@ -2,11 +2,11 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 
 use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::api::render_util::RenderUtil;
+use crate::engine::api::texture::Texture;
 use crate::engine::render_gl;
 use crate::engine::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::engine::render_gl::buffer;
-use crate::engine::api::texture::Texture;
-use crate::engine::api::render_util::RenderUtil;
 
 // todo: this class should be probably on engine side
 pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {

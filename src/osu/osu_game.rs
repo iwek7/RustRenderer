@@ -12,7 +12,6 @@ use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::api::text_game_object::TextGameObject;
 use crate::engine::engine::Engine;
 use crate::engine::opengl_context::OpenglContext;

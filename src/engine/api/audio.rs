@@ -1,6 +1,5 @@
-use std::cell::{Ref, RefCell};
+use std::cell::{RefCell};
 use std::collections::HashMap;
-use std::iter::Map;
 use std::rc::Rc;
 
 use soloud::{Soloud, Wav};
@@ -42,7 +41,7 @@ impl AudioManager {
 
     pub fn play(&self, audio: Rc<AudioResource>) {
         match self.currently_playing.borrow_mut().get(audio.get_id()) {
-            Some(audio) => {/*self.audio_engine.stop(audio.get_res())*/}
+            Some(_) => {/*self.audio_engine.stop(audio.get_res())*/}
             None => {}
         }
         self.currently_playing.borrow_mut().insert(audio.get_id().clone(), Rc::clone(&audio));

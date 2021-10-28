@@ -5,8 +5,8 @@ use crate::create_rect_coords_colored_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
-use crate::engine::render_gl;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::render_gl;
 
 pub struct Field {
     // todo: those variables should not be mutable anyhow

@@ -5,11 +5,11 @@ use std::rc::Rc;
 
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::vertex::{ColoredVertexData};
+use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::render_util::RenderUtil;
 use crate::engine::render_gl::data::f32_f32_f32;
 use crate::engine::render_gl::ShaderProgram;
 use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
-use crate::engine::api::render_util::RenderUtil;
 
 // we have n vertices that form n - 1 triangles. -1  because vertex in the middle is shared
 // therefore number indices is 3 * (n - 1)

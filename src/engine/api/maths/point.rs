@@ -1,11 +1,13 @@
-use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
-use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
-use crate::engine::render_gl;
-use crate::engine::api::render_util::RenderUtil;
-use crate::engine::glam_utils::to_glam_vec;
 use std::ops::Sub;
 use std::rc::Rc;
+
 use crate::engine::api::drawable::Drawable;
+use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::api::render_util::RenderUtil;
+use crate::engine::glam_utils::to_glam_vec;
+use crate::engine::render_gl;
+use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
+
 /*
 example:
 ```

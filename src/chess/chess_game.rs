@@ -1,27 +1,19 @@
-use std::path::Path;
 use std::rc::Rc;
 
 use sdl2::event::Event;
-use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
 use crate::create_rect_coords_deprecated;
-use crate::engine::api::camera::CameraGameObject;
-use crate::engine::api::coordinate_system::CoordinateSystem;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
-use crate::engine::api::resource_manager::ResourceManager;
-use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
-use crate::engine::api::game_api::{CameraConfig, GameController};
-use crate::engine::render_gl;
+use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::resources::ResourceLoader;
+use crate::engine::api::texture::Texture;
 use crate::engine::opengl_context::OpenglContext;
+use crate::engine::render_gl;
 
 pub struct ChessGame {
     chessboard: Chessboard,
@@ -31,7 +23,6 @@ pub struct ChessGame {
 
 impl ChessGame {
     pub fn new(engine_utilities: Rc<EngineUtilities>) -> ChessGame {
-
         let res_manager = engine_utilities.get_resource_manager();
 
         let mut chessboard = Chessboard::new(Rc::clone(&res_manager));

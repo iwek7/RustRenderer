@@ -1,8 +1,8 @@
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::game_api::CameraConfig;
-use crate::engine::render_gl;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
+use crate::engine::render_gl;
 
 pub struct Renderer {
     viewport: render_gl::Viewport,

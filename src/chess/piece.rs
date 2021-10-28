@@ -14,9 +14,9 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::render_gl;
-use crate::engine::api::render_util::RenderUtil;
 
 pub struct Piece {
     pub logic: PieceLogic,

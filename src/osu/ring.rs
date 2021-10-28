@@ -1,14 +1,16 @@
 use std::rc::Rc;
+
 use sdl2::event::Event;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
-use crate::engine::api::resource_manager::ResourceManager;
+
 use crate::create_rect_coords;
+use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
-use crate::engine::opengl_context::OpenglContext;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::api::resource_manager::ResourceManager;
+use crate::engine::opengl_context::OpenglContext;
 
 pub const RING_RADIUS : f32 = 0.9;
 
@@ -18,7 +20,7 @@ pub struct Ring {
 }
 
 impl Ring {
-    pub fn new(position: &glam::Vec3, resource_manager: Rc<ResourceManager>) -> Ring {
+    pub fn new(position: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) -> Ring {
         let tx_shader = resource_manager.fetch_shader_program("osu/shaders/texture");
         let clr_shader = resource_manager.fetch_shader_program("osu/shaders/colour");
         let ring_tx = resource_manager.fetch_texture("osu/textures/ring.png");

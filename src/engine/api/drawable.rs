@@ -1,10 +1,11 @@
 use std::rc::Rc;
+
+use sdl2::event::Event;
+
+use crate::engine::api::engine_utilities::EngineUtilities;
+use crate::engine::api::game_api::CameraConfig;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
-use sdl2::event::Event;
-use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::resource_manager::ResourceManager;
-use crate::engine::api::game_api::CameraConfig;
 
 // todo rename
 pub trait Drawable {

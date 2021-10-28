@@ -1,8 +1,6 @@
 use core::mem;
 use std::ffi::c_void;
 
-use crate::engine::resources::RgbaImageData;
-
 pub struct Texture {
     texture_id: gl::types::GLuint,
     // todo: make this private
@@ -11,12 +9,12 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn from_image(img_data: RgbaImageData, texture_params: TextureParams) -> Texture {
-        return Texture::spritesheet_from_image(img_data, 1, 1, texture_params);
+    pub fn from_image(data: Vec<u8>, width: i32, height: i32, texture_params: TextureParams) -> Texture {
+        return Texture::spritesheet_from_image(data, width, height, 1, 1, texture_params);
     }
 
-    pub fn spritesheet_from_image(img_data: RgbaImageData, n_rows: u32, n_cols: u32, texture_params: TextureParams) -> Texture {
-        return Texture::from_raw_data(img_data.image.into_raw(), img_data.width as i32, img_data.height as i32, texture_params, n_rows, n_cols, InternalFormat::RGBA);
+    pub fn spritesheet_from_image(data: Vec<u8>, width: i32, height: i32, n_rows: u32, n_cols: u32, texture_params: TextureParams) -> Texture {
+        return Texture::from_raw_data(data, width, height, texture_params, n_rows, n_cols, InternalFormat::RGBA);
     }
 
     pub fn from_raw_data(data: Vec<u8>, width: i32, height: i32, texture_params: TextureParams, n_rows: u32, n_cols: u32, internal_format: InternalFormat) -> Texture {

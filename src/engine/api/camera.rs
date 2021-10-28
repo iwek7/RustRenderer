@@ -1,4 +1,5 @@
 use std::ops::Mul;
+
 use crate::engine::api::game_api::CameraConfig;
 
 pub struct CameraGameObject {
