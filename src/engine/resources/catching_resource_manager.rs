@@ -5,9 +5,10 @@ use std::path::Path;
 use std::rc::Rc;
 
 use crate::engine::api::audio::AudioResource;
-use crate::engine::api::resource_manager::{ResourceManager, SizedFont};
+use crate::engine::api::resource_manager::{ResourceManager};
 use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
 use crate::engine::render_gl::{ShaderProgram, ShaderType};
+use crate::engine::resources::fonts::SizedFont;
 use crate::engine::resources::resource_loader::ResourceLoader;
 
 // todo: this probably should not be here but be more generic class in engine

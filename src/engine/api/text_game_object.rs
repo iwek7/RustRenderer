@@ -6,10 +6,10 @@ use crate::{create_colored_rect_coords, create_rect_coords};
 use crate::engine::api::colour::Colour;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::engine_utilities::EngineUtilities;
+use crate::engine::resources::fonts::SizedFont;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::resource_manager::SizedFont;
 use crate::engine::render_gl::ShaderProgram;
 
 pub struct TextGameObject {
