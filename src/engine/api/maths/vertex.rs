@@ -1,6 +1,6 @@
 use glam::Vec3;
 
-use crate::engine::render_gl::data;
+use crate::engine::rendering::data;
 
 // todo: split geometry and opengl logic
 #[derive(Copy, Clone, Debug)]

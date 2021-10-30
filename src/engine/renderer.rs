@@ -2,15 +2,15 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::game_api::CameraConfig;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
-use crate::engine::render_gl;
+use crate::engine::rendering;
 
 pub struct Renderer {
-    viewport: render_gl::Viewport,
+    viewport: rendering::Viewport,
 }
 
 impl Renderer {
     pub fn new(context: &OpenglContext) -> Renderer {
-        let viewport = render_gl::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
+        let viewport = rendering::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
         viewport.set_used();
         unsafe {
             gl::ClearColor(0.0,0.0,0.0, 1.0);

@@ -4,8 +4,8 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::render_gl;
-use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::engine::rendering;
+use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
 pub struct Segment<T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<T>,
@@ -28,7 +28,7 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
   ```
  */
 impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
-    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<render_gl::ShaderProgram>) -> Segment<T> {
+    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<rendering::ShaderProgram>) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,

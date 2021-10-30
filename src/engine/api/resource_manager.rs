@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use crate::engine::api::audio::AudioResource;
 use crate::engine::api::texture::Texture;
-use crate::engine::render_gl::ShaderProgram;
+use crate::engine::rendering::ShaderProgram;
 use crate::engine::resources::fonts::SizedFont;
 
 pub trait ResourceManager {

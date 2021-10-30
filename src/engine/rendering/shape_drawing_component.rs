@@ -4,9 +4,9 @@ use std::rc::Rc;
 use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
-use crate::engine::render_gl;
-use crate::engine::render_gl::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
-use crate::engine::render_gl::buffer;
+use crate::engine::rendering;
+use crate::engine::rendering::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
+use crate::engine::rendering::buffer;
 
 // todo: this class should be probably on engine side
 pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
@@ -14,15 +14,15 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     vao: VertexArray,
     ebo: ElementArrayBuffer,
     texture: Option<Rc<Texture>>,
-    program: Rc<render_gl::ShaderProgram>,
+    program: Rc<rendering::ShaderProgram>,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Rc<Texture>>, program: Rc<render_gl::ShaderProgram>) -> ShapeDrawingComponent<T> {
+               texture: Option<Rc<Texture>>, program: Rc<rendering::ShaderProgram>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
-        let vao = render_gl::buffer::VertexArray::new();
+        let vao = rendering::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
 
         vao.bind();

@@ -7,7 +7,7 @@ use std::rc::Rc;
 use crate::engine::api::audio::AudioResource;
 use crate::engine::api::resource_manager::{ResourceManager};
 use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
-use crate::engine::render_gl::{ShaderProgram, ShaderType};
+use crate::engine::rendering::{ShaderProgram, ShaderType};
 use crate::engine::resources::fonts::SizedFont;
 use crate::engine::resources::resource_loader::ResourceLoader;
 

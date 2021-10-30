@@ -6,7 +6,7 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::render_gl;
+use crate::engine::rendering;
 
 pub struct Field {
     // todo: those variables should not be mutable anyhow
@@ -22,7 +22,7 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<render_gl::ShaderProgram>) -> Field {
+    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<rendering::ShaderProgram>) -> Field {
         let possible_move_overlay = Quadrangle::new(
             create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],

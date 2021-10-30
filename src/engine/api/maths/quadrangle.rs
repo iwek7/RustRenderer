@@ -5,8 +5,8 @@ use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_poly
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::render_gl;
-use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::engine::rendering;
+use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::vertex::VertexShaderDataConfigurer;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
@@ -22,7 +22,7 @@ const REFERENCE_INDEX: usize = 2;
 impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
-               program: Rc<render_gl::ShaderProgram>,
+               program: Rc<rendering::ShaderProgram>,
                texture: Option<Rc<Texture>>) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,

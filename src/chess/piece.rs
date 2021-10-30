@@ -16,7 +16,7 @@ use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
-use crate::engine::render_gl;
+use crate::engine::rendering;
 
 pub struct Piece {
     pub logic: PieceLogic,
@@ -79,11 +79,11 @@ static QUEEN_COL: u32 = 1;
 static KING_COL: u32 = 0;
 
 pub struct PieceFactory {
-    shader: Rc<render_gl::ShaderProgram>,
+    shader: Rc<rendering::ShaderProgram>,
 }
 
 impl PieceFactory {
-    pub fn new(shader: Rc<render_gl::ShaderProgram>) -> PieceFactory {
+    pub fn new(shader: Rc<rendering::ShaderProgram>) -> PieceFactory {
         return PieceFactory {
             shader
         };

@@ -5,8 +5,8 @@ use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_poly
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::render_gl;
-use crate::engine::render_gl::shape_drawing_component::ShapeDrawingComponent;
+use crate::engine::rendering;
+use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::vertex::VertexShaderDataConfigurer;
 
 pub struct Triangle<T: VertexShaderDataConfigurer> {
@@ -17,7 +17,7 @@ pub struct Triangle<T: VertexShaderDataConfigurer> {
 
 // todo: pass reference of texture here
 impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], program:Rc<render_gl::ShaderProgram>, texture: Option<Rc<Texture>>) -> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], program:Rc<rendering::ShaderProgram>, texture: Option<Rc<Texture>>) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,

@@ -10,7 +10,7 @@ use crate::engine::resources::fonts::SizedFont;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::render_gl::ShaderProgram;
+use crate::engine::rendering::ShaderProgram;
 
 pub struct TextGameObject {
     sized_font: Rc<SizedFont>,
