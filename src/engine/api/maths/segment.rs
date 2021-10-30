@@ -5,6 +5,7 @@ use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
 pub struct Segment<T> where T: VertexShaderDataConfigurer {
@@ -28,12 +29,12 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
   ```
  */
 impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
-    pub fn new(vertices: [T; 2], indices: [i32; 2], program: Rc<rendering::ShaderProgram>) -> Segment<T> {
+    pub fn new(vertices: [T; 2], indices: [i32; 2], material: Material) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
             None,
-            program,
+            material,
         );
 
         Segment {
@@ -57,7 +58,7 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
 }
 
 impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<T> {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos(), render_util)
     }
 }

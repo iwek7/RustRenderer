@@ -6,6 +6,7 @@ use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::vertex::VertexShaderDataConfigurer;
 
@@ -17,18 +18,18 @@ pub struct Triangle<T: VertexShaderDataConfigurer> {
 
 // todo: pass reference of texture here
 impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], program:Rc<rendering::ShaderProgram>, texture: Option<Rc<Texture>>) -> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], material: Material, texture: Option<Rc<Texture>>) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,
             texture,
-            program,
+            material,
         );
 
         Triangle {
             open_gl_context,
             vertices,
-            indices
+            indices,
         }
     }
 
@@ -42,7 +43,7 @@ impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
 }
 
 impl<'a, T: VertexShaderDataConfigurer> Drawable for Triangle<T> {
-    fn render(&self,  render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }
@@ -52,7 +53,7 @@ impl<'a, T: VertexShaderDataConfigurer> Area for Triangle<T> {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32) {
-                                                     let p = v.get_pos_deprecated();
+                                                      let p = v.get_pos_deprecated();
                                                       (p.0, p.1)
                                                   })
                                                   .collect(), );

@@ -6,4 +6,5 @@ pub mod data;
 pub mod buffer;
 mod viewport;
 pub mod shape_drawing_component;
+pub mod material;
 

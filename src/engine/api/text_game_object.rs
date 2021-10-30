@@ -10,13 +10,14 @@ use crate::engine::resources::fonts::SizedFont;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::ShaderProgram;
 
 pub struct TextGameObject {
     sized_font: Rc<SizedFont>,
     text: String,
     quads: Vec<Quadrangle<TexturedVertexData>>,
-    shader_program: Rc<ShaderProgram>,
+    material: Material,
     position: Vec3,
     colour: Colour,
 }
@@ -26,18 +27,18 @@ pub struct TextGameObject {
 // https://learnopengl.com/In-Practice/Text-Rendering
 // https://github.com/jhasse/rust-opengl-test
 impl TextGameObject {
-    pub fn new(sized_font: Rc<SizedFont>, text: &str, position: Vec3, shader_program: Rc<ShaderProgram>, colour: Colour) -> TextGameObject {
+    pub fn new(sized_font: Rc<SizedFont>, text: &str, position: Vec3, material: Material, colour: Colour) -> TextGameObject {
         TextGameObject {
             sized_font: Rc::clone(&sized_font),
             text: String::from(text),
-            quads: TextGameObject::init_quads(sized_font, text, position, Rc::clone(&shader_program), &colour),
-            shader_program,
+            quads: TextGameObject::init_quads(sized_font, text, position, material.clone(), &colour),
+            material: material.clone(),
             position,
             colour,
         }
     }
 
-    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, shader_program: Rc<ShaderProgram>, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
+    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
         let mut shift = 0.0;
         let scale = 0.01;
         let mut quads = vec!();
@@ -69,7 +70,7 @@ impl TextGameObject {
                     colour,
                 ),
                 [0, 1, 3, 1, 2, 3],
-                Rc::clone(&shader_program),
+                material.clone(),
                 Some(font_character.get_texture()),
             );
             quads.push(quad);
@@ -83,7 +84,7 @@ impl TextGameObject {
                 Rc::clone(&self.sized_font),
                 new_text.as_str(),
                 self.position,
-                Rc::clone(&self.shader_program),
+                self.material.clone(),
                 &self.colour,
             );
             self.quads = new_quads;
@@ -92,7 +93,7 @@ impl TextGameObject {
 }
 
 impl Drawable for TextGameObject {
-    fn render(&self, render_util: &RenderUtil) {
-        self.quads.iter().for_each(|q| q.render(render_util))
+    fn render(&mut self, render_util: &RenderUtil) {
+        self.quads.iter_mut().for_each(|q| q.render(render_util))
     }
 }

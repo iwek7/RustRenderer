@@ -4,6 +4,7 @@ use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::segment::Segment;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::api::render_util::RenderUtil;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::ShaderProgram;
 
 pub struct CoordinateSystem {
@@ -13,7 +14,7 @@ pub struct CoordinateSystem {
 }
 
 impl CoordinateSystem {
-    pub fn new(shader: Rc<ShaderProgram>) -> CoordinateSystem {
+    pub fn new(material: Material) -> CoordinateSystem {
 
         let clr =  (0.0, 0.0, 0.0, 1.0);
 
@@ -23,7 +24,7 @@ impl CoordinateSystem {
                 ColoredVertexData { pos: (100.0, 0.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            Rc::clone(&shader),
+            material.clone(),
         );
         let mut y_axis = Segment::new(
             [
@@ -31,7 +32,7 @@ impl CoordinateSystem {
                 ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            Rc::clone(&shader),
+            material.clone(),
         );
         let mut z_axis = Segment::new(
             [
@@ -39,7 +40,7 @@ impl CoordinateSystem {
                 ColoredVertexData { pos: (0.0, 0.0, 100.0).into(), clr: clr.into() },
             ],
             [0, 1],
-            Rc::clone(&shader),
+            material,
         );
         return CoordinateSystem {
             x_axis,
@@ -50,7 +51,7 @@ impl CoordinateSystem {
 }
 
 impl Drawable for CoordinateSystem {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.x_axis.render(render_util);
         self.y_axis.render(render_util);
         self.z_axis.render(render_util);

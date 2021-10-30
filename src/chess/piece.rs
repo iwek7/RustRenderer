@@ -17,6 +17,7 @@ use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 
 pub struct Piece {
     pub logic: PieceLogic,
@@ -25,7 +26,7 @@ pub struct Piece {
 }
 
 impl Drawable for Piece {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.quad.render(render_util)
     }
 }
@@ -79,13 +80,13 @@ static QUEEN_COL: u32 = 1;
 static KING_COL: u32 = 0;
 
 pub struct PieceFactory {
-    shader: Rc<rendering::ShaderProgram>,
+    piece_material: Material,
 }
 
 impl PieceFactory {
-    pub fn new(shader: Rc<rendering::ShaderProgram>) -> PieceFactory {
+    pub fn new(material: Material) -> PieceFactory {
         return PieceFactory {
-            shader
+            piece_material: material
         };
     }
 
@@ -101,7 +102,7 @@ impl PieceFactory {
                 pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),
             ),
             [0, 1, 3, 1, 2, 3],
-            Rc::clone(&self.shader),
+            self.piece_material.clone(),
             Some(pieces_sheet),
         );
         let move_component = create_move_component(&piece_type);

@@ -29,12 +29,12 @@ pub struct PlayingField {
 
 impl PlayingField {
     pub fn new(position: &glam::Vec3, size: &glam::Vec2, resource_manager: Rc<dyn ResourceManager>) -> PlayingField {
-        let shader = resource_manager.fetch_shader_program("osu/shaders/texture");
+        let material = resource_manager.fetch_shader_material("osu/shaders/texture");
         let bg_tx = resource_manager.fetch_texture("osu/textures/EVANGELION_BG.jpg");
         let background = Quadrangle::new(
             create_rect_coords(position, size, &bg_tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            shader,
+            material,
             Some(bg_tx),
         );
 
@@ -64,9 +64,9 @@ impl PlayingField {
 }
 
 impl Drawable for PlayingField {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.background.render(render_util);
-        self.rings.iter().for_each(|ring| ring.render(render_util));
+        self.rings.iter_mut().for_each(|ring| ring.render(render_util));
     }
 
     fn update(&mut self, update_context: &UpdateContext) {

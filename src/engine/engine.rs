@@ -42,9 +42,9 @@ impl Engine {
         let mut event_pump = opengl_context.sdl.event_pump().unwrap();
         let mut renderer = renderer::Renderer::new(&opengl_context);
 
-        let shader_program = engine_utilities.get_resource_manager().fetch_shader_program("chess/shaders/triangle");
+        let shader_material = engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
 
-        let mut coordinate_system = Box::new(CoordinateSystem::new(shader_program));
+        let mut coordinate_system = Box::new(CoordinateSystem::new(shader_material));
 
         Engine {
             game: None,
@@ -68,10 +68,10 @@ impl Engine {
         match &mut self.game {
             None => { panic!("Attempting to start game in engine, but no game was provided") }
             Some(game) => {
-                let shader_program = self.engine_utilities.get_resource_manager().fetch_shader_program("chess/shaders/triangle");
+                let material = self.engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
                 let point = Point::new(
                     [ColoredVertexData { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
-                    Rc::clone(&shader_program),
+                    material,
                 );
                 'main: loop {
                     let mouse_state = self.event_pump.mouse_state();
@@ -112,8 +112,8 @@ impl Engine {
 
                         game.handle_event(&event, &self.opengl_context, &update_context)
                     }
-
-                    self.renderer.render(&[game, /*self.coordinate_system.borrow(),&point */], &game.get_camera_config(), &self.opengl_context)
+                    let camera_config = game.get_camera_config();
+                    self.renderer.render(&mut [game, /*self.coordinate_system.borrow(),&point */],&camera_config , &self.opengl_context)
                 }
             }
         }

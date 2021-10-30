@@ -32,10 +32,8 @@ impl GamesRoot {
 }
 
 impl Drawable for GamesRoot {
-    fn render(&self, render_util: &RenderUtil) {
-        for game in self.games.iter() {
-            game.render(render_util);
-        }
+    fn render(&mut self, render_util: &RenderUtil) {
+        self.games.iter_mut().for_each(|game| {game.render(render_util)});
     }
 
     fn update(&mut self, update_context: &UpdateContext) {

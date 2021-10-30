@@ -7,6 +7,7 @@ use crate::engine::api::texture::Texture;
 use crate::engine::rendering;
 use crate::engine::rendering::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::engine::rendering::buffer;
+use crate::engine::rendering::material::{Material, UniformKind};
 
 // todo: this class should be probably on engine side
 pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
@@ -14,13 +15,13 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     vao: VertexArray,
     ebo: ElementArrayBuffer,
     texture: Option<Rc<Texture>>,
-    program: Rc<rendering::ShaderProgram>,
+    material: Material,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Rc<Texture>>, program: Rc<rendering::ShaderProgram>) -> ShapeDrawingComponent<T> {
+               texture: Option<Rc<Texture>>, material: Material) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = rendering::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
@@ -44,7 +45,7 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
             vao,
             ebo,
             texture,
-            program,
+            material,
             _marker: ::std::marker::PhantomData,
         }
     }
@@ -56,13 +57,13 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     }
 
     //todo: world_coords_position are incorrect
-    pub fn render(&self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3, render_util: &RenderUtil) {
-        self.program.set_used();
-
+    pub fn render(&mut self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3, render_util: &RenderUtil) {
         // todo wtf this position
         // it does not work!
         let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, 0.0));
-        self.program.set_mat4("mvp", mvp);
+
+        self.material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });
+        self.material.activate();
 
         self.vao.bind();
         self.ebo.bind();

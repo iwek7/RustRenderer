@@ -7,6 +7,7 @@ use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 
 pub struct Field {
     // todo: those variables should not be mutable anyhow
@@ -22,25 +23,25 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_shader: Rc<rendering::ShaderProgram>) -> Field {
+    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_material: Material) -> Field {
         let possible_move_overlay = Quadrangle::new(
             create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
             [0, 1, 3, 1, 2, 3],
-            Rc::clone(&possible_move_shader),
+            possible_move_material.clone(),
             None,
         );
 
         let possible_capture_overlay = Quadrangle::new(
             create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
             [0, 1, 3, 1, 2, 3],
-            Rc::clone(&possible_move_shader),
+            possible_move_material.clone(),
             None,
         );
 
         let current_field_overlay = Quadrangle::new(
             create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
             [0, 1, 3, 1, 2, 3],
-            Rc::clone(&possible_move_shader),
+            possible_move_material.clone(),
             None,
         );
 
@@ -64,8 +65,8 @@ impl Field {
     pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {
         match move_type {
             ActionType::MOVE | ActionType::PROMOTION => { self.is_possible_move = true }
-            ActionType::EN_PASSABLE_MOVE { en_passant_target_field } => { self.is_possible_move = true }
-            ActionType::COMPOSITE_MOVE { accompanying_move } => { self.is_possible_move = true }
+            ActionType::EN_PASSABLE_MOVE { .. } => { self.is_possible_move = true }
+            ActionType::COMPOSITE_MOVE { .. } => { self.is_possible_move = true }
             ActionType::CAPTURE { captured_piece } | ActionType::CAPTURE_PROMOTION { captured_piece } => { self.is_possible_capture = true }
             _ => {}
         }
@@ -79,7 +80,7 @@ impl Field {
 }
 
 impl Drawable for Field {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         if self.is_possible_move {
             self.possible_move_overlay.render(render_util)
         } else if self.is_possible_capture {

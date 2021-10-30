@@ -32,18 +32,18 @@ impl Chessboard {
         let position = (0.0, 0.0, 0.0);
 
         let chessboard_texture = resource_manager.fetch_texture("chess/textures/chessboard.png");
-        let chessboard_shader = resource_manager.fetch_shader_program("chess/shaders/texture");
-        let possible_move_shader = resource_manager.fetch_shader_program("chess/shaders/triangle");
+        let chessboard_material = resource_manager.fetch_shader_material("chess/shaders/texture");
+        let possible_move_material = resource_manager.fetch_shader_material("chess/shaders/triangle");
 
         let quad = Quadrangle::new(
             create_rect_coords_deprecated(position.clone(), (board_size, board_size),
                                           &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            Rc::clone(&chessboard_shader),
+            chessboard_material.clone(),
             Some(Rc::clone(&chessboard_texture)),
         );
 
-        let piece_factory = PieceFactory::new(Rc::clone(&chessboard_shader));
+        let piece_factory = PieceFactory::new(chessboard_material.clone());
 
         let mut fields = Vec::new();
         for row_idx in 0..8 as u32 {
@@ -55,7 +55,7 @@ impl Chessboard {
                     col_idx as f32 * field_size + position.0,
                     row_idx as f32 * field_size + position.1,
                     field_size,
-                    Rc::clone(&possible_move_shader),
+                    possible_move_material.clone(),
                 ));
             }
             fields.push(row);
@@ -336,10 +336,10 @@ impl Chessboard {
 }
 
 impl Drawable for Chessboard {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.board.render(render_util);
-        self.fields.iter().for_each(|row| row.iter().for_each(|field| field.render(render_util)));
-        self.pieces.iter().for_each(|piece| { piece.render(render_util) });
+        self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.render(render_util)));
+        self.pieces.iter_mut().for_each(|piece| { piece.render(render_util) });
     }
 }
 

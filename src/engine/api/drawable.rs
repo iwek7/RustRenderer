@@ -9,7 +9,7 @@ use crate::engine::opengl_context::OpenglContext;
 
 // todo rename
 pub trait Drawable {
-    fn render(&self, render_util: &RenderUtil);
+    fn render(&mut self, render_util: &RenderUtil);
     fn update(&mut self, update_context: &UpdateContext) {}
     // todo: this should return some result so that event is not propagated further once consumed
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {}

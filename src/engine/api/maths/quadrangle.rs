@@ -5,7 +5,7 @@ use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_poly
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::vertex::VertexShaderDataConfigurer;
 
@@ -22,13 +22,13 @@ const REFERENCE_INDEX: usize = 2;
 impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
-               program: Rc<rendering::ShaderProgram>,
+               material: Material,
                texture: Option<Rc<Texture>>) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
             texture,
-            program,
+            material,
         );
         Quadrangle {
             drawing_component,
@@ -59,7 +59,7 @@ impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
 }
 
 impl<T: VertexShaderDataConfigurer> Drawable for Quadrangle<T> {
-    fn render(&self,  render_util: &RenderUtil) {
+    fn render(&mut self,  render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
     }
 }

@@ -14,6 +14,7 @@ use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::opengl_context::OpenglContext;
 use crate::engine::rendering;
+use crate::engine::rendering::material::Material;
 
 pub struct ChessGame {
     chessboard: Chessboard,
@@ -28,16 +29,16 @@ impl ChessGame {
         let mut chessboard = Chessboard::new(Rc::clone(&res_manager));
         chessboard.init_pieces(Rc::clone(&res_manager));
 
-        let texture_shader = res_manager.fetch_shader_program("chess/shaders/texture");
+        let texture_material = res_manager.fetch_shader_material("chess/shaders/texture");
 
         let white_win_banner = ChessGame::create_win_banner(
             res_manager.fetch_texture("chess/textures/white_win_banner.png"),
-            Rc::clone(&texture_shader),
+            texture_material.clone(),
         );
 
         let black_win_banner = ChessGame::create_win_banner(
             res_manager.fetch_texture("chess/textures/black_win_banner.png"),
-            Rc::clone(&texture_shader),
+            texture_material,
         );
 
         ChessGame {
@@ -47,20 +48,20 @@ impl ChessGame {
         }
     }
 
-    fn create_win_banner(tx: Rc<Texture>, shader: Rc<rendering::ShaderProgram>) -> Quadrangle<TexturedVertexData> {
+    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Quadrangle<TexturedVertexData> {
         Quadrangle::new(
             create_rect_coords_deprecated((200.0, 100.0, 0.0), (512.0, 512.0),
                                           &tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            shader,
+            material,
             Some(Rc::clone(&tx)),
         )
     }
 }
 
 impl Drawable for ChessGame {
-    fn render(&self, render_util: &RenderUtil) {
-        match self.chessboard.get_winner() {
+    fn render(&mut self, render_util: &RenderUtil) {
+        match self.chessboard.get_winner().clone() {
             None => { self.chessboard.render(render_util) }
             Some(winning_side) => {
                 self.chessboard.render(render_util);

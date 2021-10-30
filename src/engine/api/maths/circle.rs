@@ -8,6 +8,7 @@ use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::data::f32_f32_f32;
+use crate::engine::rendering::material::Material;
 use crate::engine::rendering::ShaderProgram;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
@@ -23,7 +24,7 @@ pub struct Circle {
 
 impl Circle {
     // position here is the middle of a circle
-    pub fn new_colored(position: &glam::Vec3, color: glam::Vec4, radius: f32, program: Rc<ShaderProgram>) -> Circle {
+    pub fn new_colored(position: &glam::Vec3, color: glam::Vec4, radius: f32, material: Material) -> Circle {
         let num_vertices = 32;
 
         let mut vertices = vec!();
@@ -71,7 +72,7 @@ impl Circle {
             &vertices,
             &indices,
             None,
-            program,
+            material,
         );
 
         Circle {
@@ -85,7 +86,7 @@ impl Circle {
 }
 
 impl Drawable for Circle {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, self.middle.clone(), render_util)
     }
 }

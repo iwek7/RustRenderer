@@ -21,8 +21,8 @@ pub struct Ring {
 
 impl Ring {
     pub fn new(position: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) -> Ring {
-        let tx_shader = resource_manager.fetch_shader_program("osu/shaders/texture");
-        let clr_shader = resource_manager.fetch_shader_program("osu/shaders/colour");
+        let tx_shader_material = resource_manager.fetch_shader_material("osu/shaders/texture");
+        let clr_shader_material = resource_manager.fetch_shader_material("osu/shaders/colour");
         let ring_tx = resource_manager.fetch_texture("osu/textures/ring.png");
 
 
@@ -30,7 +30,7 @@ impl Ring {
         let tx = Quadrangle::new(
             create_rect_coords(&tx_position, &glam::vec2(RING_RADIUS * 2.0, RING_RADIUS * 2.0), &ring_tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            tx_shader,
+            tx_shader_material,
             Some(ring_tx),
         );
 
@@ -38,7 +38,7 @@ impl Ring {
             position,
             glam::vec4(0.5, 0.5, 0.5, 1.0),
             RING_RADIUS,
-            clr_shader,
+            clr_shader_material,
         );
 
         Ring {
@@ -57,7 +57,7 @@ impl Ring {
 }
 
 impl Drawable for Ring {
-    fn render(&self, render_util: &RenderUtil) {
+    fn render(&mut self, render_util: &RenderUtil) {
         self.tx.render(render_util);
         // self.hitbox.render(render_util);
     }

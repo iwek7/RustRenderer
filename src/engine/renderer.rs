@@ -13,7 +13,7 @@ impl Renderer {
         let viewport = rendering::Viewport::for_window(context.window.size().0 as i32, context.window.size().1 as i32);
         viewport.set_used();
         unsafe {
-            gl::ClearColor(0.0,0.0,0.0, 1.0);
+            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
         }
 
         Renderer {
@@ -21,14 +21,18 @@ impl Renderer {
         }
     }
 
-    pub fn render(&mut self, objects: &[&dyn Drawable], active_camera_config: &CameraConfig, context: &OpenglContext) {
+    pub fn render(&mut self, objects: &mut [&mut dyn Drawable], active_camera_config: &CameraConfig, context: &OpenglContext) {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
+        objects.iter_mut()
+            .for_each(
+                |obj| {
+                    obj.render(
+                        &RenderUtil::new(active_camera_config.clone(), context))
+                }
+            );
 
-        for obj_render in objects.iter() {
-            obj_render.render(&RenderUtil::new(active_camera_config.clone(), context));
-        }
         context.window.gl_swap_window();
     }
 

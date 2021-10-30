@@ -8,6 +8,7 @@ use crate::engine::api::audio::AudioResource;
 use crate::engine::api::resource_manager::{ResourceManager};
 use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
 use crate::engine::rendering::{ShaderProgram, ShaderType};
+use crate::engine::rendering::material::Material;
 use crate::engine::resources::fonts::SizedFont;
 use crate::engine::resources::resource_loader::ResourceLoader;
 
@@ -47,6 +48,11 @@ impl ResourceManager for CachingResourceManager {
                 ShaderProgram::new(&v_shader, &f_shader, &id).unwrap()
             },
         )
+    }
+
+    fn fetch_shader_material(&self, id: &str) -> Material {
+        let shader_program = self.fetch_shader_program(id);
+        Material::new(shader_program)
     }
 
     fn fetch_texture(&self, id: &str) -> Rc<Texture> {
