@@ -15,13 +15,12 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     vao: VertexArray,
     ebo: ElementArrayBuffer,
     texture: Option<Rc<Texture>>,
-    material: Material,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Rc<Texture>>, material: Material) -> ShapeDrawingComponent<T> {
+               texture: Option<Rc<Texture>>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = rendering::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
@@ -45,7 +44,6 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
             vao,
             ebo,
             texture,
-            material,
             _marker: ::std::marker::PhantomData,
         }
     }
@@ -56,14 +54,26 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
         self.vbo.unbind();
     }
 
-    //todo: world_coords_position are incorrect
-    pub fn render(&mut self, num_indices: i32, mode: gl::types::GLenum, world_coords_position: glam::Vec3, render_util: &RenderUtil) {
+
+    pub fn render(
+        &mut self,
+        num_indices: i32,
+        mode: gl::types::GLenum,
+        world_coords_position: glam::Vec3,     //todo: world_coords_position are incorrect and not even used
+        render_util: &RenderUtil,
+        material: &mut Material
+    ) {
         // todo wtf this position
         // it does not work!
         let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, 0.0));
 
-        self.material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });
-        self.material.activate();
+        // set shader uniforms
+        material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });
+        material.set_variable("resolution", UniformKind::VEC_2 { value: render_util.get_window_size() });
+        // care - u64 to f32
+        material.set_variable("timeMillis", UniformKind::FLOAT {value: material.get_active_duration().as_millis() as f32});
+
+        material.activate();
 
         self.vao.bind();
         self.ebo.bind();
@@ -80,6 +90,7 @@ impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
             if self.texture.is_some() {
                 self.texture.as_ref().unwrap().unbind();
             }
+            gl::UseProgram(0);
         }
         self.vao.unbind();
         self.ebo.unbind();

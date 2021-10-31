@@ -21,10 +21,12 @@ const SPAWN_INTERVAL_MILLIS: u128 = 500;
 pub struct PlayingField {
     background: Quadrangle<TexturedVertexData>,
     rings: Vec<Ring>,
+    fade_offs: Vec<Ring>,
     total_score: i32,
     size: glam::Vec2,
     // todo: this should be part of rectangle,
     spawn_time: SystemTime,
+
 }
 
 impl PlayingField {
@@ -43,6 +45,7 @@ impl PlayingField {
         PlayingField {
             background,
             rings: vec!(ring),
+            fade_offs: vec!(),
             total_score: 0,
             size: size.clone(),
             spawn_time: SystemTime::now(),
@@ -67,6 +70,7 @@ impl Drawable for PlayingField {
     fn render(&mut self, render_util: &RenderUtil) {
         self.background.render(render_util);
         self.rings.iter_mut().for_each(|ring| ring.render(render_util));
+        self.fade_offs.iter_mut().for_each(|ring| ring.render(render_util));
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
@@ -80,6 +84,10 @@ impl Drawable for PlayingField {
             let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), update_context.get_engine_utilities().get_resource_manager());
             self.rings.push(ring);
         }
+
+        self.fade_offs.retain(|ring| !ring.is_faded());
+        self.fade_offs.iter_mut().for_each(|ring| ring.update(update_context));
+        self.rings.iter_mut().for_each(|ring| ring.update(update_context));
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
@@ -102,7 +110,9 @@ impl Drawable for PlayingField {
                             // its super bad :D
                             let actual_index = to_remove[i] - i;
                             self.total_score += self.rings[actual_index].get_score();
-                            self.rings.remove(actual_index);
+                            let mut ring = self.rings.remove(actual_index);
+                            ring.start_fade_off();
+                            self.fade_offs.push(ring);
                             println!("TOTAL SCORE IS {:?}", self.total_score)
                         }
                     }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::iter::Map;
 use std::rc::Rc;
+use std::time::{Duration, Instant};
 
 use crate::engine::rendering::ShaderProgram;
 
@@ -10,6 +11,7 @@ type UniformName = String;
 pub struct Material {
     shader_program: Rc<ShaderProgram>,
     uniforms: HashMap<UniformName, Uniform>,
+    activation_time: Option<Instant>,
 }
 
 impl Material {
@@ -17,6 +19,7 @@ impl Material {
         Material {
             shader_program,
             uniforms: HashMap::new(),
+            activation_time: None,
         }
     }
 
@@ -26,9 +29,19 @@ impl Material {
         self.uniforms.insert(uniform_name, uniform);
     }
 
-    pub fn activate(&self) {
+    pub fn activate(&mut self) {
+        if let None = self.activation_time {
+            self.activation_time = Some(Instant::now());
+        }
         self.shader_program.set_used();
         self.uniforms.values().for_each(|uniform| { uniform.activate() })
+    }
+
+    pub fn get_active_duration(&self) -> Duration {
+        match self.activation_time {
+            None => Duration::new(0, 0),
+            Some(time) => time.elapsed()
+        }
     }
 }
 
@@ -66,13 +79,14 @@ pub enum UniformKind {
     MAT_4 { value: glam::Mat4 },
     VEC_4 { value: glam::Vec4 },
     VEC_2 { value: glam::Vec2 },
+    FLOAT { value: f32 },
 }
 
 impl UniformKind {
     fn activate(&self, location: gl::types::GLint) {
-        match &self {
-            UniformKind::MAT_4 { value } => {
-                unsafe {
+        unsafe {
+            match &self {
+                UniformKind::MAT_4 { value } => {
                     gl::UniformMatrix4fv(
                         location,
                         1,
@@ -80,23 +94,22 @@ impl UniformKind {
                         &value.as_ref()[0],
                     );
                 }
-            }
-            UniformKind::VEC_2 { value } => {
-                unsafe {
+                UniformKind::VEC_2 { value } => {
                     gl::Uniform2fv(
                         location,
                         1,
                         &value.as_ref()[0],
                     );
                 }
-            }
-            UniformKind::VEC_4 { value } => {
-                unsafe {
+                UniformKind::VEC_4 { value } => {
                     gl::Uniform4fv(
                         location,
                         1,
                         &value.as_ref()[0],
                     );
+                }
+                UniformKind::FLOAT { value } => {
+                    gl::Uniform1f(location, *value);
                 }
             }
         }

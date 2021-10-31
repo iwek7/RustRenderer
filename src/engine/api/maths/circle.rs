@@ -19,7 +19,8 @@ pub struct Circle {
     vertices: [ColoredVertexData; 32],
     indices: [i32; 93],
     middle: glam::Vec3,
-    radius: f32
+    radius: f32,
+    material: Material,
 }
 
 impl Circle {
@@ -72,7 +73,6 @@ impl Circle {
             &vertices,
             &indices,
             None,
-            material,
         );
 
         Circle {
@@ -80,14 +80,21 @@ impl Circle {
             vertices: vertices.try_into().unwrap(),
             indices: indices.try_into().unwrap(),
             middle: position.clone(),
-            radius
+            radius,
+            material,
         }
     }
 }
 
 impl Drawable for Circle {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.drawing_component.render(self.indices.len() as i32, gl::TRIANGLES, self.middle.clone(), render_util)
+        self.drawing_component.render(
+            self.indices.len() as i32,
+            gl::TRIANGLES,
+            self.middle.clone(),
+            render_util,
+            &mut self.material
+        )
     }
 }
 

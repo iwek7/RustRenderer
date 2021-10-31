@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::time::{Duration, Instant};
 
 use sdl2::event::Event;
 
@@ -11,17 +12,20 @@ use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::opengl_context::OpenglContext;
+use crate::engine::rendering::material::UniformKind;
 
-pub const RING_RADIUS : f32 = 0.9;
+pub const RING_RADIUS: f32 = 0.9;
+const FADE_OFF_DURATION: Duration = Duration::from_millis(250);
 
 pub struct Ring {
     hitbox: Circle,
-    tx: Quadrangle<TexturedVertexData>,
+    quad: Quadrangle<TexturedVertexData>,
+    fade_off_start: Option<Instant>,
 }
 
 impl Ring {
     pub fn new(position: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) -> Ring {
-        let tx_shader_material = resource_manager.fetch_shader_material("osu/shaders/texture");
+        let ring_shader_material = resource_manager.fetch_shader_material("osu/shaders/ring");
         let clr_shader_material = resource_manager.fetch_shader_material("osu/shaders/colour");
         let ring_tx = resource_manager.fetch_texture("osu/textures/ring.png");
 
@@ -30,7 +34,7 @@ impl Ring {
         let tx = Quadrangle::new(
             create_rect_coords(&tx_position, &glam::vec2(RING_RADIUS * 2.0, RING_RADIUS * 2.0), &ring_tx.topology.get_sprite_coords(0, 0).unwrap()),
             [0, 1, 3, 1, 2, 3],
-            tx_shader_material,
+            ring_shader_material,
             Some(ring_tx),
         );
 
@@ -42,24 +46,52 @@ impl Ring {
         );
 
         Ring {
-            tx,
-            hitbox
+            quad: tx,
+            hitbox,
+            fade_off_start: None,
         }
     }
 
     pub fn contains_point(&self, position: &glam::Vec3) -> bool {
-       self.hitbox.contains_point(&(position.x, position.y))
+        self.hitbox.contains_point(&(position.x, position.y))
     }
 
     pub fn get_score(&self) -> i32 {
         1
     }
+
+    pub fn start_fade_off(&mut self) {
+        self.fade_off_start = Some(Instant::now());
+    }
+
+    // imagine implementing signals and removing this ugly pull model
+    pub fn is_faded(&self) -> bool {
+        match self.fade_off_start {
+            None => { false }
+            Some(start_time) => {
+               let current_fade_off_duration = Instant::now().duration_since(start_time);
+                current_fade_off_duration > FADE_OFF_DURATION
+            }
+        }
+    }
 }
 
 impl Drawable for Ring {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.tx.render(render_util);
+        self.quad.render(render_util);
         // self.hitbox.render(render_util);
     }
 
+    fn update(&mut self, update_context: &UpdateContext) {
+        match self.fade_off_start {
+            None => {
+                self.quad.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
+            }
+            Some(start_time) => {
+                let curr_time = Instant::now().duration_since(start_time).as_millis();
+                let alpha = curr_time as f32 / FADE_OFF_DURATION.as_millis() as f32;
+                self.quad.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - alpha});
+            }
+        }
+    }
 }

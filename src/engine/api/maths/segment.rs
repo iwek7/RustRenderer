@@ -13,6 +13,7 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
     vertices: [T; 2],
     indices: [i32; 2],
     is_dragged: bool,
+    material: Material
 }
 
 /**
@@ -24,7 +25,7 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
               ColoredVertexData { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
           ],
           [0, 1],
-          Rc::clone(&shader_program)
+          material
       );
   ```
  */
@@ -34,7 +35,6 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
             &vertices,
             &indices,
             None,
-            material,
         );
 
         Segment {
@@ -42,6 +42,7 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
             vertices,
             indices,
             is_dragged: false,
+            material,
         }
     }
 
@@ -59,7 +60,13 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
 
 impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<T> {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.drawing_component.render(self.indices.len() as i32, gl::LINES, self.get_pos(), render_util)
+        self.drawing_component.render(
+            self.indices.len() as i32,
+            gl::LINES,
+            self.get_pos(),
+            render_util,
+            &mut self.material
+        )
     }
 }
 

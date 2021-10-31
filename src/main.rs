@@ -1,3 +1,5 @@
+#![feature(duration_consts_2)]
+
 use engine::api::colour::Colour;
 use engine::api::maths::vertex;
 use engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};

@@ -21,6 +21,7 @@ Point::new(
 pub struct Point<T> where T: VertexShaderDataConfigurer {
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 1],
+    material: Material,
 }
 
 impl<T: VertexShaderDataConfigurer> Point<T> {
@@ -29,12 +30,12 @@ impl<T: VertexShaderDataConfigurer> Point<T> {
             &vertices,
             &[0],
             None,
-            material,
         );
         return Point {
             drawing_component,
-            vertices
-        }
+            vertices,
+            material,
+        };
     }
 
     pub fn get_pos(&self) -> glam::Vec3 {
@@ -55,6 +56,12 @@ impl<T: VertexShaderDataConfigurer> Point<T> {
 
 impl<'a, T: VertexShaderDataConfigurer> Drawable for Point<T> {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.drawing_component.render(1, gl::POINTS, self.get_pos(), render_util)
+        self.drawing_component.render(
+            1,
+            gl::POINTS,
+            self.get_pos(),
+            render_util,
+            &mut self.material,
+        )
     }
 }

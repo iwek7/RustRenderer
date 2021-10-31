@@ -14,6 +14,7 @@ pub struct Triangle<T: VertexShaderDataConfigurer> {
     open_gl_context: ShapeDrawingComponent<T>,
     vertices: [T; 3],
     indices: [i32; 3],
+    material: Material,
 }
 
 // todo: pass reference of texture here
@@ -23,13 +24,13 @@ impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
             &vertices,
             &indices,
             texture,
-            material,
         );
 
         Triangle {
             open_gl_context,
             vertices,
             indices,
+            material,
         }
     }
 
@@ -44,7 +45,12 @@ impl<'a, T: VertexShaderDataConfigurer> Triangle<T> {
 
 impl<'a, T: VertexShaderDataConfigurer> Drawable for Triangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.open_gl_context.render(self.indices.len() as i32, gl::TRIANGLES, to_glam_vec(&self.get_pos()), render_util)
+        self.open_gl_context.render(
+            self.indices.len() as i32,
+            gl::TRIANGLES,
+            to_glam_vec(&self.get_pos()),
+            render_util,
+            &mut self.material)
     }
 }
 
