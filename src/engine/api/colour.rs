@@ -41,14 +41,6 @@ impl Colour {
         }
     }
 
-
-    // its bad that it always creates structure
-    // but i dont want to keep vec4 as member
-    // because I cant create it directly and make constants
-    pub fn get_raw(&self) -> Vec4 {
-        glam::vec4(self.r, self.g, self.b, self.a)
-    }
-
     fn assert_color_i_value(c: i32) {
         assert!(c >= 0 && c < 256)
     }
@@ -59,5 +51,17 @@ impl Colour {
 
     fn normalize_clr(c: i32) -> f32 {
         c as f32 / 255.0
+    }
+}
+
+impl From<glam::Vec4> for Colour {
+    fn from(other: glam::Vec4) -> Self {
+        Colour::new_f(other.x, other.y, other.z, other.w)
+    }
+}
+
+impl Into<glam::Vec4> for Colour {
+    fn into(self) -> Vec4 {
+        glam::vec4(self.r, self.g, self.b, self.a)
     }
 }

@@ -64,6 +64,7 @@ impl Uniform {
 #[derive(Clone)]
 pub enum UniformKind {
     MAT_4 { value: glam::Mat4 },
+    VEC_4 { value: glam::Vec4 },
     VEC_2 { value: glam::Vec2 },
 }
 
@@ -83,6 +84,15 @@ impl UniformKind {
             UniformKind::VEC_2 { value } => {
                 unsafe {
                     gl::Uniform2fv(
+                        location,
+                        1,
+                        &value.as_ref()[0],
+                    );
+                }
+            }
+            UniformKind::VEC_4 { value } => {
+                unsafe {
+                    gl::Uniform4fv(
                         location,
                         1,
                         &value.as_ref()[0],

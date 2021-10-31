@@ -136,7 +136,7 @@ impl From<glam::Vec4> for f32_f32_f32_f32 {
 
 impl From<Colour> for f32_f32_f32_f32 {
     fn from(other: Colour) -> Self {
-        let raw = other.get_raw();
+        let raw: Vec4 = other.into();
         f32_f32_f32_f32::new(raw.x, raw.y, raw.z, raw.w)
     }
 }

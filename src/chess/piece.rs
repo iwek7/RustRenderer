@@ -16,7 +16,6 @@ use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
-use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 
 pub struct Piece {

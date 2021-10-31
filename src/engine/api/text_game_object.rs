@@ -3,15 +3,15 @@ use std::rc::Rc;
 use glam::Vec3;
 
 use crate::{create_colored_rect_coords, create_rect_coords};
-use crate::engine::api::colour::Colour;
+use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::resources::fonts::SizedFont;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::TexturedVertexData;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::rendering::material::Material;
+use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::ShaderProgram;
+use crate::engine::resources::fonts::SizedFont;
 
 pub struct TextGameObject {
     sized_font: Rc<SizedFont>,
@@ -38,7 +38,7 @@ impl TextGameObject {
         }
     }
 
-    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
+    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, mut material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
         let mut shift = 0.0;
         let scale = 0.01;
         let mut quads = vec!();
@@ -61,6 +61,8 @@ impl TextGameObject {
             // println!("ch {:?} xpos {:?} w {:?} h {:?} scaled shift {:?} advance {:?} advance shifted {:?} bearing {:?} size {:?}",
             //          ch as i32, x_pos, font_character.get_size().x, font_character.get_size().y,
             //          shift, font_character.get_advance(), font_character.get_advance() >> 6, font_character.get_bearing(), font_character.get_size());
+
+            material.set_variable("color", UniformKind::VEC_4 { value: WHITE.into() });
 
             let quad = Quadrangle::new(
                 create_colored_rect_coords(

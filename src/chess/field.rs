@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::chess::allowed_move::ActionType;
 use crate::create_rect_coords_colored_deprecated;
 use crate::engine::api::drawable::Drawable;
