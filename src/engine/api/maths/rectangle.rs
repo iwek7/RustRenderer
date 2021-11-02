@@ -4,6 +4,7 @@ use sdl2::event::Event;
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex;
 use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout, VertexShaderDataLayout};
 use crate::engine::api::render_util::RenderUtil;
@@ -87,5 +88,23 @@ impl<T: VertexShaderDataLayout> Drawable for Rectangle<T> {
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
         self.quad.handle_event(event, context, update_context)
+    }
+}
+
+impl<T: VertexShaderDataLayout> Area for Rectangle<T> {
+    fn contains_point(&self, point: &(f32, f32)) -> bool {
+        self.quad.contains_point(point)
+    }
+
+    fn area(&self) -> f32 {
+        self.quad.area()
+    }
+
+    fn num_vertices(&self) -> usize {
+        self.quad.num_vertices()
+    }
+
+    fn get_pos(&self) -> (f32, f32, f32) {
+        self.quad.get_pos()
     }
 }

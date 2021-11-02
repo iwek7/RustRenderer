@@ -9,6 +9,7 @@ use crate::{create_rect_coords, create_rect_coords_colored, create_rect_coords_c
 use crate::engine::api::colour::Colour;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout};
 use crate::engine::api::render_util::RenderUtil;
@@ -19,7 +20,7 @@ use crate::osu::ring::{Ring, RING_RADIUS};
 const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
 pub struct PlayingField {
-    background: Quadrangle<TexturedVertexDataLayout>,
+    background: Rectangle<TexturedVertexDataLayout>,
     rings: Vec<Ring>,
     fade_offs: Vec<Ring>,
     total_score: i32,
@@ -33,11 +34,12 @@ impl PlayingField {
     pub fn new(position: &glam::Vec3, size: &glam::Vec2, resource_manager: Rc<dyn ResourceManager>) -> PlayingField {
         let material = resource_manager.fetch_shader_material("osu/shaders/texture");
         let bg_tx = resource_manager.fetch_texture("osu/textures/EVANGELION_BG.jpg");
-        let background = Quadrangle::new(
-            create_rect_coords(position, size, &bg_tx.topology.get_sprite_coords(0, 0).unwrap()),
-            [0, 1, 3, 1, 2, 3],
+
+        let background = Rectangle::new_textured(
+            position,
+            size,
             material,
-            Some(bg_tx),
+            bg_tx
         );
 
         let ring = Ring::new(&PlayingField::calc_random_ring_position(position, size), resource_manager);

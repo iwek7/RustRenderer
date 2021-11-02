@@ -6,7 +6,6 @@ use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
