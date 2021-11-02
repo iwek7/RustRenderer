@@ -2,11 +2,11 @@ use std::rc::Rc;
 
 use glam::Vec3;
 
-use crate::{create_colored_rect_coords, create_rect_coords};
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::{Material, UniformKind};
@@ -16,7 +16,7 @@ use crate::engine::resources::fonts::SizedFont;
 pub struct TextGameObject {
     sized_font: Rc<SizedFont>,
     text: String,
-    quads: Vec<Quadrangle<TexturedVertexDataLayout>>,
+    rects: Vec<Rectangle<TexturedVertexDataLayout>>,
     material: Material,
     position: Vec3,
     colour: Colour,
@@ -31,17 +31,17 @@ impl TextGameObject {
         TextGameObject {
             sized_font: Rc::clone(&sized_font),
             text: String::from(text),
-            quads: TextGameObject::init_quads(sized_font, text, position, material.clone(), &colour),
+            rects: TextGameObject::init_rects(sized_font, text, position, material.clone(), &colour),
             material: material.clone(),
             position,
             colour,
         }
     }
 
-    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, mut material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexDataLayout>> {
+    fn init_rects(sized_font: Rc<SizedFont>, text: &str, position: Vec3, mut material: Material, colour: &Colour) -> Vec<Rectangle<TexturedVertexDataLayout>> {
         let mut shift = 0.0;
         let scale = 0.01;
-        let mut quads = vec!();
+        let mut rects = vec!();
         for ch in text.chars() {
             let font_character = sized_font.get_char(ch);
 
@@ -64,38 +64,34 @@ impl TextGameObject {
 
             material.set_variable("color", UniformKind::VEC_4 { value: WHITE.into() });
 
-            let quad = Quadrangle::new(
-                create_colored_rect_coords(
-                    &glam::vec3(x_pos, y_pos, position.z),
-                    &glam::vec2(w, h),
-                    &font_character.get_texture().topology.get_sprite_coords(0, 0).unwrap(),
-                    colour,
-                ),
-                [0, 1, 3, 1, 2, 3],
+            let rect = Rectangle::new_textured(
+                &glam::vec3(x_pos, y_pos, position.z),
+                &glam::vec2(w, h),
                 material.clone(),
-                Some(font_character.get_texture()),
+                font_character.get_texture(),
             );
-            quads.push(quad);
+
+            rects.push(rect);
         }
-        quads
+        rects
     }
 
     pub fn set_text(&mut self, new_text: String) {
         if self.text != new_text {
-            let new_quads = TextGameObject::init_quads(
+            let new_quads = TextGameObject::init_rects(
                 Rc::clone(&self.sized_font),
                 new_text.as_str(),
                 self.position,
                 self.material.clone(),
                 &self.colour,
             );
-            self.quads = new_quads;
+            self.rects = new_quads;
         }
     }
 }
 
 impl Drawable for TextGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.quads.iter_mut().for_each(|q| q.render(render_util))
+        self.rects.iter_mut().for_each(|q| q.render(render_util))
     }
 }
