@@ -26,7 +26,8 @@ fn main() {
     engine.start();
 }
 
-// todo: this should be encapsulated into shapes
+// todo: use rectangle instead of those
+#[deprecated(note="use rectangle struct instead")]
 fn create_rect_coords_deprecated(pos: (f32, f32, f32), size: (f32, f32), sprite_coords: &SpriteCoords) -> [TexturedVertexDataLayout; 4] {
     return [
         vertex::TexturedVertexDataLayout { pos: (pos.0 + size.0, pos.1 + size.1, pos.2).into(), clr: (1.0, 1.0, 0.0, 1.0).into(), tx_coords: sprite_coords.top_right.into() },
@@ -36,10 +37,12 @@ fn create_rect_coords_deprecated(pos: (f32, f32, f32), size: (f32, f32), sprite_
     ];
 }
 
+#[deprecated(note="use rectangle struct instead")]
 fn create_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords) -> [TexturedVertexDataLayout; 4] {
     create_colored_rect_coords(pos, size, sprite_coords, &WHITE)
 }
 
+#[deprecated(note="use rectangle struct instead")]
 fn create_colored_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords, clr: &Colour) -> [TexturedVertexDataLayout; 4] {
     return [
         vertex::TexturedVertexDataLayout { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_right.into() },
@@ -50,6 +53,7 @@ fn create_colored_rect_coords(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords
 }
 
 // todo: size should be u32
+#[deprecated(note="use rectangle struct instead")]
 fn create_rect_coords_colored_deprecated(pos: (f32, f32, f32), size: (f32, f32), clr: (f32, f32, f32, f32)) -> [ColoredVertexDataLayout; 4] {
     return [
         vertex::ColoredVertexDataLayout { pos: (pos.0 + size.0, pos.1 + size.1, pos.2).into(), clr: clr.into() },
@@ -59,6 +63,7 @@ fn create_rect_coords_colored_deprecated(pos: (f32, f32, f32), size: (f32, f32),
     ];
 }
 
+#[deprecated(note="use rectangle struct instead")]
 fn create_rect_coords_colored(pos: &glam::Vec3, size: &glam::Vec2, clr: Colour) -> [ColoredVertexDataLayout; 4] {
     return [
         vertex::ColoredVertexDataLayout { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.into() },
