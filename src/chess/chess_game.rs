@@ -5,10 +5,10 @@ use sdl2::keyboard::Keycode;
 
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
-use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
@@ -18,8 +18,8 @@ use crate::engine::rendering::material::Material;
 
 pub struct ChessGame {
     chessboard: Chessboard,
-    black_win_banner: Quadrangle<TexturedVertexDataLayout>,
-    white_win_banner: Quadrangle<TexturedVertexDataLayout>,
+    black_win_banner: Rectangle<TexturedVertexDataLayout>,
+    white_win_banner: Rectangle<TexturedVertexDataLayout>,
 }
 
 impl ChessGame {
@@ -48,13 +48,12 @@ impl ChessGame {
         }
     }
 
-    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Quadrangle<TexturedVertexDataLayout> {
-        Quadrangle::new(
-            create_rect_coords_deprecated((200.0, 100.0, 0.0), (512.0, 512.0),
-                                          &tx.topology.get_sprite_coords(0, 0).unwrap()),
-            [0, 1, 3, 1, 2, 3],
+    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Rectangle<TexturedVertexDataLayout> {
+        Rectangle::new_textured(
+            &glam::vec3(2.0, 2.0, 0.0),
+            &glam::vec2(4., 4.),
             material,
-            Some(Rc::clone(&tx)),
+            tx,
         )
     }
 }

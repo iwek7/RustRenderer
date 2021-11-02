@@ -5,20 +5,20 @@ use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
-use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 
 pub struct Chessboard {
-    board: Quadrangle<TexturedVertexDataLayout>,
+    board: Rectangle<TexturedVertexDataLayout>,
     pieces: Vec<Piece>,
     piece_factory: PieceFactory,
     field_size: u32,
     board_size: u32,
-    position: (f32, f32, f32),
+    position: glam::Vec3,
     prev_mouse_pos: glam::Vec3,
     fields: Vec<Vec<Field>>,
     dragged_piece: Option<usize>,
@@ -29,18 +29,17 @@ impl Chessboard {
     pub fn new(resource_manager: Rc<dyn ResourceManager>) -> Chessboard {
         let field_size = 1.0;
         let board_size = field_size * 8.0;
-        let position = (0.0, 0.0, 0.0);
+        let position = glam::vec3(0.0, 0.0, 0.0);
 
         let chessboard_texture = resource_manager.fetch_texture("chess/textures/chessboard.png");
         let chessboard_material = resource_manager.fetch_shader_material("chess/shaders/texture");
         let possible_move_material = resource_manager.fetch_shader_material("chess/shaders/triangle");
 
-        let quad = Quadrangle::new(
-            create_rect_coords_deprecated(position.clone(), (board_size, board_size),
-                                          &chessboard_texture.topology.get_sprite_coords(0, 0).unwrap()),
-            [0, 1, 3, 1, 2, 3],
+        let rect = Rectangle::new_textured(
+            &position,
+            &glam::vec2(board_size, board_size),
             chessboard_material.clone(),
-            Some(Rc::clone(&chessboard_texture)),
+            chessboard_texture
         );
 
         let piece_factory = PieceFactory::new(chessboard_material.clone());
@@ -52,8 +51,8 @@ impl Chessboard {
                 row.push(Field::new(
                     col_idx,
                     row_idx,
-                    col_idx as f32 * field_size + position.0,
-                    row_idx as f32 * field_size + position.1,
+                    col_idx as f32 * field_size + position.x,
+                    row_idx as f32 * field_size + position.y,
                     field_size,
                     possible_move_material.clone(),
                 ));
@@ -62,7 +61,7 @@ impl Chessboard {
         }
 
         return Chessboard {
-            board: quad,
+            board: rect,
             pieces: vec!(),
             piece_factory,
             field_size: field_size as u32,
@@ -118,8 +117,8 @@ impl Chessboard {
 
     fn get_field_position(&self, field: &Field) -> (f32, f32, f32) {
         (
-            field.logic.col as f32 * self.field_size as f32 + self.position.0,
-            field.logic.row as f32 * self.field_size as f32 + self.position.1,
+            field.logic.col as f32 * self.field_size as f32 + self.position.x,
+            field.logic.row as f32 * self.field_size as f32 + self.position.y,
             0.0
         )
     }
@@ -308,17 +307,17 @@ impl Chessboard {
 
     // todo: should be get field by point...
     fn get_field_coords_by_point(&self, point: &(f32, f32)) -> Option<(usize, usize)> {
-        if point.0 < self.position.0 ||
-            point.0 > self.position.0 + self.board_size as f32 ||
-            point.1 < self.position.1 ||
-            point.1 > self.position.1 + self.board_size as f32 {
+        if point.0 < self.position.x ||
+            point.0 > self.position.x + self.board_size as f32 ||
+            point.1 < self.position.y ||
+            point.1 > self.position.y + self.board_size as f32 {
             return None;
         }
         // todo rounding
         return Some(
             (
-                ((point.1 - self.position.1).floor() as u32 / self.field_size) as usize,
-                ((point.0 - self.position.0).floor() as u32 / self.field_size) as usize,
+                ((point.1 - self.position.y).floor() as u32 / self.field_size) as usize,
+                ((point.0 - self.position.z).floor() as u32 / self.field_size) as usize,
             )
         );
     }
