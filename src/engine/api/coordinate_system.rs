@@ -2,15 +2,15 @@ use std::rc::Rc;
 
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::segment::Segment;
-use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::ShaderProgram;
 
 pub struct CoordinateSystem {
-    x_axis: Segment<ColoredVertexData>,
-    y_axis: Segment<ColoredVertexData>,
-    z_axis: Segment<ColoredVertexData>
+    x_axis: Segment<ColoredVertexDataLayout>,
+    y_axis: Segment<ColoredVertexDataLayout>,
+    z_axis: Segment<ColoredVertexDataLayout>
 }
 
 impl CoordinateSystem {
@@ -20,24 +20,24 @@ impl CoordinateSystem {
 
         let mut x_axis = Segment::new(
             [
-                ColoredVertexData { pos: (-100.0, 0.0, 0.0).into(), clr: clr.into() },
-                ColoredVertexData { pos: (100.0, 0.0, 0.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (-100.0, 0.0, 0.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (100.0, 0.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
             material.clone(),
         );
         let mut y_axis = Segment::new(
             [
-                ColoredVertexData { pos: (0.0, -100.0, 0.0).into(), clr: clr.into() },
-                ColoredVertexData { pos: (0.0, 100.0, 0.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (0.0, -100.0, 0.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (0.0, 100.0, 0.0).into(), clr: clr.into() },
             ],
             [0, 1],
             material.clone(),
         );
         let mut z_axis = Segment::new(
             [
-                ColoredVertexData { pos: (0.0, 0.0, -100.0).into(), clr: clr.into() },
-                ColoredVertexData { pos: (0.0, 0.0, 100.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (0.0, 0.0, -100.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (0.0, 0.0, 100.0).into(), clr: clr.into() },
             ],
             [0, 1],
             material,

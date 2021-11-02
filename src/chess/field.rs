@@ -2,9 +2,8 @@ use crate::chess::allowed_move::ActionType;
 use crate::create_rect_coords_colored_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 
 pub struct Field {
@@ -12,9 +11,9 @@ pub struct Field {
     pub logic: FieldLogic,
     pub x: f32,
     pub y: f32,
-    possible_move_overlay: Quadrangle<ColoredVertexData>,
-    possible_capture_overlay: Quadrangle<ColoredVertexData>,
-    current_field_overlay: Quadrangle<ColoredVertexData>,
+    possible_move_overlay: Quadrangle<ColoredVertexDataLayout>,
+    possible_capture_overlay: Quadrangle<ColoredVertexDataLayout>,
+    current_field_overlay: Quadrangle<ColoredVertexDataLayout>,
     is_possible_move: bool,
     is_possible_capture: bool,
     pub is_current_field: bool,

@@ -7,7 +7,7 @@ use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::ShaderProgram;
@@ -16,7 +16,7 @@ use crate::engine::resources::fonts::SizedFont;
 pub struct TextGameObject {
     sized_font: Rc<SizedFont>,
     text: String,
-    quads: Vec<Quadrangle<TexturedVertexData>>,
+    quads: Vec<Quadrangle<TexturedVertexDataLayout>>,
     material: Material,
     position: Vec3,
     colour: Colour,
@@ -38,7 +38,7 @@ impl TextGameObject {
         }
     }
 
-    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, mut material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexData>> {
+    fn init_quads(sized_font: Rc<SizedFont>, text: &str, position: Vec3, mut material: Material, colour: &Colour) -> Vec<Quadrangle<TexturedVertexDataLayout>> {
         let mut shift = 0.0;
         let scale = 0.01;
         let mut quads = vec!();

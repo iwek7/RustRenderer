@@ -1,14 +1,14 @@
 use std::rc::Rc;
 
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
-pub struct Segment<T> where T: VertexShaderDataConfigurer {
+pub struct Segment<T> where T: VertexShaderDataLayout {
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 2],
     indices: [i32; 2],
@@ -29,7 +29,7 @@ pub struct Segment<T> where T: VertexShaderDataConfigurer {
       );
   ```
  */
-impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
+impl<'a, T: VertexShaderDataLayout> Segment<T> {
     pub fn new(vertices: [T; 2], indices: [i32; 2], material: Material) -> Segment<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
@@ -58,7 +58,7 @@ impl<'a, T: VertexShaderDataConfigurer> Segment<T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Segment<T> {
+impl<'a, T: VertexShaderDataLayout> Drawable for Segment<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             self.indices.len() as i32,

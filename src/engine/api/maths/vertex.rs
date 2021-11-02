@@ -5,12 +5,12 @@ use crate::engine::rendering::data;
 // todo: split geometry and opengl logic
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
-pub struct ColoredVertexData {
+pub struct ColoredVertexDataLayout {
     pub pos: data::f32_f32_f32,
     pub clr: data::f32_f32_f32_f32,
 }
 
-impl VertexShaderDataConfigurer for ColoredVertexData {
+impl VertexShaderDataLayout for ColoredVertexDataLayout {
     fn configure_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
@@ -51,13 +51,13 @@ impl VertexShaderDataConfigurer for ColoredVertexData {
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)] // todo: why packed?
-pub struct TexturedVertexData {
+pub struct TexturedVertexDataLayout {
     pub pos: data::f32_f32_f32,
     pub clr: data::f32_f32_f32_f32,
     pub tx_coords: data::f32_f32,
 }
 
-impl VertexShaderDataConfigurer for TexturedVertexData {
+impl VertexShaderDataLayout for TexturedVertexDataLayout {
     fn configure_vertex_shader_data() {
         let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
@@ -100,7 +100,7 @@ impl VertexShaderDataConfigurer for TexturedVertexData {
     }
 }
 
-pub trait VertexShaderDataConfigurer {
+pub trait VertexShaderDataLayout {
     fn configure_vertex_shader_data();
 
     // todo: reduce code duplication between implementations

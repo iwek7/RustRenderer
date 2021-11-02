@@ -9,7 +9,7 @@ use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::game_api::GameController;
 use crate::engine::api::maths::point::Point;
-use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::opengl_context::OpenglContext;
 use crate::engine::renderer;
 use crate::engine::renderer::Renderer;
@@ -70,7 +70,7 @@ impl Engine {
             Some(game) => {
                 let material = self.engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
                 let point = Point::new(
-                    [ColoredVertexData { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+                    [ColoredVertexDataLayout { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
                     material,
                 );
                 'main: loop {

@@ -6,7 +6,7 @@ use crate::engine::api::camera::CameraGameObject;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::game_api::{CameraConfig, GameController};
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
 

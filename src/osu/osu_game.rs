@@ -10,7 +10,7 @@ use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::vertex::ColoredVertexData;
+use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::text_game_object::TextGameObject;
 use crate::engine::engine::Engine;
@@ -40,7 +40,7 @@ impl OsuGame {
             engine_utilities.get_resource_manager());
 
         let wav = engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
-        // engine_utilities.get_audio_manager().play(wav);
+        engine_utilities.get_audio_manager().play(wav);
 
         let text_material = engine_utilities.get_resource_manager().fetch_shader_material("osu/shaders/character");
         let sized_font = engine_utilities.get_resource_manager().fetch_font("osu/fonts/go3v2.ttf");

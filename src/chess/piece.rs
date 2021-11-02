@@ -13,14 +13,14 @@ use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::rendering::material::Material;
 
 pub struct Piece {
     pub logic: PieceLogic,
-    quad: Quadrangle<TexturedVertexData>,
+    quad: Quadrangle<TexturedVertexDataLayout>,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
 

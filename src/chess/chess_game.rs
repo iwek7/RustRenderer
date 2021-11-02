@@ -9,7 +9,7 @@ use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::opengl_context::OpenglContext;
@@ -18,8 +18,8 @@ use crate::engine::rendering::material::Material;
 
 pub struct ChessGame {
     chessboard: Chessboard,
-    black_win_banner: Quadrangle<TexturedVertexData>,
-    white_win_banner: Quadrangle<TexturedVertexData>,
+    black_win_banner: Quadrangle<TexturedVertexDataLayout>,
+    white_win_banner: Quadrangle<TexturedVertexDataLayout>,
 }
 
 impl ChessGame {
@@ -48,7 +48,7 @@ impl ChessGame {
         }
     }
 
-    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Quadrangle<TexturedVertexData> {
+    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Quadrangle<TexturedVertexDataLayout> {
         Quadrangle::new(
             create_rect_coords_deprecated((200.0, 100.0, 0.0), (512.0, 512.0),
                                           &tx.topology.get_sprite_coords(0, 0).unwrap()),

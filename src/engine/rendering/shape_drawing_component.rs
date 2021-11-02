@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Texture;
 use crate::engine::rendering;
@@ -10,7 +10,7 @@ use crate::engine::rendering::buffer;
 use crate::engine::rendering::material::{Material, UniformKind};
 
 // todo: this class should be probably on engine side
-pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
+pub struct ShapeDrawingComponent<T> where T: VertexShaderDataLayout {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
@@ -18,7 +18,7 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataConfigurer {
     _marker: PhantomData<T>,
 }
 
-impl<'a, T: VertexShaderDataConfigurer> ShapeDrawingComponent<T> {
+impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
                texture: Option<Rc<Texture>>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();

@@ -2,7 +2,7 @@ use std::ops::Sub;
 use std::rc::Rc;
 
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::maths::vertex::VertexShaderDataConfigurer;
+use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering;
@@ -18,13 +18,13 @@ Point::new(
         )
         ```
  */
-pub struct Point<T> where T: VertexShaderDataConfigurer {
+pub struct Point<T> where T: VertexShaderDataLayout {
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 1],
     material: Material,
 }
 
-impl<T: VertexShaderDataConfigurer> Point<T> {
+impl<T: VertexShaderDataLayout> Point<T> {
     pub fn new(vertices: [T; 1], material: Material) -> Point<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
@@ -54,7 +54,7 @@ impl<T: VertexShaderDataConfigurer> Point<T> {
     }
 }
 
-impl<'a, T: VertexShaderDataConfigurer> Drawable for Point<T> {
+impl<'a, T: VertexShaderDataLayout> Drawable for Point<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             1,

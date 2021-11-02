@@ -7,10 +7,10 @@ use crate::engine::api::texture::Texture;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
-use crate::vertex::VertexShaderDataConfigurer;
+use crate::vertex::VertexShaderDataLayout;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
-pub struct Quadrangle<T> where T: VertexShaderDataConfigurer {
+pub struct Quadrangle<T> where T: VertexShaderDataLayout {
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 4],
     indices: [i32; 6],
@@ -19,7 +19,7 @@ pub struct Quadrangle<T> where T: VertexShaderDataConfigurer {
 
 const REFERENCE_INDEX: usize = 2;
 
-impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
+impl<T: VertexShaderDataLayout> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
                material: Material,
@@ -62,7 +62,7 @@ impl<'a, T: VertexShaderDataConfigurer> Quadrangle<T> {
     }
 }
 
-impl<T: VertexShaderDataConfigurer> Drawable for Quadrangle<T> {
+impl<T: VertexShaderDataLayout> Drawable for Quadrangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             self.indices.len() as i32,
@@ -73,7 +73,7 @@ impl<T: VertexShaderDataConfigurer> Drawable for Quadrangle<T> {
     }
 }
 
-impl<T: VertexShaderDataConfigurer> Area for Quadrangle<T> {
+impl<T: VertexShaderDataLayout> Area for Quadrangle<T> {
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()

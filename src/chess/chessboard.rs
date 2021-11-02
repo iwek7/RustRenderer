@@ -8,12 +8,12 @@ use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
 use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::TexturedVertexData;
+use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 
 pub struct Chessboard {
-    board: Quadrangle<TexturedVertexData>,
+    board: Quadrangle<TexturedVertexDataLayout>,
     pieces: Vec<Piece>,
     piece_factory: PieceFactory,
     field_size: u32,

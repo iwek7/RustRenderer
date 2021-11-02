@@ -10,7 +10,7 @@ use crate::engine::api::colour::Colour;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::vertex::{ColoredVertexData, TexturedVertexData};
+use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout};
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::opengl_context::OpenglContext;
@@ -19,7 +19,7 @@ use crate::osu::ring::{Ring, RING_RADIUS};
 const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
 pub struct PlayingField {
-    background: Quadrangle<TexturedVertexData>,
+    background: Quadrangle<TexturedVertexDataLayout>,
     rings: Vec<Ring>,
     fade_offs: Vec<Ring>,
     total_score: i32,
