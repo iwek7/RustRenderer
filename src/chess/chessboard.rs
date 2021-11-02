@@ -38,7 +38,7 @@ impl Chessboard {
             &position,
             &glam::vec2(board_size, board_size),
             chessboard_material.clone(),
-            chessboard_texture
+            chessboard_texture,
         );
 
         let piece_factory = PieceFactory::new(chessboard_material.clone());
@@ -50,8 +50,7 @@ impl Chessboard {
                 row.push(Field::new(
                     col_idx,
                     row_idx,
-                    col_idx as f32 * field_size + position.x,
-                    row_idx as f32 * field_size + position.y,
+                    &glam::vec3(col_idx as f32 * field_size + position.x, row_idx as f32 * field_size + position.y, 0.0),
                     field_size,
                     possible_move_material.clone(),
                 ));
@@ -149,7 +148,6 @@ impl Chessboard {
     }
 
     pub fn handle_piece_drop_attempt(&mut self, world_mouse_coords: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) {
-
         if self.is_game_over() {
             return;
         }

@@ -3,7 +3,6 @@ use std::rc::Rc;
 use sdl2::event::Event;
 use soloud::*;
 
-use crate::create_rect_coords_colored_deprecated;
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;

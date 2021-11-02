@@ -1,7 +1,7 @@
 use crate::chess::allowed_move::ActionType;
-use crate::create_rect_coords_colored_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::Material;
@@ -11,41 +11,42 @@ pub struct Field {
     pub logic: FieldLogic,
     pub x: f32,
     pub y: f32,
-    possible_move_overlay: Quadrangle<ColoredVertexDataLayout>,
-    possible_capture_overlay: Quadrangle<ColoredVertexDataLayout>,
-    current_field_overlay: Quadrangle<ColoredVertexDataLayout>,
+    possible_move_overlay: Rectangle<ColoredVertexDataLayout>,
+    possible_capture_overlay: Rectangle<ColoredVertexDataLayout>,
+    current_field_overlay: Rectangle<ColoredVertexDataLayout>,
     is_possible_move: bool,
     is_possible_capture: bool,
     pub is_current_field: bool,
 }
 
 impl Field {
-    pub fn new(col: u32, row: u32, x: f32, y: f32, field_size: f32, possible_move_material: Material) -> Field {
-        let possible_move_overlay = Quadrangle::new(
-            create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.0, 0.741, 0.180, 1.0)),
-            [0, 1, 3, 1, 2, 3],
+    pub fn new(col: u32, row: u32, position: &glam::Vec3, field_size: f32, possible_move_material: Material) -> Field {
+        let size = glam::vec2(field_size, field_size);
+        let possible_move_overlay = Rectangle::new_colored(
+            position,
+            &size,
             possible_move_material.clone(),
-            None,
+            (0.0, 0.741, 0.180, 1.0).into(),
         );
 
-        let possible_capture_overlay = Quadrangle::new(
-            create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.992, 0.070, 0.070, 0.5)),
-            [0, 1, 3, 1, 2, 3],
+        let possible_capture_overlay = Rectangle::new_colored(
+            position,
+            &size,
             possible_move_material.clone(),
-            None,
+            (0.992, 0.070, 0.070, 0.5).into(),
         );
 
-        let current_field_overlay = Quadrangle::new(
-            create_rect_coords_colored_deprecated((x, y, 0.0), (field_size, field_size), (0.937, 0.941, 0.458, 0.5)),
-            [0, 1, 3, 1, 2, 3],
+        let current_field_overlay = Rectangle::new_colored(
+            position,
+            &size,
             possible_move_material.clone(),
-            None,
+            (0.937, 0.941, 0.458, 0.5).into(),
         );
 
         Field {
             logic: FieldLogic::from_coords(row, col),
-            x,
-            y,
+            x: position.x,
+            y: position.y,
             possible_move_overlay,
             possible_capture_overlay,
             current_field_overlay,

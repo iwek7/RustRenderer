@@ -3,7 +3,6 @@ use std::time::{Duration, Instant};
 
 use sdl2::event::Event;
 
-use crate::create_rect_coords;
 use crate::engine::api::colour::WHITE;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::circle::Circle;

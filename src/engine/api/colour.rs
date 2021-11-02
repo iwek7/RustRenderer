@@ -65,3 +65,9 @@ impl Into<glam::Vec4> for Colour {
         glam::vec4(self.r, self.g, self.b, self.a)
     }
 }
+
+impl From<(f32, f32, f32, f32)> for Colour {
+    fn from(other: (f32, f32, f32, f32)) -> Self {
+        Colour::new_f(other.0, other.1, other.2, other.3)
+    }
+}

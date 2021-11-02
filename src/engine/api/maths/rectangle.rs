@@ -20,11 +20,11 @@ pub struct Rectangle<T> where T: VertexShaderDataLayout {
 
 
 impl Rectangle<ColoredVertexDataLayout> {
-    pub fn new_colored(bottom_left: glam::Vec3, size: glam::Vec2, material: Material, clr: Colour) -> Rectangle<ColoredVertexDataLayout> {
+    pub fn new_colored(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, clr: Colour) -> Rectangle<ColoredVertexDataLayout> {
         // todo assert that size is possitive
         Rectangle {
             quad: Quadrangle::new(
-                create_colored_vertex_data_layout(&bottom_left, &size, clr),
+                create_colored_vertex_data_layout(bottom_left, size, clr),
                 RECT_INDICES.clone(),
                 material,
                 None,

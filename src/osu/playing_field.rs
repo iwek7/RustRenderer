@@ -5,7 +5,6 @@ use std::time::SystemTime;
 use rand::prelude::*;
 use sdl2::event::Event;
 
-use crate::{create_rect_coords, create_rect_coords_colored, create_rect_coords_colored_deprecated, create_rect_coords_deprecated};
 use crate::engine::api::colour::Colour;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
