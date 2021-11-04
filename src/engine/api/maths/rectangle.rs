@@ -1,3 +1,4 @@
+use glam::Vec3;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::{Colour, WHITE};
@@ -73,18 +74,6 @@ impl<T: VertexShaderDataLayout> Rectangle<T> {
     pub fn set_material_variable(&mut self, name: &str, kind: UniformKind) {
         self.quad.set_material_variable(name, kind);
     }
-
-    // some algebra lib?
-    // opengl coords :(
-    pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
-        self.quad.move_by(x, y, z)
-    }
-
-    // moves first vertex
-    // does not support rotation
-    pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
-        self.quad.move_to(final_pos)
-    }
 }
 
 fn create_colored_vertex_data_layout(size: &glam::Vec2, clr: Colour) -> [ColoredVertexDataLayout; 4] {
@@ -132,7 +121,19 @@ impl<T: VertexShaderDataLayout> Area for Rectangle<T> {
         self.quad.num_vertices()
     }
 
-    fn get_pos(&self) -> (f32, f32, f32) {
+    fn get_pos(&self) -> &glam::Vec3 {
         self.quad.get_pos()
+    }
+
+    fn move_to(&mut self, final_position: Vec3) {
+        self.quad.move_to(final_position)
+    }
+
+    fn move_by(&mut self, offset: Vec3) {
+        self.quad.move_by(offset)
+    }
+
+    fn get_scale(&self) -> &Vec3 {
+        self.quad.get_scale()
     }
 }

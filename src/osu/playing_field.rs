@@ -80,7 +80,7 @@ impl Drawable for PlayingField {
         if difference.unwrap().as_millis() > SPAWN_INTERVAL_MILLIS {
             self.spawn_time = now;
 
-            let pos = glam::vec3(self.background.get_pos().0, self.background.get_pos().1, self.background.get_pos().2);
+            let pos = glam::vec3(self.background.get_pos().x, self.background.get_pos().y, self.background.get_pos().z);
 
             let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), update_context.get_engine_utilities().get_resource_manager());
             self.rings.push(ring);

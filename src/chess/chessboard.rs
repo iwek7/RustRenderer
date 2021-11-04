@@ -212,13 +212,14 @@ impl Chessboard {
         if self.is_game_over() {
             return;
         }
-        let drag_offset = &(
+        let drag_offset = glam::vec3(
             (world_mouse_coords.x - self.prev_mouse_pos.x) as f32,
-            (world_mouse_coords.y - self.prev_mouse_pos.y) as f32
+            (world_mouse_coords.y - self.prev_mouse_pos.y) as f32,
+            0.0
         );
 
         if self.dragged_piece != None {
-            self.pieces[self.dragged_piece.unwrap()].handle_drag_pointer_move(drag_offset);
+            self.pieces[self.dragged_piece.unwrap()].handle_drag_pointer_move(&drag_offset);
         }
         self.prev_mouse_pos = world_mouse_coords.clone()
     }

@@ -4,7 +4,10 @@ pub trait Area {
     fn contains_point(&self, point: &(f32, f32)) -> bool;
     fn area(&self) -> f32;
     fn num_vertices(&self) -> usize;
-    fn get_pos(&self) -> (f32, f32, f32);
+    fn get_pos(&self) -> &glam::Vec3;
+    fn move_to(&mut self, final_position: glam::Vec3);
+    fn move_by(&mut self, offset: glam::Vec3);
+    fn get_scale(&self) -> &glam::Vec3;
 }
 
 pub fn is_point_within_convex_polygon(point: &(f32, f32), vertices: &Vec<(f32, f32)>) -> bool {

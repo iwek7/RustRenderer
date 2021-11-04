@@ -1,8 +1,10 @@
 use std::convert::TryInto;
 use std::f32::consts::PI;
 use std::ops::Add;
-use crate::engine::api::colour::Colour;
 
+use glam::Vec3;
+
+use crate::engine::api::colour::Colour;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
@@ -23,7 +25,7 @@ pub struct Circle {
     radius: f32,
     material: Material,
     color: Colour,
-    scale: glam::Vec3
+    scale: glam::Vec3,
 }
 
 impl Circle {
@@ -47,7 +49,7 @@ impl Circle {
             radius,
             material,
             color,
-            scale: glam::vec3(1.0, 1.0, 1.0)
+            scale: glam::vec3(1.0, 1.0, 1.0),
         }
     }
 
@@ -101,15 +103,16 @@ impl Drawable for Circle {
         self.drawing_component.render(
             self.indices.len() as i32,
             gl::TRIANGLES,
-            self.middle.clone(),
+            *self.get_pos(),
             render_util,
             &mut self.material,
-            self.scale
+            self.scale.clone(),
         )
     }
 }
 
 impl Area for Circle {
+    // todo does not work with scale
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         (self.middle.x - point.0).powf(2.0) + (self.middle.y - point.1).powf(2.0) <= self.radius.powf(2.0)
     }
@@ -122,7 +125,19 @@ impl Area for Circle {
         panic!("Circle does not have any vertices!")
     }
 
-    fn get_pos(&self) -> (f32, f32, f32) {
-        (self.middle.x, self.middle.y, self.middle.z)
+    fn get_pos(&self) -> &glam::Vec3 {
+        &self.middle
+    }
+
+    fn move_to(&mut self, final_position: Vec3) {
+        self.middle = final_position
+    }
+
+    fn move_by(&mut self, offset: Vec3) {
+        self.middle = self.middle.add(offset)
+    }
+
+    fn get_scale(&self) -> &Vec3 {
+        &self.scale
     }
 }

@@ -55,8 +55,8 @@ impl Field {
         }
     }
 
-    pub fn get_position_3d(&self) -> (f32, f32, f32) {
-        (self.x, self.y, 0.0)
+    pub fn get_position_3d(&self) -> glam::Vec3 {
+        glam::vec3(self.x, self.y, 0.0)
     }
 
     pub fn update_with_allowed_move(&mut self, move_type: &ActionType) {

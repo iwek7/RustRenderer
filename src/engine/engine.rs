@@ -116,7 +116,7 @@ impl Engine {
                         game.handle_event(&event, &self.opengl_context, &update_context)
                     }
                     let camera_config = game.get_camera_config();
-                    self.renderer.render(&mut [game, &mut self.coordinate_system, &mut point], &camera_config, &self.opengl_context)
+                    self.renderer.render(&mut [game, /*&mut self.coordinate_system, &mut point*/], &camera_config, &self.opengl_context)
                 }
             }
         }

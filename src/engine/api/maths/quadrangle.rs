@@ -1,3 +1,7 @@
+use std::ops::Add;
+
+use glam::Vec3;
+
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
@@ -41,15 +45,6 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
         }
     }
 
-    // maybe they should be part of area
-    pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
-        self.world_position = glam::vec3(self.world_position.x + x, self.world_position.y + y, self.world_position.z + z)
-    }
-
-    pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
-        self.world_position = glam::vec3(final_pos.0, final_pos.1, final_pos.2)
-    }
-
     pub fn set_material_variable(&mut self, name: &str, kind: UniformKind) {
         self.material.set_variable(name, kind);
     }
@@ -60,15 +55,16 @@ impl<T: VertexShaderDataLayout> Drawable for Quadrangle<T> {
         self.drawing_component.render(
             self.indices.len() as i32,
             gl::TRIANGLES,
-            to_glam_vec(&self.get_pos()),
+            *self.get_pos(),
             render_util,
             &mut self.material,
-            self.scale
+            self.scale.clone(),
         )
     }
 }
 
 impl<T: VertexShaderDataLayout> Area for Quadrangle<T> {
+    // todo does not work with scale
     fn contains_point(&self, point: &(f32, f32)) -> bool {
         return is_point_within_convex_polygon(point,
                                               &self.vertices.iter()
@@ -88,7 +84,19 @@ impl<T: VertexShaderDataLayout> Area for Quadrangle<T> {
         return self.vertices.len();
     }
 
-    fn get_pos(&self) -> (f32, f32, f32) {
-        self.world_position.into()
+    fn get_pos(&self) -> &glam::Vec3 {
+        &self.world_position
+    }
+
+    fn move_to(&mut self, final_position: Vec3) {
+        self.world_position = final_position
+    }
+
+    fn move_by(&mut self, offset: Vec3) {
+        self.world_position = self.world_position.add(offset)
+    }
+
+    fn get_scale(&self) -> &Vec3 {
+        &self.scale
     }
 }

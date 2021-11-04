@@ -1,5 +1,7 @@
 use std::ops::{Add, Sub};
 
+use glam::Vec3;
+
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
@@ -39,15 +41,6 @@ impl<T: VertexShaderDataLayout> Point<T> {
             world_position,
         };
     }
-
-    // this code is duplicated
-    pub fn move_by(&mut self, offset: &glam::Vec3) {
-        self.world_position = self.world_position.add(*offset)
-    }
-
-    pub fn move_to(&mut self, final_pos: &glam::Vec3) {
-        self.world_position = final_pos.clone()
-    }
 }
 
 impl<T: VertexShaderDataLayout> Drawable for Point<T> {
@@ -55,10 +48,10 @@ impl<T: VertexShaderDataLayout> Drawable for Point<T> {
         self.drawing_component.render(
             1,
             gl::POINTS,
-            to_glam_vec(&self.get_pos()),
+            *self.get_pos(),
             render_util,
             &mut self.material,
-            glam::vec3(1.0, 1.0, 1.0)
+            glam::vec3(1.0, 1.0, 1.0),
         )
     }
 }
@@ -77,7 +70,19 @@ impl<T: VertexShaderDataLayout> Area for Point<T> {
         self.vertices.len()
     }
 
-    fn get_pos(&self) -> (f32, f32, f32) {
-        self.world_position.into()
+    fn get_pos(&self) -> &glam::Vec3 {
+        &self.world_position
+    }
+
+    fn move_to(&mut self, final_position: Vec3) {
+        self.world_position = final_position
+    }
+
+    fn move_by(&mut self, offset: Vec3) {
+        self.world_position = self.world_position.add(offset)
+    }
+
+    fn get_scale(&self) -> &Vec3 {
+       todo!()
     }
 }
