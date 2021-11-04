@@ -1,3 +1,4 @@
+use std::ops::Add;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
@@ -16,7 +17,7 @@ use crate::engine::opengl_context::OpenglContext;
 use crate::engine::rendering::material::UniformKind;
 
 pub const RING_RADIUS: f32 = 0.9;
-const MAX_RING_GROWTH: f32 = 0.2;
+const MAX_RING_GROWTH: f32 = 0.25;
 const FADE_OFF_DURATION: Duration = Duration::from_millis(250);
 
 pub struct Ring {
@@ -91,8 +92,10 @@ impl Drawable for Ring {
             }
             Some(start_time) => {
                 let curr_time = Instant::now().duration_since(start_time).as_millis();
-                let alpha = curr_time as f32 / FADE_OFF_DURATION.as_millis() as f32;
-                self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - alpha});
+                let percentage_of_transition = curr_time as f32 / FADE_OFF_DURATION.as_millis() as f32;
+                let scale_change = MAX_RING_GROWTH * percentage_of_transition;
+                self.rectangle.set_scale(glam::vec3(1.0 + scale_change, 1.0 + scale_change, 1.0));
+                self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - percentage_of_transition });
             }
         }
     }
