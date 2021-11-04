@@ -93,5 +93,9 @@ impl<T: VertexShaderDataLayout> Area for Segment<T> {
     fn get_scale(&self) -> &Vec3 {
         &self.scale
     }
+
+    fn set_scale(&mut self, new_scale: Vec3) {
+        self.scale = new_scale
+    }
 }
 

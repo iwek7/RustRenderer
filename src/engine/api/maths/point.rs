@@ -85,4 +85,8 @@ impl<T: VertexShaderDataLayout> Area for Point<T> {
     fn get_scale(&self) -> &Vec3 {
        todo!()
     }
+
+    fn set_scale(&mut self, new_scale: Vec3) {
+        todo!()
+    }
 }

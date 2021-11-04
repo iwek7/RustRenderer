@@ -28,7 +28,7 @@ impl Rectangle<ColoredVertexDataLayout> {
                 RECT_INDICES.clone(),
                 material,
                 None,
-                bottom_left.clone()
+                bottom_left.clone(),
             )
         }
     }
@@ -135,5 +135,9 @@ impl<T: VertexShaderDataLayout> Area for Rectangle<T> {
 
     fn get_scale(&self) -> &Vec3 {
         self.quad.get_scale()
+    }
+
+    fn set_scale(&mut self, new_scale: Vec3) {
+        self.quad.set_scale(new_scale)
     }
 }
