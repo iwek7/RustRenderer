@@ -4,13 +4,10 @@ use glam::Vec3;
 
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::{Material, UniformKind};
-use crate::engine::rendering::ShaderProgram;
 use crate::engine::resources::fonts::SizedFont;
 
 pub struct TextGameObject {
@@ -68,7 +65,7 @@ impl TextGameObject {
                 &glam::vec3(x_pos, y_pos, position.z),
                 &glam::vec2(w, h),
                 material.clone(),
-                font_character.get_texture(),
+                font_character.get_sprite().clone(),
             );
 
             rects.push(rect);

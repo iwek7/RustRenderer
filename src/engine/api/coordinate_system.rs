@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::segment::Segment;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::Material;
-use crate::engine::rendering::ShaderProgram;
 
 pub struct CoordinateSystem {
     x_axis: Segment<ColoredVertexDataLayout>,

@@ -1,19 +1,16 @@
 use std::rc::Rc;
 
 use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::Texture;
+use crate::engine::api::texture::{Sprite};
 use crate::engine::opengl_context::OpenglContext;
-use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 
 pub struct ChessGame {
@@ -32,12 +29,12 @@ impl ChessGame {
         let texture_material = res_manager.fetch_shader_material("chess/shaders/texture");
 
         let white_win_banner = ChessGame::create_win_banner(
-            res_manager.fetch_texture("chess/textures/white_win_banner.png"),
+            res_manager.fetch_sprite("chess/textures/white_win_banner.png"),
             texture_material.clone(),
         );
 
         let black_win_banner = ChessGame::create_win_banner(
-            res_manager.fetch_texture("chess/textures/black_win_banner.png"),
+            res_manager.fetch_sprite("chess/textures/black_win_banner.png"),
             texture_material,
         );
 
@@ -48,12 +45,12 @@ impl ChessGame {
         }
     }
 
-    fn create_win_banner(tx: Rc<Texture>, material: Material) -> Rectangle<TexturedVertexDataLayout> {
+    fn create_win_banner(sprite: Sprite, material: Material) -> Rectangle<TexturedVertexDataLayout> {
         Rectangle::new_textured(
             &glam::vec3(2.0, 2.0, 0.0),
             &glam::vec2(4., 4.),
             material,
-            tx,
+            sprite,
         )
     }
 }

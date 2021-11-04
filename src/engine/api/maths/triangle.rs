@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::Texture;
+use crate::engine::api::texture::{Sprite};
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::vertex::VertexShaderDataLayout;
@@ -19,11 +16,11 @@ pub struct Triangle<T: VertexShaderDataLayout> {
 
 // todo: pass reference of texture here
 impl<'a, T: VertexShaderDataLayout> Triangle<T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], material: Material, texture: Option<Rc<Texture>>) -> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], material: Material, sprite: Option<Sprite>) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,
-            texture,
+            sprite,
         );
 
         Triangle {

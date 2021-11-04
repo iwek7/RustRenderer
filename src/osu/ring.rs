@@ -29,7 +29,7 @@ impl Ring {
     pub fn new(position: &glam::Vec3, resource_manager: Rc<dyn ResourceManager>) -> Ring {
         let ring_shader_material = resource_manager.fetch_shader_material("osu/shaders/ring");
         let clr_shader_material = resource_manager.fetch_shader_material("osu/shaders/colour");
-        let ring_tx = resource_manager.fetch_texture("osu/textures/ring.png");
+        let ring_sprite = resource_manager.fetch_sprite("osu/textures/ring.png");
 
 
         let tx_position = glam::vec3(position.x - RING_RADIUS, position.y - RING_RADIUS, position.z);
@@ -37,7 +37,7 @@ impl Ring {
             &tx_position,
             &glam::vec2(RING_RADIUS * 2.0, RING_RADIUS * 2.0),
             ring_shader_material,
-            ring_tx,
+            ring_sprite,
         );
 
         let hitbox = Circle::new_colored(

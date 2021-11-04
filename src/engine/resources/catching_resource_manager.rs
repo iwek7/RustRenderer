@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use crate::engine::api::audio::AudioResource;
 use crate::engine::api::resource_manager::{ResourceManager};
-use crate::engine::api::texture::{Texture, TextureFilterType, TextureParams};
+use crate::engine::api::texture::{Sprite, Texture, TextureFilterType, TextureParams};
 use crate::engine::rendering::{ShaderProgram, ShaderType};
 use crate::engine::rendering::material::Material;
 use crate::engine::resources::fonts::SizedFont;
@@ -43,8 +43,6 @@ impl ResourceManager for CachingResourceManager {
             || {
                 let v_shader = self.resource_loader.load_cstring(format!("{}{}", id, ShaderType::VERTEX.file_extension()).as_str()).unwrap();
                 let f_shader = self.resource_loader.load_cstring(format!("{}{}", id, ShaderType::FRAG.file_extension()).as_str()).unwrap();
-
-
                 ShaderProgram::new(&v_shader, &f_shader, &id).unwrap()
             },
         )
@@ -55,8 +53,8 @@ impl ResourceManager for CachingResourceManager {
         Material::new(shader_program)
     }
 
-    fn fetch_texture(&self, id: &str) -> Rc<Texture> {
-        self.textures_cache.fetch(id,
+    fn fetch_sprite(&self, id: &str) -> Sprite {
+        let tx = self.textures_cache.fetch(id,
                                   || {
                                       let texture_data = self.resource_loader.load_image(&id);
                                       Texture::from_image(
@@ -68,24 +66,28 @@ impl ResourceManager for CachingResourceManager {
                                               .with_min_filter(TextureFilterType::NEAREST),
                                       )
                                   },
-        )
+        );
+        Sprite::new(tx)
     }
 
-    fn fetch_sprite_sheet(&self, id: &str, n_rows: u32, n_cols: u32) -> Rc<Texture> {
-        self.textures_cache.fetch(id,
+    fn fetch_sprite_sheet(&self, id: &str, n_rows: u32, n_cols: u32) -> Sprite {
+        let tx = self.textures_cache.fetch(id,
                                   || {
                                       let texture_data = self.resource_loader.load_image(&id);
                                       Texture::spritesheet_from_image(
                                           texture_data.image.into_raw(),
                                           texture_data.width as i32,
                                           texture_data.height as i32,
-                                          n_rows,
-                                          n_cols,
                                           TextureParams::new()
                                               .with_mag_filter(TextureFilterType::NEAREST)
                                               .with_min_filter(TextureFilterType::NEAREST),
                                       )
                                   },
+        );
+        Sprite::new_spritesheet(
+            tx,
+            n_rows,
+            n_cols
         )
     }
 

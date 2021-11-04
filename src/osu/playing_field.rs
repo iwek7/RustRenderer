@@ -32,13 +32,13 @@ pub struct PlayingField {
 impl PlayingField {
     pub fn new(position: &glam::Vec3, size: &glam::Vec2, resource_manager: Rc<dyn ResourceManager>) -> PlayingField {
         let material = resource_manager.fetch_shader_material("osu/shaders/texture");
-        let bg_tx = resource_manager.fetch_texture("osu/textures/EVANGELION_BG.jpg");
+        let bg_sprite = resource_manager.fetch_sprite("osu/textures/EVANGELION_BG.jpg");
 
         let background = Rectangle::new_textured(
             position,
             size,
             material,
-            bg_tx
+            bg_sprite
         );
 
         let ring = Ring::new(&PlayingField::calc_random_ring_position(position, size), resource_manager);

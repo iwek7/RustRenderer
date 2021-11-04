@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::Texture;
+use crate::engine::api::texture::{Sprite, Texture};
 use crate::engine::rendering;
 use crate::engine::rendering::buffer::{ArrayBuffer, ElementArrayBuffer, VertexArray};
 use crate::engine::rendering::buffer;
@@ -14,13 +14,13 @@ pub struct ShapeDrawingComponent<T> where T: VertexShaderDataLayout {
     vbo: ArrayBuffer,
     vao: VertexArray,
     ebo: ElementArrayBuffer,
-    texture: Option<Rc<Texture>>,
+    sprite: Option<Sprite>,
     _marker: PhantomData<T>,
 }
 
 impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
     pub fn new(vertices: &[T], indices: &[i32],
-               texture: Option<Rc<Texture>>) -> ShapeDrawingComponent<T> {
+               sprite: Option<Sprite>) -> ShapeDrawingComponent<T> {
         let vbo = buffer::ArrayBuffer::new();
         let vao = rendering::buffer::VertexArray::new();
         let ebo = buffer::ElementArrayBuffer::new();
@@ -43,7 +43,7 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
             vbo,
             vao,
             ebo,
-            texture,
+            sprite,
             _marker: ::std::marker::PhantomData,
         }
     }
@@ -53,7 +53,6 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
         self.vbo.bind_buffer_data(vertices);
         self.vbo.unbind();
     }
-
 
     pub fn render(
         &mut self,
@@ -78,8 +77,8 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
         self.vao.bind();
         self.ebo.bind();
         unsafe {
-            if self.texture.is_some() {
-                self.texture.as_ref().unwrap().bind();
+            if self.sprite.is_some() {
+                self.sprite.as_ref().unwrap().start_drawing();
             }
             gl::DrawElements(
                 mode,
@@ -87,8 +86,8 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
                 gl::UNSIGNED_INT,
                 0 as *const gl::types::GLvoid,
             );
-            if self.texture.is_some() {
-                self.texture.as_ref().unwrap().unbind();
+            if self.sprite.is_some() {
+                self.sprite.as_ref().unwrap().stop_drawing();
             }
             gl::UseProgram(0);
         }

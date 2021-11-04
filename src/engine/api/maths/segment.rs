@@ -1,10 +1,7 @@
-use std::rc::Rc;
-
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::glam_utils::to_glam_vec;
-use crate::engine::rendering;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 

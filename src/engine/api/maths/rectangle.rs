@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::{Colour, WHITE};
@@ -8,7 +7,7 @@ use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex;
 use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout, VertexShaderDataLayout};
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::{SpriteCoords, Texture};
+use crate::engine::api::texture::{Sprite, TextureCoords};
 use crate::engine::opengl_context::OpenglContext;
 use crate::engine::rendering::material::{Material, UniformKind};
 
@@ -34,7 +33,7 @@ impl Rectangle<ColoredVertexDataLayout> {
 }
 
 impl Rectangle<TexturedVertexDataLayout> {
-    pub fn new_textured(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, texture: Rc<Texture>) -> Rectangle<TexturedVertexDataLayout> {
+    pub fn new_textured(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, sprite: Sprite) -> Rectangle<TexturedVertexDataLayout> {
         // todo assert that size is possitive
 
         Rectangle {
@@ -42,12 +41,12 @@ impl Rectangle<TexturedVertexDataLayout> {
                 create_textured_vertex_data_layout(
                     bottom_left,
                     size,
-                    &texture.topology.get_sprite_coords(0, 0).unwrap(),
+                    &sprite.get_texture_coords(),
                     &WHITE,
                 ),
                 RECT_INDICES.clone(),
                 material,
-                Some(texture),
+                Some(sprite),
             )
         }
     }
@@ -68,7 +67,7 @@ fn create_colored_vertex_data_layout(pos: &glam::Vec3, size: &glam::Vec2, clr: C
     ];
 }
 
-fn create_textured_vertex_data_layout(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &SpriteCoords, clr: &Colour) -> [TexturedVertexDataLayout; 4] {
+fn create_textured_vertex_data_layout(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &TextureCoords, clr: &Colour) -> [TexturedVertexDataLayout; 4] {
     return [
         vertex::TexturedVertexDataLayout { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_right.into() },
         vertex::TexturedVertexDataLayout { pos: (pos.x + size.x, pos.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.bottom_right.into() },

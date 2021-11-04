@@ -1,7 +1,6 @@
 use std::convert::TryInto;
 use std::f32::consts::PI;
 use std::ops::Add;
-use std::rc::Rc;
 use crate::engine::api::colour::Colour;
 
 use crate::engine::api::drawable::Drawable;
@@ -10,9 +9,7 @@ use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::data::f32_f32_f32;
 use crate::engine::rendering::material::Material;
-use crate::engine::rendering::ShaderProgram;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
-
 
 const NUM_VERTICES: i32 = 32;
 

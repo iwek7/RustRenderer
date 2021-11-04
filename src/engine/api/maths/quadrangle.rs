@@ -1,9 +1,7 @@
-use std::rc::Rc;
-
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::Texture;
+use crate::engine::api::texture::{Sprite};
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
@@ -23,11 +21,11 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
                material: Material,
-               texture: Option<Rc<Texture>>) -> Quadrangle<T> {
+               sprite: Option<Sprite>) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
-            texture,
+            sprite,
         );
         Quadrangle {
             drawing_component,

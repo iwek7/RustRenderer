@@ -1,6 +1,5 @@
 use crate::chess::allowed_move::ActionType;
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;

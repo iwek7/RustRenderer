@@ -1,7 +1,5 @@
 use core::fmt;
-use std::borrow::Borrow;
 use std::fmt::{Display, Formatter};
-use std::rc::Rc;
 
 use crate::chess::allowed_move::{AllowedAction, AllowedMoves};
 use crate::chess::chessboard::ChessboardState;
@@ -15,7 +13,7 @@ use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::Texture;
+use crate::engine::api::texture::{Sprite};
 use crate::engine::rendering::material::Material;
 
 pub struct Piece {
@@ -89,7 +87,7 @@ impl PieceFactory {
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: Rc<Texture>, field: &Field, size: (f32, f32)) -> Piece {
+    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: Sprite, field: &Field, size: (f32, f32)) -> Piece {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
         let f_pos = field.get_position_3d();
         // todo: all types here should be either i32 or f32
@@ -98,7 +96,7 @@ impl PieceFactory {
             create_rect_coords_deprecated(
                 q_pos,
                 size,
-                pieces_sheet.topology.get_sprite_coords(sheet_coords.0, sheet_coords.1).unwrap().clone().borrow(),
+                &pieces_sheet.get_texture_coords_from_spritesheet(sheet_coords.0, sheet_coords.1),
             ),
             [0, 1, 3, 1, 2, 3],
             self.piece_material.clone(),

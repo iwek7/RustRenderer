@@ -1,6 +1,8 @@
 use std::rc::Rc;
+
 use freetype::face::LoadFlag;
-use crate::engine::api::texture::{InternalFormat, Texture, TextureFilterType, TextureParams, TextureWrapType};
+
+use crate::engine::api::texture::{InternalFormat, Sprite, Texture, TextureFilterType, TextureParams, TextureWrapType};
 
 pub struct SizedFont {
     characters: Vec<Character>,
@@ -31,7 +33,7 @@ impl SizedFont {
 }
 
 pub struct Character {
-    texture: Rc<Texture>,
+    sprite: Sprite,
     size: glam::Vec2,
     bearing: glam::Vec2,
     advance: i64,
@@ -58,16 +60,18 @@ impl Character {
             }
         }
 
+        let tx = Texture::from_raw_data(buffer, bitmap.width(), bitmap.rows(), texture_params, InternalFormat::RED);
+        let sprite = Sprite::new(Rc::new(tx));
         Character {
-            texture: Rc::new(Texture::from_raw_data(buffer, bitmap.width(), bitmap.rows(), texture_params, 1, 1, InternalFormat::RED)),
+            sprite,
             size: glam::vec2(bitmap.width() as f32, bitmap.rows() as f32),
             bearing: glam::vec2(glyph.bitmap_left() as f32, glyph.bitmap_top() as f32),
             advance: glyph.advance().x,
         }
     }
 
-    pub fn get_texture(&self) -> Rc<Texture> {
-        Rc::clone(&self.texture)
+    pub fn get_sprite(&self) -> &Sprite {
+        &self.sprite
     }
 
     pub fn get_size(&self) -> &glam::Vec2 {

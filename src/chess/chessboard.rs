@@ -30,7 +30,7 @@ impl Chessboard {
         let board_size = field_size * 8.0;
         let position = glam::vec3(0.0, 0.0, 0.0);
 
-        let chessboard_texture = resource_manager.fetch_texture("chess/textures/chessboard.png");
+        let chessboard_sprite = resource_manager.fetch_sprite("chess/textures/chessboard.png");
         let chessboard_material = resource_manager.fetch_shader_material("chess/shaders/texture");
         let possible_move_material = resource_manager.fetch_shader_material("chess/shaders/triangle");
 
@@ -38,7 +38,7 @@ impl Chessboard {
             &position,
             &glam::vec2(board_size, board_size),
             chessboard_material.clone(),
-            chessboard_texture,
+            chessboard_sprite,
         );
 
         let piece_factory = PieceFactory::new(chessboard_material.clone());
@@ -76,41 +76,41 @@ impl Chessboard {
         let piece_size = (self.field_size as f32, self.field_size as f32);
         let pieces_sheet = resource_manager.fetch_sprite_sheet("chess/textures/pieces.png", 2, 6);
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("A1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("B1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("C1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("D1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("E1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("F1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("G1"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("H1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("A1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("B1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("C1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("D1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("E1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("F1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("G1"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("H1"), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("A2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("B2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("C2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("D2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("E2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("F2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("G2"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, Rc::clone(&pieces_sheet), self.get_field_by_name("H2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("A2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("B2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("C2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("D2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("E2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("F2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("G2"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("H2"), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("A8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("B8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("C8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("D8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("E8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("F8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("G8"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("H8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("A8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("B8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("C8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::QUEEN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("D8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KING, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("E8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::BISHOP, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("F8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::KNIGHT, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("G8"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("H8"), piece_size));
 
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("A7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("B7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("C7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("D7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("E7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("F7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("G7"), piece_size));
-        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, Rc::clone(&pieces_sheet), self.get_field_by_name("H7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("A7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("B7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("C7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("D7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("E7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("F7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("G7"), piece_size));
+        self.pieces.push(self.piece_factory.init_piece(PieceType::PAWN, Side::BLACK, pieces_sheet.clone(), self.get_field_by_name("H7"), piece_size));
     }
 
     fn get_field_position(&self, field: &Field) -> (f32, f32, f32) {
