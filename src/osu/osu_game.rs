@@ -39,7 +39,7 @@ impl OsuGame {
             engine_utilities.get_resource_manager());
 
         let wav = engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
-        engine_utilities.get_audio_manager().play(wav);
+        // engine_utilities.get_audio_manager().play(wav);
 
         let text_material = engine_utilities.get_resource_manager().fetch_shader_material("osu/shaders/character");
         let sized_font = engine_utilities.get_resource_manager().fetch_font("osu/fonts/go3v2.ttf");
@@ -52,7 +52,6 @@ impl OsuGame {
                                               WHITE
         );
 
-
         let score =  TextGameObject::new(sized_font, "0",
                                          glam::vec3(playing_field_position.x + playing_field_size.x + TEXT_LEFT_PADDING,
                                                     playing_field_top_edge - TEXT_TOP_PADDING - TEXT_Y_OFFSET,
@@ -61,7 +60,6 @@ impl OsuGame {
                                          text_material,
                                          WHITE
         );
-
 
         OsuGame {
             playing_field,

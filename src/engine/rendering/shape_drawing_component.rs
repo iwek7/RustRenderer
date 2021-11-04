@@ -58,13 +58,11 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
         &mut self,
         num_indices: i32,
         mode: gl::types::GLenum,
-        world_coords_position: glam::Vec3,     //todo: world_coords_position are incorrect and not even used
+        world_coords_position: glam::Vec3,
         render_util: &RenderUtil,
         material: &mut Material
     ) {
-        // todo wtf this position
-        // it does not work!
-        let mvp = render_util.calculate_camera_MVP(glam::vec3(0.0, 0.0, 0.0));
+        let mvp = render_util.calculate_camera_MVP(world_coords_position);
 
         // set shader uniforms
         material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });

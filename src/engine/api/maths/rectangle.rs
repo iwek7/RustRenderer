@@ -23,10 +23,11 @@ impl Rectangle<ColoredVertexDataLayout> {
         // todo assert that size is possitive
         Rectangle {
             quad: Quadrangle::new(
-                create_colored_vertex_data_layout(bottom_left, size, clr),
+                create_colored_vertex_data_layout(size, clr),
                 RECT_INDICES.clone(),
                 material,
                 None,
+                bottom_left.clone()
             )
         }
     }
@@ -39,7 +40,6 @@ impl Rectangle<TexturedVertexDataLayout> {
         Rectangle {
             quad: Quadrangle::new(
                 create_textured_vertex_data_layout(
-                    bottom_left,
                     size,
                     &sprite.get_texture_coords(),
                     &WHITE,
@@ -47,6 +47,7 @@ impl Rectangle<TexturedVertexDataLayout> {
                 RECT_INDICES.clone(),
                 material,
                 Some(sprite),
+                bottom_left.clone(),
             )
         }
     }
@@ -55,7 +56,6 @@ impl Rectangle<TexturedVertexDataLayout> {
         Rectangle {
             quad: Quadrangle::new(
                 create_textured_vertex_data_layout(
-                    bottom_left,
                     size,
                     &sprite.get_texture_coords_from_spritesheet(sprite_sheet_row, sprite_sheet_col),
                     &WHITE,
@@ -63,6 +63,7 @@ impl Rectangle<TexturedVertexDataLayout> {
                 RECT_INDICES.clone(),
                 material,
                 Some(sprite),
+                bottom_left.clone(),
             )
         }
     }
@@ -86,21 +87,21 @@ impl<T: VertexShaderDataLayout> Rectangle<T> {
     }
 }
 
-fn create_colored_vertex_data_layout(pos: &glam::Vec3, size: &glam::Vec2, clr: Colour) -> [ColoredVertexDataLayout; 4] {
+fn create_colored_vertex_data_layout(size: &glam::Vec2, clr: Colour) -> [ColoredVertexDataLayout; 4] {
     return [
-        vertex::ColoredVertexDataLayout { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.into() },
-        vertex::ColoredVertexDataLayout { pos: (pos.x + size.x, pos.y, pos.z).into(), clr: clr.into() },
-        vertex::ColoredVertexDataLayout { pos: (pos.x, pos.y, pos.z).into(), clr: clr.into() },
-        vertex::ColoredVertexDataLayout { pos: (pos.x, pos.y + size.y, pos.z).into(), clr: clr.into() },
+        vertex::ColoredVertexDataLayout { pos: (size.x, size.y, 0.0).into(), clr: clr.into() },
+        vertex::ColoredVertexDataLayout { pos: (size.x, 0.0, 0.0).into(), clr: clr.into() },
+        vertex::ColoredVertexDataLayout { pos: (0.0, 0.0, 0.0).into(), clr: clr.into() },
+        vertex::ColoredVertexDataLayout { pos: (0.0, size.y, 0.0).into(), clr: clr.into() },
     ];
 }
 
-fn create_textured_vertex_data_layout(pos: &glam::Vec3, size: &glam::Vec2, sprite_coords: &TextureCoords, clr: &Colour) -> [TexturedVertexDataLayout; 4] {
+fn create_textured_vertex_data_layout(size: &glam::Vec2, sprite_coords: &TextureCoords, clr: &Colour) -> [TexturedVertexDataLayout; 4] {
     return [
-        vertex::TexturedVertexDataLayout { pos: (pos.x + size.x, pos.y + size.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_right.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.x + size.x, pos.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.bottom_right.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.x, pos.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.bottom_left.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.x, pos.y + size.y, pos.z).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_left.into() },
+        vertex::TexturedVertexDataLayout { pos: (size.x, size.y, 0.0).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_right.into() },
+        vertex::TexturedVertexDataLayout { pos: (size.x, 0.0, 0.0).into(), clr: clr.clone().into(), tx_coords: sprite_coords.bottom_right.into() },
+        vertex::TexturedVertexDataLayout { pos: (0.0, 0.0, 0.0).into(), clr: clr.clone().into(), tx_coords: sprite_coords.bottom_left.into() },
+        vertex::TexturedVertexDataLayout { pos: (0.0, size.y, 0.0).into(), clr: clr.clone().into(), tx_coords: sprite_coords.top_left.into() },
     ];
 }
 

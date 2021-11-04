@@ -1,7 +1,7 @@
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::{Sprite};
+use crate::engine::api::texture::Sprite;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
@@ -12,11 +12,12 @@ pub struct Triangle<T: VertexShaderDataLayout> {
     vertices: [T; 3],
     indices: [i32; 3],
     material: Material,
+    world_position: glam::Vec3,
 }
 
 // todo: pass reference of texture here
 impl<'a, T: VertexShaderDataLayout> Triangle<T> {
-    pub fn new(vertices: [T; 3], indices: [i32; 3], material: Material, sprite: Option<Sprite>) -> Triangle<T> {
+    pub fn new(vertices: [T; 3], indices: [i32; 3], material: Material, sprite: Option<Sprite>, world_position: glam::Vec3) -> Triangle<T> {
         let open_gl_context = ShapeDrawingComponent::new(
             &vertices,
             &indices,
@@ -28,15 +29,12 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
             vertices,
             indices,
             material,
+            world_position,
         }
     }
 
-    // some algebra lib?
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
-        for vertex in self.vertices.iter_mut() {
-            vertex.transpose_deprecated(x, y, z);
-        }
-        self.open_gl_context.bind_data(&self.vertices)
+        self.world_position = glam::vec3(self.world_position.x + x, self.world_position.y + y, self.world_position.z + z)
     }
 }
 
@@ -71,7 +69,7 @@ impl<'a, T: VertexShaderDataLayout> Area for Triangle<T> {
     }
 
     fn get_pos(&self) -> (f32, f32, f32) {
-        todo!()
+        self.world_position.into()
     }
 }
 

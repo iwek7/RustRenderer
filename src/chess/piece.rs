@@ -8,7 +8,6 @@ use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::move_logic::create_move_component;
 use crate::chess::move_logic::PieceMoveComponent;
 use crate::engine::api::drawable::Drawable;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;

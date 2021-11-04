@@ -1,9 +1,11 @@
+use std::borrow::BorrowMut;
 use std::rc::Rc;
 
 use sdl2::EventPump;
 use sdl2::mouse::MouseButton;
 
 use crate::engine::api::audio::AudioManager;
+use crate::engine::api::colour::WHITE;
 use crate::engine::api::coordinate_system::CoordinateSystem;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
@@ -22,7 +24,7 @@ pub struct Engine {
     // todo: this should not be concrete implementation
     // todo: but Box<dyn Drawable + GameController> does not work
     game: Option<GamesRoot>,
-    coordinate_system: Box<dyn Drawable>,
+    coordinate_system: CoordinateSystem,
     // one day generalize to engine overlay
     event_pump: EventPump,
     renderer: Renderer,
@@ -44,7 +46,7 @@ impl Engine {
 
         let shader_material = engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
 
-        let mut coordinate_system = Box::new(CoordinateSystem::new(shader_material));
+        let mut coordinate_system = CoordinateSystem::new(shader_material);
 
         Engine {
             game: None,
@@ -69,9 +71,10 @@ impl Engine {
             None => { panic!("Attempting to start game in engine, but no game was provided") }
             Some(game) => {
                 let material = self.engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
-                let point = Point::new(
-                    [ColoredVertexDataLayout { pos: (-2.0, -2.0, 0.0).into(), clr: (0.0, 0.0, 0.0, 1.0).into() }, ],
+                let mut point = Point::new(
+                    [ColoredVertexDataLayout { pos: (0.0, 0.0, 0.0).into(), clr: WHITE.into() }, ],
                     material,
+                    glam::vec3(1.6843166, -9.1099205, 0.0),
                 );
                 'main: loop {
                     let mouse_state = self.event_pump.mouse_state();
@@ -113,7 +116,7 @@ impl Engine {
                         game.handle_event(&event, &self.opengl_context, &update_context)
                     }
                     let camera_config = game.get_camera_config();
-                    self.renderer.render(&mut [game, /*self.coordinate_system.borrow(),&point */],&camera_config , &self.opengl_context)
+                    self.renderer.render(&mut [game, &mut self.coordinate_system, &mut point], &camera_config, &self.opengl_context)
                 }
             }
         }

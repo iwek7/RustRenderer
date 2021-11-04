@@ -1,3 +1,4 @@
+use crate::engine::api::colour::WHITE;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::segment::Segment;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
@@ -7,13 +8,12 @@ use crate::engine::rendering::material::Material;
 pub struct CoordinateSystem {
     x_axis: Segment<ColoredVertexDataLayout>,
     y_axis: Segment<ColoredVertexDataLayout>,
-    z_axis: Segment<ColoredVertexDataLayout>
+    z_axis: Segment<ColoredVertexDataLayout>,
 }
 
 impl CoordinateSystem {
     pub fn new(material: Material) -> CoordinateSystem {
-
-        let clr =  (0.0, 0.0, 0.0, 1.0);
+        let clr = WHITE;
 
         let mut x_axis = Segment::new(
             [
@@ -22,6 +22,7 @@ impl CoordinateSystem {
             ],
             [0, 1],
             material.clone(),
+            glam::vec3(0.0, 0.0, 0.0),
         );
         let mut y_axis = Segment::new(
             [
@@ -30,6 +31,7 @@ impl CoordinateSystem {
             ],
             [0, 1],
             material.clone(),
+            glam::vec3(0.0, 0.0, 0.0),
         );
         let mut z_axis = Segment::new(
             [
@@ -38,12 +40,13 @@ impl CoordinateSystem {
             ],
             [0, 1],
             material,
+            glam::vec3(0.0, 0.0, 0.0),
         );
         return CoordinateSystem {
             x_axis,
             y_axis,
-            z_axis
-        }
+            z_axis,
+        };
     }
 }
 

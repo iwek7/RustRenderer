@@ -1,7 +1,7 @@
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::api::texture::{Sprite};
+use crate::engine::api::texture::Sprite;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
@@ -13,6 +13,7 @@ pub struct Quadrangle<T> where T: VertexShaderDataLayout {
     vertices: [T; 4],
     indices: [i32; 6],
     material: Material,
+    world_position: glam::Vec3,
 }
 
 const REFERENCE_INDEX: usize = 2;
@@ -21,7 +22,9 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
     pub fn new(vertices: [T; 4],
                indices: [i32; 6],
                material: Material,
-               sprite: Option<Sprite>) -> Quadrangle<T> {
+               sprite: Option<Sprite>,
+               world_position: glam::Vec3
+    ) -> Quadrangle<T> {
         let drawing_component = ShapeDrawingComponent::new(
             &vertices,
             &indices,
@@ -32,28 +35,17 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
             vertices,
             indices,
             material,
+            world_position
         }
     }
 
-    // todo: just change world position here...
-    // some algebra lib?
-    // opengl coords :(
+    // maybe they should be part of area
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
-        for vertex in self.vertices.iter_mut() {
-            vertex.transpose_deprecated(x, y, z);
-        }
-        self.drawing_component.bind_data(&self.vertices)
+        self.world_position = glam::vec3(self.world_position.x + x, self.world_position.y + y, self.world_position.z + z)
     }
 
-    // moves first vertex
-    // does not support rotation
     pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
-        let current_pos = self.vertices[REFERENCE_INDEX].get_pos_deprecated();
-        self.move_by(
-            final_pos.0 - current_pos.0,
-            final_pos.1 - current_pos.1,
-            final_pos.2 - current_pos.2,
-        );
+        self.world_position = glam::vec3(final_pos.0, final_pos.1, final_pos.2)
     }
 
     pub fn set_material_variable(&mut self, name: &str, kind: UniformKind) {
@@ -78,7 +70,7 @@ impl<T: VertexShaderDataLayout> Area for Quadrangle<T> {
                                               &self.vertices.iter()
                                                   .map(|v| -> (f32, f32){
                                                       let p = v.get_pos_deprecated();
-                                                      (p.0, p.1)
+                                                      (p.0 + self.world_position.x, p.1 + self.world_position.y)
                                                   })
                                                   .collect(),
         );
@@ -93,6 +85,6 @@ impl<T: VertexShaderDataLayout> Area for Quadrangle<T> {
     }
 
     fn get_pos(&self) -> (f32, f32, f32) {
-        self.vertices[REFERENCE_INDEX].get_pos_deprecated()
+        self.world_position.into()
     }
 }
