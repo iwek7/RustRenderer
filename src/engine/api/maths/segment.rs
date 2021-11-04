@@ -17,14 +17,15 @@ pub struct Segment<T> where T: VertexShaderDataLayout {
 /**
  usage example:
 ```
-    let mut segment = Segment::new(
-        [
-            ColoredVertexData { pos: (0.0, 0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-            ColoredVertexData { pos: (0.1, -0.1, 0.0).into(), clr: (0.0, 0.0, 0.0).into() },
-        ],
-        [0, 1],
-        material
-    );
+   Segment::new(
+            [
+                ColoredVertexDataLayout { pos: (-100.0, 0.0, 0.0).into(), clr: clr.into() },
+                ColoredVertexDataLayout { pos: (100.0, 0.0, 0.0).into(), clr: clr.into() },
+            ],
+            [0, 1],
+            material.clone(),
+            glam::vec3(0.0, 0.0, 0.0),
+        );
 ```
  */
 impl<'a, T: VertexShaderDataLayout> Segment<T> {
