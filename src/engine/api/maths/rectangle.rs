@@ -50,11 +50,39 @@ impl Rectangle<TexturedVertexDataLayout> {
             )
         }
     }
+
+    pub fn new_from_spritesheet(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, sprite: Sprite, sprite_sheet_row: u32, sprite_sheet_col: u32) -> Rectangle<TexturedVertexDataLayout> {
+        Rectangle {
+            quad: Quadrangle::new(
+                create_textured_vertex_data_layout(
+                    bottom_left,
+                    size,
+                    &sprite.get_texture_coords_from_spritesheet(sprite_sheet_row, sprite_sheet_col),
+                    &WHITE,
+                ),
+                RECT_INDICES.clone(),
+                material,
+                Some(sprite),
+            )
+        }
+    }
 }
 
 impl<T: VertexShaderDataLayout> Rectangle<T> {
     pub fn set_material_variable(&mut self, name: &str, kind: UniformKind) {
         self.quad.set_material_variable(name, kind);
+    }
+
+    // some algebra lib?
+    // opengl coords :(
+    pub fn move_by(&mut self, x: f32, y: f32, z: f32) {
+        self.quad.move_by(x, y, z)
+    }
+
+    // moves first vertex
+    // does not support rotation
+    pub fn move_to(&mut self, final_pos: &(f32, f32, f32)) {
+        self.quad.move_to(final_pos)
     }
 }
 

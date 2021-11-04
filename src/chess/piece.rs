@@ -7,9 +7,9 @@ use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::move_logic::create_move_component;
 use crate::chess::move_logic::PieceMoveComponent;
-use crate::create_rect_coords_deprecated;
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::quadrangle::Quadrangle;
+use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -18,36 +18,36 @@ use crate::engine::rendering::material::Material;
 
 pub struct Piece {
     pub logic: PieceLogic,
-    quad: Quadrangle<TexturedVertexDataLayout>,
+    rect: Rectangle<TexturedVertexDataLayout>,
     initial_drag_pos_opengl: (f32, f32, f32),
 }
 
 impl Drawable for Piece {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.quad.render(render_util)
+        self.rect.render(render_util)
     }
 }
 
 impl Piece {
     pub fn is_mouse_over(&self, world_mouse_position: &glam::Vec3) -> bool {
-        self.quad.contains_point(&(world_mouse_position.x, world_mouse_position.y))
+        self.rect.contains_point(&(world_mouse_position.x, world_mouse_position.y))
     }
 
     pub fn handle_start_drag(&mut self) {
         println!("Started dragging piece {}", self.logic);
-        self.initial_drag_pos_opengl = self.quad.get_pos();
+        self.initial_drag_pos_opengl = self.rect.get_pos();
     }
 
     pub fn return_to_initial_pos(&mut self) {
         println!("Resetting position of piece {}", self.logic);
-        self.quad.move_to(&self.initial_drag_pos_opengl);
+        self.rect.move_to(&self.initial_drag_pos_opengl);
     }
 
     pub fn handle_drop(&mut self, target_field: FieldLogic, pos: (f32, f32, f32), chessboard_state: &ChessboardState) -> Option<AllowedAction> {
         println!("Dropping piece at field {:?} position {:?}", target_field, pos);
         return match self.logic.move_component.is_move_allowed(chessboard_state, &target_field, &self.logic) {
             None => {
-                self.quad.move_to(&self.initial_drag_pos_opengl);
+                self.rect.move_to(&self.initial_drag_pos_opengl);
                 None
             }
             Some(allowed_move) => {
@@ -58,11 +58,11 @@ impl Piece {
     }
 
     pub fn handle_drag_pointer_move(&mut self, drag_offset: &(f32, f32)) {
-        self.quad.move_by(drag_offset.0, drag_offset.1, 0.0)
+        self.rect.move_by(drag_offset.0, drag_offset.1, 0.0)
     }
 
     pub fn force_move(&mut self, target_field: FieldLogic, pos: (f32, f32, f32)) {
-        self.quad.move_to(&pos);
+        self.rect.move_to(&pos);
         self.logic = self.logic.move_to(&target_field);
     }
 }
@@ -87,21 +87,20 @@ impl PieceFactory {
         };
     }
 
-    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: Sprite, field: &Field, size: (f32, f32)) -> Piece {
+    pub fn init_piece(&self, piece_type: PieceType, side: Side, pieces_sheet: Sprite, field: &Field, size:glam::Vec2) -> Piece {
         let sheet_coords = PieceFactory::get_sprite_sheet_coords(&piece_type, &side);
         let f_pos = field.get_position_3d();
         // todo: all types here should be either i32 or f32
-        let q_pos = (f_pos.0 as f32, f_pos.1 as f32, 0 as f32);
-        let quad = Quadrangle::new(
-            create_rect_coords_deprecated(
-                q_pos,
-                size,
-                &pieces_sheet.get_texture_coords_from_spritesheet(sheet_coords.0, sheet_coords.1),
-            ),
-            [0, 1, 3, 1, 2, 3],
+        let q_pos = glam::vec3(f_pos.0 as f32, f_pos.1 as f32, f_pos.2 as f32);
+
+        let rect = Rectangle::new_from_spritesheet(
+            &q_pos,
+            &size,
             self.piece_material.clone(),
-            Some(pieces_sheet),
-        );
+            pieces_sheet.clone(),
+            sheet_coords.0,
+            sheet_coords.1);
+
         let move_component = create_move_component(&piece_type);
         return Piece {
             logic: PieceLogic {
@@ -111,7 +110,7 @@ impl PieceFactory {
                 occupied_field: field.logic.clone(),
                 moved: false,
             },
-            quad,
+            rect,
             initial_drag_pos_opengl: (0.0, 0.0, 0.0),
         };
     }

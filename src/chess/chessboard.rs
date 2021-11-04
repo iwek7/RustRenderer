@@ -73,7 +73,7 @@ impl Chessboard {
     }
 
     pub fn init_pieces(&mut self, resource_manager: Rc<dyn ResourceManager>) {
-        let piece_size = (self.field_size as f32, self.field_size as f32);
+        let piece_size = glam::vec2(self.field_size as f32, self.field_size as f32);
         let pieces_sheet = resource_manager.fetch_sprite_sheet("chess/textures/pieces.png", 2, 6);
 
         self.pieces.push(self.piece_factory.init_piece(PieceType::ROOK, Side::WHITE, pieces_sheet.clone(), self.get_field_by_name("A1"), piece_size));
@@ -250,7 +250,7 @@ impl Chessboard {
     fn handle_promotion(&mut self, promoted_piece: &PieceLogic, resource_manager: Rc<dyn ResourceManager>) {
         self.remove_piece_by_logic(promoted_piece);
         // todo: support promotion to different figures
-        let piece_size = (self.field_size as f32, self.field_size as f32);
+        let piece_size = glam::vec2(self.field_size as f32, self.field_size as f32);
         let new_piece = self.piece_factory.init_piece(
             PieceType::QUEEN,
             promoted_piece.get_side().clone(),

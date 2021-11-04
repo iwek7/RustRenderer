@@ -35,6 +35,7 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
         }
     }
 
+    // todo: just change world position here...
     // some algebra lib?
     // opengl coords :(
     pub fn move_by(&mut self, x: f32, y: f32, z: f32) {

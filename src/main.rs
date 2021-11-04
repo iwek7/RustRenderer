@@ -23,14 +23,3 @@ fn main() {
     engine.set_game(games_root);
     engine.start();
 }
-
-// todo: use rectangle instead of those
-#[deprecated(note="use rectangle struct instead")]
-fn create_rect_coords_deprecated(pos: (f32, f32, f32), size: (f32, f32), sprite_coords: &TextureCoords) -> [TexturedVertexDataLayout; 4] {
-    return [
-        vertex::TexturedVertexDataLayout { pos: (pos.0 + size.0, pos.1 + size.1, pos.2).into(), clr: (1.0, 1.0, 0.0, 1.0).into(), tx_coords: sprite_coords.top_right.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.0 + size.0, pos.1, pos.2).into(), clr: (1.0, 1.0, 0.0, 1.0).into(), tx_coords: sprite_coords.bottom_right.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.0, pos.1, pos.2).into(), clr: (1.0, 1.0, 1.0, 1.0).into(), tx_coords: sprite_coords.bottom_left.into() },
-        vertex::TexturedVertexDataLayout { pos: (pos.0, pos.1 + size.1, pos.2).into(), clr: (1.0, 1.0, 1.0, 1.0).into(), tx_coords: sprite_coords.top_left.into() },
-    ];
-}
