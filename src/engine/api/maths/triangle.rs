@@ -13,6 +13,7 @@ pub struct Triangle<T: VertexShaderDataLayout> {
     indices: [i32; 3],
     material: Material,
     world_position: glam::Vec3,
+    scale: glam::Vec3,
 }
 
 // todo: pass reference of texture here
@@ -30,6 +31,7 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
             indices,
             material,
             world_position,
+            scale: glam::vec3(1.0, 1.0, 1.0),
         }
     }
 
@@ -45,7 +47,8 @@ impl<'a, T: VertexShaderDataLayout> Drawable for Triangle<T> {
             gl::TRIANGLES,
             to_glam_vec(&self.get_pos()),
             render_util,
-            &mut self.material)
+            &mut self.material,
+            self.scale)
     }
 }
 

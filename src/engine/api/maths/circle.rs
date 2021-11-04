@@ -22,7 +22,8 @@ pub struct Circle {
     middle: glam::Vec3,
     radius: f32,
     material: Material,
-    color: Colour
+    color: Colour,
+    scale: glam::Vec3
 }
 
 impl Circle {
@@ -45,19 +46,9 @@ impl Circle {
             middle: position.clone(),
             radius,
             material,
-            color
+            color,
+            scale: glam::vec3(1.0, 1.0, 1.0)
         }
-    }
-
-    pub fn resize(&mut self, new_radius: f32) {
-        let vertices = Circle::init_vertices(
-            NUM_VERTICES,
-            &self.middle,
-            self.color,
-            new_radius
-        );
-        self.vertices = vertices.try_into().unwrap();
-        self.drawing_component.bind_data(&self.vertices);
     }
 
     fn init_vertices(num_vertices: i32, position: &glam::Vec3, color: Colour, radius: f32) -> Vec<ColoredVertexDataLayout> {
@@ -113,6 +104,7 @@ impl Drawable for Circle {
             self.middle.clone(),
             render_util,
             &mut self.material,
+            self.scale
         )
     }
 }

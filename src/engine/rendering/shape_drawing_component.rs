@@ -60,9 +60,10 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
         mode: gl::types::GLenum,
         world_coords_position: glam::Vec3,
         render_util: &RenderUtil,
-        material: &mut Material
+        material: &mut Material,
+        scale: glam::Vec3
     ) {
-        let mvp = render_util.calculate_camera_MVP(world_coords_position);
+        let mvp = render_util.calculate_camera_MVP(world_coords_position, scale);
 
         // set shader uniforms
         material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });

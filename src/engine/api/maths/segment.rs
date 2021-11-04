@@ -12,6 +12,7 @@ pub struct Segment<T> where T: VertexShaderDataLayout {
     indices: [i32; 2],
     material: Material,
     world_position: glam::Vec3,
+    scale: glam::Vec3
 }
 
 /**
@@ -42,6 +43,7 @@ impl<'a, T: VertexShaderDataLayout> Segment<T> {
             indices,
             material,
             world_position,
+            scale: glam::vec3(1.0, 1.0, 1.0)
         }
     }
 }
@@ -54,6 +56,7 @@ impl<'a, T: VertexShaderDataLayout> Drawable for Segment<T> {
             to_glam_vec(&self.get_pos()),
             render_util,
             &mut self.material,
+            self.scale
         )
     }
 }

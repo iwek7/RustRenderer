@@ -14,10 +14,10 @@ impl<'a> RenderUtil<'a> {
         }
     }
 
-    pub fn calculate_camera_MVP(&self, position: glam::Vec3) -> glam::Mat4 {
+    pub fn calculate_camera_MVP(&self, position: glam::Vec3, scale: glam::Vec3) -> glam::Mat4 {
         let projection = self.camera_config.get_projection_matrix(self.opengl_context.get_aspect_ratio());
         let view = self.camera_config.get_view_matrix();
-        let model = glam::Mat4::from_translation(position);
+        let model = glam::Mat4::from_scale_rotation_translation(scale, glam::quat(0.0, 0.0, 0.0, 0.0), position);
         return projection * view * model;
     }
 
