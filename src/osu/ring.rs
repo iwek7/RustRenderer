@@ -20,13 +20,12 @@ use crate::engine::rendering::material::UniformKind;
 
 pub const RING_RADIUS: f32 = 0.9;
 const MAX_RING_GROWTH: f32 = 0.25;
-const FADE_OFF_DURATION: Duration = Duration::from_millis(250);
 
 pub struct Ring {
     hitbox: Circle,
     rectangle: Rectangle<TexturedVertexDataLayout>,
-    fade_off_start: Option<Instant>,
-    countdown_timer: CountdownTimer,
+    alive_timer: CountdownTimer,
+    fade_off_timer: CountdownTimer,
 }
 
 impl Ring {
@@ -34,7 +33,6 @@ impl Ring {
         let ring_shader_material = resource_manager.fetch_shader_material("osu/shaders/ring");
         let clr_shader_material = resource_manager.fetch_shader_material("osu/shaders/colour");
         let ring_sprite = resource_manager.fetch_sprite("osu/textures/ring.png");
-
 
         let tx_position = glam::vec3(position.x - RING_RADIUS, position.y - RING_RADIUS, position.z);
         let mut rectangle = Rectangle::new_textured(
@@ -51,12 +49,14 @@ impl Ring {
             RING_RADIUS,
             clr_shader_material,
         );
+        let mut fade_off_timer = CountdownTimer::new(Duration::from_millis(250));
+        fade_off_timer.pause();
 
         Ring {
             rectangle,
             hitbox,
-            fade_off_start: None,
-            countdown_timer: CountdownTimer::new(Duration::from_secs(3)),
+            alive_timer: CountdownTimer::new(Duration::from_secs(3)),
+            fade_off_timer,
         }
     }
 
@@ -69,22 +69,17 @@ impl Ring {
     }
 
     pub fn start_fade_off(&mut self) {
-        self.fade_off_start = Some(Instant::now());
+        self.fade_off_timer.unpause();
+        self.alive_timer.pause();
     }
 
     // imagine implementing signals and removing this ugly pull model
     pub fn is_faded(&self) -> bool {
-        match self.fade_off_start {
-            None => { false }
-            Some(start_time) => {
-                let current_fade_off_duration = Instant::now().duration_since(start_time);
-                current_fade_off_duration > FADE_OFF_DURATION
-            }
-        }
+        self.fade_off_timer.is_finished()
     }
 
     pub fn is_expired(&self) -> bool {
-        self.countdown_timer.is_finished()
+        self.alive_timer.is_finished()
     }
 }
 
@@ -95,17 +90,16 @@ impl Drawable for Ring {
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
-        match self.fade_off_start {
-            None => {
+        self.alive_timer.advance(*update_context.get_delta_time());
+        self.fade_off_timer.advance(*update_context.get_delta_time());
+        match self.fade_off_timer.is_paused() {
+            true => {
                 self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
-                self.countdown_timer.advance(*update_context.get_delta_time())
             }
-            Some(start_time) => {
-                let curr_time = Instant::now().duration_since(start_time).as_millis();
-                let percentage_of_transition = curr_time as f32 / FADE_OFF_DURATION.as_millis() as f32;
-                let scale_change = MAX_RING_GROWTH * percentage_of_transition;
+            false => {
+                let scale_change = MAX_RING_GROWTH * self.fade_off_timer.get_percent_complete();
                 self.rectangle.set_scale(glam::vec3(1.0 + scale_change, 1.0 + scale_change, 1.0));
-                self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - percentage_of_transition });
+                self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - self.fade_off_timer.get_percent_complete() });
             }
         }
     }

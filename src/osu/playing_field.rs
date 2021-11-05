@@ -26,7 +26,6 @@ pub struct PlayingField {
     size: glam::Vec2,
     // todo: this should be part of rectangle,
     spawn_time: SystemTime,
-
 }
 
 impl PlayingField {
