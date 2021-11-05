@@ -1,8 +1,8 @@
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use soloud::{Soloud, Wav};
+use soloud::{Handle, Soloud, Wav};
 
 pub struct AudioResource {
     id: String,
@@ -28,7 +28,7 @@ impl AudioResource {
 
 pub struct AudioManager {
     audio_engine: Soloud,
-    currently_playing: RefCell<HashMap<String, Rc<AudioResource>>>,
+    currently_playing: RefCell<HashMap<String, Handle>>,
 }
 
 impl AudioManager {
@@ -41,10 +41,21 @@ impl AudioManager {
 
     pub fn play(&self, audio: Rc<AudioResource>) {
         match self.currently_playing.borrow_mut().get(audio.get_id()) {
-            Some(_) => {/*self.audio_engine.stop(audio.get_res())*/}
+            Some(_) => { /*self.audio_engine.stop(audio.get_res())*/ }
             None => {}
         }
-        self.currently_playing.borrow_mut().insert(audio.get_id().clone(), Rc::clone(&audio));
-        self.audio_engine.play(audio.get_res());
+
+        let handle = self.audio_engine.play(audio.get_res());
+        self.currently_playing.borrow_mut().insert(audio.get_id().clone(), handle);
+    }
+
+    pub fn stop(&self, audio_id: String) {
+        match self.currently_playing.borrow_mut().remove(&audio_id) {
+            None => {}
+            Some(handle) => {
+                self.audio_engine.stop(handle)
+            }
+        }
+
     }
 }
