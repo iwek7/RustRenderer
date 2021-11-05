@@ -7,6 +7,7 @@ in vec2 TexCoord;
 uniform sampler2D tx;
 uniform vec2      resolution;// viewport resolution (in pixels)
 uniform float     timeMillis;// shader playback time (in seconds)
+uniform vec4      color;
 
 uniform float fadeOffAlpha = 1f;
 
@@ -16,7 +17,7 @@ float random(vec2 co){
 
 void main()
 {
-    vec4 sampled = texture(tx, TexCoord);
+    vec4 sampled = texture(tx, TexCoord) * color;
     float final_alpha =  sampled.a * fadeOffAlpha;
     // check if fade off is happening
 //    if (fadeOffAlpha < 1.0) {

@@ -5,7 +5,7 @@ use std::time::{Duration, Instant};
 use sdl2::event::Event;
 use sdl2::timer::Timer;
 
-use crate::engine::api::colour::WHITE;
+use crate::engine::api::colour::{GREEN, WHITE};
 use crate::engine::api::countdown_timer::CountdownTimer;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
@@ -26,7 +26,7 @@ pub struct Ring {
     hitbox: Circle,
     rectangle: Rectangle<TexturedVertexDataLayout>,
     fade_off_start: Option<Instant>,
-    countdown_timer: CountdownTimer
+    countdown_timer: CountdownTimer,
 }
 
 impl Ring {
@@ -37,12 +37,13 @@ impl Ring {
 
 
         let tx_position = glam::vec3(position.x - RING_RADIUS, position.y - RING_RADIUS, position.z);
-        let rectangle = Rectangle::new_textured(
+        let mut rectangle = Rectangle::new_textured(
             &tx_position,
             &glam::vec2(RING_RADIUS * 2.0, RING_RADIUS * 2.0),
             ring_shader_material,
             ring_sprite,
         );
+        rectangle.set_material_variable("color", UniformKind::VEC_4 { value: WHITE.into() });
 
         let hitbox = Circle::new_colored(
             position,
@@ -55,7 +56,7 @@ impl Ring {
             rectangle,
             hitbox,
             fade_off_start: None,
-            countdown_timer: CountdownTimer::new(Duration::from_secs(3))
+            countdown_timer: CountdownTimer::new(Duration::from_secs(3)),
         }
     }
 
@@ -76,7 +77,7 @@ impl Ring {
         match self.fade_off_start {
             None => { false }
             Some(start_time) => {
-               let current_fade_off_duration = Instant::now().duration_since(start_time);
+                let current_fade_off_duration = Instant::now().duration_since(start_time);
                 current_fade_off_duration > FADE_OFF_DURATION
             }
         }
