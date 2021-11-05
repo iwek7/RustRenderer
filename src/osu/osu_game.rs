@@ -5,8 +5,8 @@ use sdl2::audio::AudioCallback;
 use sdl2::event::Event;
 use sdl2::mouse::MouseButton;
 use soloud::*;
-use crate::engine::api::audio::AudioResource;
 
+use crate::engine::api::audio::AudioResource;
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
@@ -27,7 +27,7 @@ pub struct OsuGame {
     start_game_button: TextGameObject,
     stop_game_button: TextGameObject,
     paused: bool,
-    senungoku: Rc<AudioResource>
+    senungoku: Rc<AudioResource>,
 }
 
 const SCOREBOARD_PADDING: f32 = 4.0;
@@ -49,6 +49,7 @@ impl OsuGame {
             engine_utilities.get_resource_manager());
 
         let senungoku = engine_utilities.get_resource_manager().fetch_audio("osu/audio/a_cruel_angel_thesis.ogg");
+        engine_utilities.get_audio_manager().load_paused(Rc::clone(&senungoku));
 
         let text_material = engine_utilities.get_resource_manager().fetch_shader_material("osu/shaders/character");
         let sized_font = engine_utilities.get_resource_manager().fetch_font("osu/fonts/go3v2.ttf");
@@ -88,6 +89,7 @@ impl OsuGame {
                                                    WHITE,
         );
 
+
         OsuGame {
             playing_field,
             score_label,
@@ -95,7 +97,7 @@ impl OsuGame {
             start_game_button,
             stop_game_button,
             paused: true,
-            senungoku
+            senungoku,
         }
     }
 }
@@ -125,12 +127,12 @@ impl<'a> Drawable for OsuGame {
                         match mouse_btn {
                             MouseButton::Left => {
                                 if self.start_game_button.contains_point(&(world_mouse_position.x, world_mouse_position.y)) && self.paused {
-                                    update_context.get_engine_utilities().get_audio_manager().play(Rc::clone(&self.senungoku));
+                                    update_context.get_engine_utilities().get_audio_manager().unpause(self.senungoku.get_id().clone());
                                     self.paused = false
                                 }
 
                                 if self.stop_game_button.contains_point(&(world_mouse_position.x, world_mouse_position.y)) && !self.paused {
-                                    update_context.get_engine_utilities().get_audio_manager().stop(self.senungoku.get_id().clone());
+                                    update_context.get_engine_utilities().get_audio_manager().pause(self.senungoku.get_id().clone());
                                     self.paused = true
                                 }
                             }
