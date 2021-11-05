@@ -22,6 +22,7 @@ pub struct PlayingField {
     background: Rectangle<TexturedVertexDataLayout>,
     rings: Vec<Ring>,
     fade_offs: Vec<Ring>,
+    expires: Vec<Ring>,
     total_score: i32,
     size: glam::Vec2,
     // todo: this should be part of rectangle,
@@ -46,6 +47,7 @@ impl PlayingField {
             background,
             rings: vec!(ring),
             fade_offs: vec!(),
+            expires: vec!(),
             total_score: 0,
             size: size.clone(),
             spawn_time: SystemTime::now(),
@@ -71,9 +73,11 @@ impl Drawable for PlayingField {
         self.background.render(render_util);
         self.rings.iter_mut().for_each(|ring| ring.render(render_util));
         self.fade_offs.iter_mut().for_each(|ring| ring.render(render_util));
+        self.expires.iter_mut().for_each(|ring| ring.render(render_util));
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
+        // spawn new rings randomly
         let now = SystemTime::now();
         let difference = now.duration_since(self.spawn_time);
         if difference.unwrap().as_millis() > SPAWN_INTERVAL_MILLIS {
@@ -84,15 +88,21 @@ impl Drawable for PlayingField {
             let ring = Ring::new(&PlayingField::calc_random_ring_position(&pos, &self.size), update_context.get_engine_utilities().get_resource_manager());
             self.rings.push(ring);
         }
+        // check if fade off effects are finished
+        self.fade_offs.retain(|ring| !ring.is_fully_faded());
+        self.expires.retain(|ring| !ring.is_fully_expired());
 
-        self.fade_offs.retain(|ring| !ring.is_faded());
+        // update everything
         self.fade_offs.iter_mut().for_each(|ring| ring.update(update_context));
         self.rings.iter_mut().for_each(|ring| ring.update(update_context));
+        self.expires.iter_mut().for_each(|ring| ring.update(update_context));
 
-        let expired = self.rings.drain_filter(|ring| ring.is_expired() ).collect::<Vec<_>>();
+        // check what is newly expired
+        let mut expired = self.rings.drain_filter(|ring| !ring.is_alive() ).collect::<Vec<_>>();
         self.total_score -= expired.iter()
             .map(|ring| ring.get_score())
             .fold(0, |accum, iter| accum + iter);
+        self.expires.append(&mut expired);
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
