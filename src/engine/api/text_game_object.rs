@@ -5,6 +5,7 @@ use glam::Vec3;
 use crate::engine::api::colour::{Colour, WHITE};
 use crate::engine::api::drawable::Drawable;
 use crate::engine::api::maths::rectangle::Rectangle;
+use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::{Material, UniformKind};
@@ -90,5 +91,39 @@ impl TextGameObject {
 impl Drawable for TextGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rects.iter_mut().for_each(|q| q.render(render_util))
+    }
+}
+
+impl Area for TextGameObject {
+    fn contains_point(&self, point: &(f32, f32)) -> bool {
+        self.rects.iter().any(|rect| rect.contains_point(point))
+    }
+
+    fn area(&self) -> f32 {
+        todo!()
+    }
+
+    fn num_vertices(&self) -> usize {
+        todo!()
+    }
+
+    fn get_pos(&self) -> &Vec3 {
+        todo!()
+    }
+
+    fn move_to(&mut self, final_position: Vec3) {
+        todo!()
+    }
+
+    fn move_by(&mut self, offset: Vec3) {
+        todo!()
+    }
+
+    fn get_scale(&self) -> &Vec3 {
+        todo!()
+    }
+
+    fn set_scale(&mut self, new_scale: Vec3) {
+        todo!()
     }
 }

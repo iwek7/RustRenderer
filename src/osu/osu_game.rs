@@ -1,6 +1,8 @@
 use std::rc::Rc;
 
+use glam::Vec3;
 use sdl2::event::Event;
+use sdl2::mouse::MouseButton;
 use soloud::*;
 
 use crate::engine::api::colour::{Colour, WHITE};
@@ -19,13 +21,18 @@ use crate::osu::playing_field::PlayingField;
 pub struct OsuGame {
     playing_field: PlayingField,
     score_label: TextGameObject,
-    score_text: TextGameObject
+    score_text: TextGameObject,
+    start_game_button: TextGameObject,
+    stop_game_button: TextGameObject,
+    paused: bool,
 }
 
 const SCOREBOARD_PADDING: f32 = 4.0;
 const TEXT_TOP_PADDING: f32 = 1.0;
-const TEXT_LEFT_PADDING: f32 = 1.32;
+const UI_LEFT_PADDING: f32 = 1.45;
 const TEXT_Y_OFFSET: f32 = 1.0;
+const BUTTONS_Y_OFFSET: f32 = 15.0;
+const BUTTONS_PADDING: f32 = 1.0;
 
 impl OsuGame {
     pub fn new(engine_utilities: Rc<EngineUtilities>) -> OsuGame {
@@ -44,30 +51,50 @@ impl OsuGame {
         let text_material = engine_utilities.get_resource_manager().fetch_shader_material("osu/shaders/character");
         let sized_font = engine_utilities.get_resource_manager().fetch_font("osu/fonts/go3v2.ttf");
         let score_label = TextGameObject::new(Rc::clone(&sized_font), "SCORE",
-                                              glam::vec3(playing_field_position.x + playing_field_size.x + TEXT_LEFT_PADDING,
-                                                   playing_field_top_edge - TEXT_TOP_PADDING,
-                                                   0.0,
-                                        ),
+                                              glam::vec3(playing_field_position.x + playing_field_size.x + UI_LEFT_PADDING,
+                                                         playing_field_top_edge - TEXT_TOP_PADDING,
+                                                         0.0,
+                                              ),
                                               text_material.clone(),
-                                              WHITE
+                                              WHITE,
         );
 
-        let score =  TextGameObject::new(sized_font, "0",
-                                         glam::vec3(playing_field_position.x + playing_field_size.x + TEXT_LEFT_PADDING,
-                                                    playing_field_top_edge - TEXT_TOP_PADDING - TEXT_Y_OFFSET,
-                                                    0.0,
-                                         ),
-                                         text_material,
-                                         WHITE
+        let score_text = TextGameObject::new(Rc::clone(&sized_font), "0",
+                                             glam::vec3(playing_field_position.x + playing_field_size.x + UI_LEFT_PADDING,
+                                                        playing_field_top_edge - TEXT_TOP_PADDING - TEXT_Y_OFFSET,
+                                                        0.0,
+                                             ),
+                                             text_material.clone(),
+                                             WHITE,
+        );
+
+        let start_game_button = TextGameObject::new(Rc::clone(&sized_font), "START",
+                                                    glam::vec3(playing_field_position.x + playing_field_size.x + UI_LEFT_PADDING,
+                                                               playing_field_top_edge - BUTTONS_Y_OFFSET,
+                                                               0.0,
+                                                    ),
+                                                    text_material.clone(),
+                                                    WHITE,
+        );
+
+        let stop_game_button = TextGameObject::new(sized_font, "STOP",
+                                                   glam::vec3(playing_field_position.x + playing_field_size.x + UI_LEFT_PADDING,
+                                                              playing_field_top_edge - BUTTONS_Y_OFFSET - BUTTONS_PADDING,
+                                                              0.0,
+                                                   ),
+                                                   text_material,
+                                                   WHITE,
         );
 
         OsuGame {
             playing_field,
             score_label,
-            score_text: score
+            score_text,
+            start_game_button,
+            stop_game_button,
+            paused: false,
         }
     }
-
 }
 
 impl<'a> Drawable for OsuGame {
@@ -75,14 +102,43 @@ impl<'a> Drawable for OsuGame {
         self.playing_field.render(render_util);
         self.score_label.render(render_util);
         self.score_text.render(render_util);
+        self.start_game_button.render(render_util);
+        self.stop_game_button.render(render_util);
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
-        self.playing_field.update(update_context);
-        self.score_text.set_text(self.playing_field.get_total_score().to_string());
+        if !self.paused {
+            self.playing_field.update(update_context);
+            self.score_text.set_text(self.playing_field.get_total_score().to_string());
+        }
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
-        self.playing_field.handle_event(event, context, update_context)
+        match context.sdl_space_to_world_space_at_z0(update_context.get_sdl_mouse_position(), &update_context.get_camera_config()) {
+            None => {}
+            Some(world_mouse_position) => {
+                match event {
+                    sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
+                        match mouse_btn {
+                            MouseButton::Left => {
+                                if self.start_game_button.contains_point(&(world_mouse_position.x, world_mouse_position.y)) {
+                                    self.paused = false
+                                }
+
+                                if self.stop_game_button.contains_point(&(world_mouse_position.x, world_mouse_position.y)) {
+                                    self.paused = true
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        if !self.paused {
+            self.playing_field.handle_event(event, context, update_context)
+        }
     }
 }
