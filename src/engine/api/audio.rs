@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::time::Duration;
 
 use soloud::{Handle, Soloud, Wav};
 
@@ -23,6 +24,10 @@ impl AudioResource {
 
     pub fn get_res(&self) -> &Wav {
         &self.res
+    }
+
+    pub fn get_duration(&self) -> Duration {
+        Duration::from_secs_f64(self.res.length())
     }
 }
 
@@ -77,6 +82,15 @@ impl AudioManager {
             None => { panic!("Attempting to unpause sound {:?} that is not playing", audio_id); }
             Some(handle) => {
                 self.audio_engine.borrow_mut().set_pause(*handle, false);
+            }
+        }
+    }
+
+    pub fn get_audio_play_time(&self, audio_id: String) -> Duration {
+        match self.currently_playing.borrow().get(&audio_id) {
+            None => { panic!("Attempting to get play time of sound {:?} that is not playing", audio_id); }
+            Some(handle) => {
+                Duration::from_secs_f64(self.audio_engine.borrow().stream_time(*handle))
             }
         }
     }

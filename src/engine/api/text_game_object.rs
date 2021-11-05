@@ -60,7 +60,7 @@ impl TextGameObject {
             //          ch as i32, x_pos, font_character.get_size().x, font_character.get_size().y,
             //          shift, font_character.get_advance(), font_character.get_advance() >> 6, font_character.get_bearing(), font_character.get_size());
 
-            material.set_variable("color", UniformKind::VEC_4 { value: WHITE.into() });
+            material.set_variable("color", UniformKind::VEC_4 { value: colour.clone().into() });
 
             let rect = Rectangle::new_textured(
                 &glam::vec3(x_pos, y_pos, position.z),
