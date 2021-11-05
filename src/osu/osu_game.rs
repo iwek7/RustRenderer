@@ -25,7 +25,7 @@ pub struct OsuGame {
     playing_field: PlayingField,
     score_label: TextGameObject,
     score_text: TextGameObject,
-    timer: TimerGameObject,
+    game_time_text: TimerGameObject,
     start_game_button: TextGameObject,
     stop_game_button: TextGameObject,
     paused: bool,
@@ -106,7 +106,7 @@ impl OsuGame {
             playing_field,
             score_label,
             score_text,
-            timer: TimerGameObject::new(timer_text, senungoku.get_duration()),
+            game_time_text: TimerGameObject::new(timer_text, senungoku.get_duration()),
             start_game_button,
             stop_game_button,
             paused: true,
@@ -122,14 +122,14 @@ impl<'a> Drawable for OsuGame {
         self.score_text.render(render_util);
         self.start_game_button.render(render_util);
         self.stop_game_button.render(render_util);
-        self.timer.render(render_util);
+        self.game_time_text.render(render_util);
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
         if !self.paused {
             self.playing_field.update(update_context);
             self.score_text.set_text(self.playing_field.get_total_score().to_string());
-            self.timer.update_with_duration(update_context.get_engine_utilities().get_audio_manager().get_audio_play_time(self.senungoku.get_id().clone()))
+            self.game_time_text.update_with_duration(update_context.get_engine_utilities().get_audio_manager().get_audio_play_time(self.senungoku.get_id().clone()))
         }
     }
 

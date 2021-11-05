@@ -3,8 +3,10 @@ use std::rc::Rc;
 use std::time::{Duration, Instant};
 
 use sdl2::event::Event;
+use sdl2::timer::Timer;
 
 use crate::engine::api::colour::WHITE;
+use crate::engine::api::countdown_timer::CountdownTimer;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
@@ -24,6 +26,7 @@ pub struct Ring {
     hitbox: Circle,
     rectangle: Rectangle<TexturedVertexDataLayout>,
     fade_off_start: Option<Instant>,
+    countdown_timer: CountdownTimer
 }
 
 impl Ring {
@@ -52,6 +55,7 @@ impl Ring {
             rectangle,
             hitbox,
             fade_off_start: None,
+            countdown_timer: CountdownTimer::new(Duration::from_secs(3))
         }
     }
 
@@ -77,18 +81,23 @@ impl Ring {
             }
         }
     }
+
+    pub fn is_expired(&self) -> bool {
+        self.countdown_timer.is_finished()
+    }
 }
 
 impl Drawable for Ring {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rectangle.render(render_util);
-        // self.hitbox.render(render_util);
+        // self.hitbox.render(render_util); // for debugging
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
         match self.fade_off_start {
             None => {
                 self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
+                self.countdown_timer.advance(*update_context.get_delta_time())
             }
             Some(start_time) => {
                 let curr_time = Instant::now().duration_since(start_time).as_millis();

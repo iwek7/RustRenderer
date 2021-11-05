@@ -1,5 +1,6 @@
 use std::borrow::BorrowMut;
 use std::rc::Rc;
+use std::time::Instant;
 
 use sdl2::EventPump;
 use sdl2::mouse::MouseButton;
@@ -76,12 +77,20 @@ impl Engine {
                     material,
                     glam::vec3(1.6843166, -9.1099205, 0.0),
                 );
+                let mut time = Instant::now();
                 'main: loop {
                     let mouse_state = self.event_pump.mouse_state();
                     let sdl_pos = glam::vec2(mouse_state.x().clone() as f32, mouse_state.y().clone() as f32);
 
                     let camera_config = game.get_camera_config();
-                    let update_context = UpdateContext::new(sdl_pos, camera_config, Rc::clone(&self.engine_utilities));
+                    let now = Instant::now();
+                    let update_context = UpdateContext::new(
+                        sdl_pos,
+                        camera_config,
+                        Rc::clone(&self.engine_utilities),
+                        now.duration_since(time)
+                    );
+                    time = now;
 
                     game.update(&update_context);
 

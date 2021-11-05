@@ -1,4 +1,5 @@
 #![feature(duration_consts_2)]
+#![feature(drain_filter)]
 
 use engine::api::maths::vertex;
 use osu::osu_game::OsuGame;

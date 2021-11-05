@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::time::Duration;
 
 use sdl2::event::Event;
 
@@ -18,16 +19,17 @@ pub trait Drawable {
 pub struct UpdateContext<> {
     sdl_mouse_position: glam::Vec2,
     camera_config: CameraConfig,
-    engine_utilities: Rc<EngineUtilities>
+    engine_utilities: Rc<EngineUtilities>,
+    delta_time: Duration, // time since last update
 }
 
 impl UpdateContext {
-
-    pub fn new(sdl_mouse_position: glam::Vec2, camera_config: CameraConfig, engine_utilities: Rc<EngineUtilities>) -> UpdateContext{
+    pub fn new(sdl_mouse_position: glam::Vec2, camera_config: CameraConfig, engine_utilities: Rc<EngineUtilities>, delta_time: Duration) -> UpdateContext {
         UpdateContext {
             sdl_mouse_position,
             camera_config,
-            engine_utilities
+            engine_utilities,
+            delta_time,
         }
     }
 
@@ -42,4 +44,6 @@ impl UpdateContext {
     pub fn get_camera_config(&self) -> &CameraConfig {
         &self.camera_config
     }
+
+    pub fn get_delta_time(&self) -> &Duration { &self.delta_time }
 }

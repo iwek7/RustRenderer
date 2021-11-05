@@ -89,6 +89,11 @@ impl Drawable for PlayingField {
         self.fade_offs.retain(|ring| !ring.is_faded());
         self.fade_offs.iter_mut().for_each(|ring| ring.update(update_context));
         self.rings.iter_mut().for_each(|ring| ring.update(update_context));
+
+        let expired = self.rings.drain_filter(|ring| ring.is_expired() ).collect::<Vec<_>>();
+        self.total_score -= expired.iter()
+            .map(|ring| ring.get_score())
+            .fold(0, |accum, iter| accum + iter);
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
