@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 use std::rc::Rc;
+use glam::Vec3;
 
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -61,9 +62,10 @@ impl<'a, T: VertexShaderDataLayout> ShapeDrawingComponent<T> {
         world_coords_position: glam::Vec3,
         render_util: &RenderUtil,
         material: &mut Material,
-        scale: glam::Vec3
+        scale: glam::Vec3,
+        scale_point_offset: Vec3
     ) {
-        let mvp = render_util.calculate_camera_MVP(world_coords_position, scale);
+        let mvp = render_util.calculate_camera_MVP(world_coords_position, scale, scale_point_offset);
 
         // set shader uniforms
         material.set_variable("mvp", UniformKind::MAT_4 { value: mvp });

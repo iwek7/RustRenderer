@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 use glam::Vec3;
 
@@ -19,6 +19,7 @@ pub struct Quadrangle<T> where T: VertexShaderDataLayout {
     material: Material,
     world_position: glam::Vec3,
     scale: glam::Vec3,
+    scaling_point: glam::Vec3
 }
 
 const REFERENCE_INDEX: usize = 2;
@@ -35,6 +36,8 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
             &indices,
             sprite,
         );
+
+        let scaling_point = vertices[REFERENCE_INDEX].get_pos();
         Quadrangle {
             drawing_component,
             vertices,
@@ -42,11 +45,16 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
             material,
             world_position,
             scale: glam::vec3(1.0, 1.0, 1.0),
+            scaling_point
         }
     }
 
     pub fn set_material_variable(&mut self, name: &str, kind: UniformKind) {
         self.material.set_variable(name, kind);
+    }
+
+    pub fn set_scaling_point(&mut self, scaling_point: glam::Vec3) {
+        self.scaling_point = scaling_point
     }
 }
 
@@ -59,6 +67,7 @@ impl<T: VertexShaderDataLayout> Drawable for Quadrangle<T> {
             render_util,
             &mut self.material,
             self.scale.clone(),
+            self.vertices[REFERENCE_INDEX].get_pos().sub(self.scaling_point),
         )
     }
 }

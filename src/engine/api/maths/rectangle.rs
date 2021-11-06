@@ -38,34 +38,43 @@ impl Rectangle<TexturedVertexDataLayout> {
     pub fn new_textured(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, sprite: Sprite) -> Rectangle<TexturedVertexDataLayout> {
         // todo assert that size is possitive
 
+        let mut quad = Quadrangle::new(
+            create_textured_vertex_data_layout(
+                size,
+                &sprite.get_texture_coords(),
+                &WHITE,
+            ),
+            RECT_INDICES.clone(),
+            material,
+            Some(sprite),
+            bottom_left.clone(),
+        );
+
+        quad.set_scaling_point(glam::vec3(size.x / 2.0, size.y / 2.0, 0.0));
+
         Rectangle {
-            quad: Quadrangle::new(
-                create_textured_vertex_data_layout(
-                    size,
-                    &sprite.get_texture_coords(),
-                    &WHITE,
-                ),
-                RECT_INDICES.clone(),
-                material,
-                Some(sprite),
-                bottom_left.clone(),
-            )
+            quad
         }
     }
 
     pub fn new_from_spritesheet(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, sprite: Sprite, sprite_sheet_row: u32, sprite_sheet_col: u32) -> Rectangle<TexturedVertexDataLayout> {
+
+       let mut quad = Quadrangle::new(
+           create_textured_vertex_data_layout(
+               size,
+               &sprite.get_texture_coords_from_spritesheet(sprite_sheet_row, sprite_sheet_col),
+               &WHITE,
+           ),
+           RECT_INDICES.clone(),
+           material,
+           Some(sprite),
+           bottom_left.clone(),
+       );
+
+        quad.set_scaling_point(glam::vec3(size.x / 2.0, size.y / 2.0, 0.0));
+
         Rectangle {
-            quad: Quadrangle::new(
-                create_textured_vertex_data_layout(
-                    size,
-                    &sprite.get_texture_coords_from_spritesheet(sprite_sheet_row, sprite_sheet_col),
-                    &WHITE,
-                ),
-                RECT_INDICES.clone(),
-                material,
-                Some(sprite),
-                bottom_left.clone(),
-            )
+            quad
         }
     }
 }

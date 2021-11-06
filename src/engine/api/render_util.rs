@@ -1,3 +1,4 @@
+use glam::{Mat4, Vec3};
 use crate::engine::api::game_api::CameraConfig;
 use crate::engine::opengl_context::OpenglContext;
 
@@ -14,10 +15,13 @@ impl<'a> RenderUtil<'a> {
         }
     }
 
-    pub fn calculate_camera_MVP(&self, position: glam::Vec3, scale: glam::Vec3) -> glam::Mat4 {
+    pub fn calculate_camera_MVP(&self, position: glam::Vec3, scale: glam::Vec3, scale_point_offset: Vec3) -> glam::Mat4 {
         let projection = self.camera_config.get_projection_matrix(self.opengl_context.get_aspect_ratio());
         let view = self.camera_config.get_view_matrix();
-        let model = glam::Mat4::from_scale_rotation_translation(scale, glam::quat(0.0, 0.0, 0.0, 0.0), position);
+        let scaling_conjugate = glam::Mat4::from_translation(scale_point_offset);
+        let scaling_conjugate_inverse = scaling_conjugate.clone().inverse();
+        let model = glam::Mat4::from_translation(position) * scaling_conjugate_inverse * glam::Mat4::from_scale(scale) * scaling_conjugate;
+        // let model = glam::Mat4::from_scale_rotation_translation(scale, glam::quat(0.0, 0.0, 0.0, 0.0), position);
         return projection * view * model;
     }
 

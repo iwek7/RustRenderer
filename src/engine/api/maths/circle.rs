@@ -107,6 +107,8 @@ impl Drawable for Circle {
             render_util,
             &mut self.material,
             self.scale.clone(),
+            glam::vec3(0.0, 0.0, 0.0),
+
         )
     }
 }

@@ -52,6 +52,8 @@ impl<T: VertexShaderDataLayout> Drawable for Point<T> {
             render_util,
             &mut self.material,
             glam::vec3(1.0, 1.0, 1.0),
+            glam::vec3(0.0, 0.0, 0.0),
+
         )
     }
 }

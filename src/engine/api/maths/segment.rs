@@ -61,6 +61,7 @@ impl<'a, T: VertexShaderDataLayout> Drawable for Segment<T> {
             render_util,
             &mut self.material,
             self.scale.clone(),
+            glam::vec3(0.0, 0.0, 0.0),
         )
     }
 }
