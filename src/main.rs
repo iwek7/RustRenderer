@@ -1,5 +1,6 @@
 #![feature(duration_consts_2)]
 #![feature(drain_filter)]
+#![feature(const_fn_floating_point_arithmetic)]
 
 use engine::api::maths::vertex;
 use osu::osu_game::OsuGame;

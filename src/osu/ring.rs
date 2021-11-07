@@ -5,13 +5,14 @@ use std::time::{Duration, Instant};
 use sdl2::event::Event;
 use sdl2::timer::Timer;
 
-use crate::engine::api::colour::{GREEN, RED, WHITE};
+use crate::engine::api::colour::{BLUE, Colour, GREEN, RED, WHITE};
 use crate::engine::api::countdown_timer::CountdownTimer;
 use crate::engine::api::drawable::{Drawable, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
+use crate::engine::api::maths::util::{lerp_v3, lerp_v4};
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
@@ -25,6 +26,9 @@ const MAX_RING_COLLAPSE: f32 = 0.75;
 const ALIVE_TIMER_DURATION: Duration = Duration::from_secs(3);
 const FADE_OFF_TIMER_DURATION: Duration = Duration::from_millis(250);
 const EXPIRE_TIMER_DURATION: Duration = Duration::from_millis(500);
+
+const ALIVE_START_COLOR: Colour = BLUE;
+const ALIVE_END_COLOR: Colour = RED;
 
 pub struct Ring {
     hitbox: Circle,
@@ -104,6 +108,8 @@ impl Drawable for Ring {
                         self.state = RingState::new_expire(CountdownTimer::new(EXPIRE_TIMER_DURATION));
                     }
                     false => {
+                        let color = lerp_v4(ALIVE_START_COLOR.into(), ALIVE_END_COLOR.into(), self.state.timer.get_percent_complete());
+                        self.rectangle.set_material_variable("color", UniformKind::VEC_4 { value: color });
                         self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
                     }
                 }
