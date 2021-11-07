@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::process::id;
 use std::rc::Rc;
 use std::time::SystemTime;
@@ -108,34 +109,23 @@ impl Drawable for PlayingField {
             Some(world_mouse_position) => {
                 match event {
                     sdl2::event::Event::MouseButtonDown { .. } => {
-                        let mut to_remove = vec!();
-
-                        for idx in 0..self.rings.len() {
-                            if self.rings[idx].contains_point(&world_mouse_position) {
-                                to_remove.push(idx);
-                            }
-                        }
-
-                        // todo: use drain_filter
-                        for i in 0..to_remove.len() {
-                            // this takes into account items
-                            // that were already removed during iteration of this loop
-                            // its super bad :D
-                            let actual_index = to_remove[i] - i;
-                            let mut ring = self.rings.remove(actual_index);
-                            match ring.handle_click() {
-                                RingStateKind::ALIVE => { panic!("Unexpected alive state returned when popping ring ") }
-                                RingStateKind::FADE_OFF => {
-                                    self.total_score += ring.get_score();
-                                    self.fade_offs.push(ring);
-                                }
-                                RingStateKind::EXPIRE => {
-                                    self.total_score -= ring.get_score();
-                                    self.expires.push(ring);
-                                }
-                            }
-                            println!("TOTAL SCORE IS {:?}", self.total_score)
-                        }
+                        self.rings
+                            .drain_filter(|ring| ring.contains_point(&world_mouse_position))
+                            .collect::<Vec<_>>()
+                            .drain(0..)
+                            .for_each(|mut ring|
+                                match ring.handle_click() {
+                                    RingStateKind::ALIVE => { panic!("Unexpected alive state returned when popping ring ") }
+                                    RingStateKind::FADE_OFF => {
+                                        self.total_score += ring.get_score();
+                                        self.fade_offs.push(ring);
+                                    }
+                                    RingStateKind::EXPIRE => {
+                                        self.total_score -= ring.get_score();
+                                        self.expires.push(ring);
+                                    }
+                                });
+                        println!("TOTAL SCORE IS {:?}", self.total_score);
                     }
                     _ => {}
                 }
