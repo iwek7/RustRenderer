@@ -41,11 +41,9 @@ impl PlayingField {
             bg_sprite
         );
 
-        let ring = Ring::new(&PlayingField::calc_random_ring_position(position, size), resource_manager);
-
         PlayingField {
             background,
-            rings: vec!(ring),
+            rings: vec!(),
             fade_offs: vec!(),
             expires: vec!(),
             total_score: 0,
