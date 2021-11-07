@@ -8,10 +8,11 @@ pub struct Colour {
     a: f32,
 }
 
-pub const WHITE: Colour = Colour { r: 1.0, g: 1.0, b: 1.0, a: 1.0 };
-pub const GREEN: Colour = Colour { r: 0.0, g: 0.5, b: 0.0, a: 1.0 };
-pub const RED: Colour = Colour { r: 1.0, g: 0.0, b: 0.0, a: 1.0 };
-pub const BLUE: Colour = Colour { r: 0.0, g: 0.0, b: 1.0, a: 1.0 };
+pub const WHITE: Colour = Colour::new_f(1.0, 1.0, 1.0, 1.0);
+pub const GREEN: Colour = Colour::new_f(0.0, 0.5, 0.0, 1.0);
+pub const RED: Colour = Colour::new_f(1.0, 0.0, 0.0, 1.0);
+pub const BLUE: Colour = Colour::new_f(0.0, 0.0, 1.0, 1.0);
+pub const TRANSPARENT: Colour = Colour::new_f(1.0, 1.0, 1.0, 0.0);
 
 impl Colour {
     pub const fn new_i(r: i32, g: i32, b: i32, a: f32) -> Colour {

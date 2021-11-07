@@ -14,7 +14,7 @@ use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexD
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 use crate::engine::opengl_context::OpenglContext;
-use crate::osu::ring::{Ring, RING_RADIUS};
+use crate::osu::ring::{Ring, RING_RADIUS, RingStateKind};
 
 const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
@@ -38,7 +38,7 @@ impl PlayingField {
             position,
             size,
             material,
-            bg_sprite
+            bg_sprite,
         );
 
         PlayingField {
@@ -60,10 +60,9 @@ impl PlayingField {
         glam::vec3(x, y, 0.0)
     }
 
-    pub fn get_total_score(&self) -> &i32{
+    pub fn get_total_score(&self) -> &i32 {
         &self.total_score
     }
-
 }
 
 impl Drawable for PlayingField {
@@ -96,7 +95,7 @@ impl Drawable for PlayingField {
         self.expires.iter_mut().for_each(|ring| ring.update(update_context));
 
         // check what is newly expired
-        let mut expired = self.rings.drain_filter(|ring| !ring.is_alive() ).collect::<Vec<_>>();
+        let mut expired = self.rings.drain_filter(|ring| !ring.is_alive()).collect::<Vec<_>>();
         self.total_score -= expired.iter()
             .map(|ring| ring.get_score())
             .fold(0, |accum, iter| accum + iter);
@@ -117,15 +116,24 @@ impl Drawable for PlayingField {
                             }
                         }
 
+                        // todo: use drain_filter
                         for i in 0..to_remove.len() {
                             // this takes into account items
                             // that were already removed during iteration of this loop
                             // its super bad :D
                             let actual_index = to_remove[i] - i;
-                            self.total_score += self.rings[actual_index].get_score();
                             let mut ring = self.rings.remove(actual_index);
-                            ring.start_fade_off();
-                            self.fade_offs.push(ring);
+                            match ring.handle_click() {
+                                RingStateKind::ALIVE => { panic!("Unexpected alive state returned when popping ring ") }
+                                RingStateKind::FADE_OFF => {
+                                    self.total_score += ring.get_score();
+                                    self.fade_offs.push(ring);
+                                }
+                                RingStateKind::EXPIRE => {
+                                    self.total_score -= ring.get_score();
+                                    self.expires.push(ring);
+                                }
+                            }
                             println!("TOTAL SCORE IS {:?}", self.total_score)
                         }
                     }

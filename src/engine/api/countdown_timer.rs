@@ -1,5 +1,5 @@
 use std::cmp::min;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 use std::time::{Duration, Instant};
 
 pub struct CountdownTimer {
@@ -49,5 +49,9 @@ impl CountdownTimer {
 
     pub fn has_started_running(&self) -> bool {
         !self.current_duration.is_zero()
+    }
+
+    pub fn get_duration_left(&self) -> Duration {
+        self.duration.sub(self.current_duration)
     }
 }
