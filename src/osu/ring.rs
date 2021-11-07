@@ -22,12 +22,14 @@ pub const RING_RADIUS: f32 = 0.9;
 const MAX_RING_GROWTH: f32 = 0.25;
 const MAX_RING_COLLAPSE: f32 = 0.75;
 
+const ALIVE_TIMER_DURATION: Duration = Duration::from_secs(3);
+const FADE_OFF_TIMER_DURATION: Duration = Duration::from_millis(250);
+const EXPIRE_TIMER_DURATION: Duration = Duration::from_millis(500);
+
 pub struct Ring {
     hitbox: Circle,
     rectangle: Rectangle<TexturedVertexDataLayout>,
-    alive_timer: CountdownTimer,
-    fade_off_timer: CountdownTimer,
-    expired_effect_timer: CountdownTimer,
+    state: RingState,
 }
 
 impl Ring {
@@ -51,18 +53,11 @@ impl Ring {
             RING_RADIUS,
             clr_shader_material,
         );
-        let mut fade_off_timer = CountdownTimer::new(Duration::from_millis(250));
-        fade_off_timer.pause();
-
-        let mut expired_effect_timer = CountdownTimer::new(Duration::from_millis(500));
-        expired_effect_timer.pause();
 
         Ring {
             rectangle,
             hitbox,
-            alive_timer: CountdownTimer::new(Duration::from_secs(3)),
-            fade_off_timer,
-            expired_effect_timer,
+            state: RingState::new_alive(CountdownTimer::new(ALIVE_TIMER_DURATION)),
         }
     }
 
@@ -75,21 +70,20 @@ impl Ring {
     }
 
     pub fn start_fade_off(&mut self) {
-        self.fade_off_timer.unpause();
-        self.alive_timer.pause();
+        self.state = RingState::new_fade_off(CountdownTimer::new(FADE_OFF_TIMER_DURATION));
     }
 
     // imagine implementing signals and removing this ugly pull model
     pub fn is_fully_faded(&self) -> bool {
-        self.fade_off_timer.is_finished()
+        self.state.kind == RingStateKind::FADE_OFF && self.state.timer.is_finished()
     }
 
     pub fn is_alive(&self) -> bool {
-        !self.alive_timer.is_finished()
+        self.state.kind == RingStateKind::ALIVE && !self.state.timer.is_finished()
     }
 
     pub fn is_fully_expired(&self) -> bool {
-        self.expired_effect_timer.is_finished()
+        self.state.kind == RingStateKind::EXPIRE && self.state.timer.is_finished()
     }
 }
 
@@ -100,33 +94,75 @@ impl Drawable for Ring {
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
-        self.alive_timer.advance(*update_context.get_delta_time());
-        self.fade_off_timer.advance(*update_context.get_delta_time());
-        self.expired_effect_timer.advance(*update_context.get_delta_time());
+        self.state.timer.advance(*update_context.get_delta_time());
 
-        if self.alive_timer.is_finished() {
-            self.expired_effect_timer.unpause();
-            self.rectangle.set_material_variable("color", UniformKind::VEC_4 { value: RED.into() })
-        }
-        // todo make some nicer state machine with enum
-        match self.expired_effect_timer.is_paused() {
-            true => {
-                match self.fade_off_timer.is_paused() {
+        match self.state.kind {
+            RingStateKind::ALIVE => {
+                match self.state.timer.is_finished() {
                     true => {
-                        self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
+                        self.rectangle.set_material_variable("color", UniformKind::VEC_4 { value: RED.into() });
+                        self.state = RingState::new_expire(CountdownTimer::new(EXPIRE_TIMER_DURATION));
                     }
                     false => {
-                        let scale_change = MAX_RING_GROWTH * self.fade_off_timer.get_percent_complete();
-                        self.rectangle.set_scale(glam::vec3(1.0 + scale_change, 1.0 + scale_change, 1.0));
-                        self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - self.fade_off_timer.get_percent_complete() });
+                        self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 });
                     }
                 }
             }
-            false => {
-                let scale_change = MAX_RING_COLLAPSE * self.expired_effect_timer.get_percent_complete();
-                self.rectangle.set_scale(glam::vec3(1.0 - scale_change, 1.0 - scale_change, 1.0));
-                self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - self.expired_effect_timer.get_percent_complete() });
+            RingStateKind::FADE_OFF => {
+                match self.state.timer.is_finished() {
+                    true => {}
+                    false => {
+                        let scale_change = MAX_RING_GROWTH * self.state.timer.get_percent_complete();
+                        self.rectangle.set_scale(glam::vec3(1.0 + scale_change, 1.0 + scale_change, 1.0));
+                        self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - self.state.timer.get_percent_complete() });
+                    }
+                }
+            }
+            RingStateKind::EXPIRE => {
+                match self.state.timer.is_finished() {
+                    true => {}
+                    false => {
+                        let scale_change = MAX_RING_COLLAPSE * self.state.timer.get_percent_complete();
+                        self.rectangle.set_scale(glam::vec3(1.0 - scale_change, 1.0 - scale_change, 1.0));
+                        self.rectangle.set_material_variable("fadeOffAlpha", UniformKind::FLOAT { value: 1.0 - self.state.timer.get_percent_complete() })
+                    }
+                }
             }
         }
     }
+}
+
+struct RingState {
+    timer: CountdownTimer,
+    kind: RingStateKind,
+}
+
+impl RingState {
+    fn new_alive(timer: CountdownTimer) -> RingState {
+        RingState {
+            kind: RingStateKind::ALIVE,
+            timer,
+        }
+    }
+
+    fn new_fade_off(timer: CountdownTimer) -> RingState {
+        RingState {
+            kind: RingStateKind::FADE_OFF,
+            timer,
+        }
+    }
+
+    fn new_expire(timer: CountdownTimer) -> RingState {
+        RingState {
+            kind: RingStateKind::EXPIRE,
+            timer,
+        }
+    }
+}
+
+#[derive(PartialEq)]
+enum RingStateKind {
+    ALIVE,
+    FADE_OFF,
+    EXPIRE,
 }
