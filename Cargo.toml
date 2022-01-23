@@ -15,6 +15,7 @@ glam = "0.17.3"
 rand = "0.8.4"
 soloud = "0.4"
 freetype-rs = "0.28.0"
+tiled = "0.9.5"
 
 [build-dependencies]
 walkdir = "2.3.2"
