@@ -71,12 +71,6 @@ impl Engine {
         match &mut self.game {
             None => { panic!("Attempting to start game in engine, but no game was provided") }
             Some(game) => {
-                let material = self.engine_utilities.get_resource_manager().fetch_shader_material("chess/shaders/triangle");
-                let mut point = Point::new(
-                    [ColoredVertexDataLayout { pos: (0.0, 0.0, 0.0).into(), clr: WHITE.into() }, ],
-                    material,
-                    glam::vec3(1.6843166, -9.1099205, 0.0),
-                );
                 let mut time = Instant::now();
                 'main: loop {
                     let mouse_state = self.event_pump.mouse_state();

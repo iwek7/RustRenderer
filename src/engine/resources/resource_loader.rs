@@ -1,6 +1,7 @@
 use std::ffi;
 use std::fs;
-use std::io::{self, Read};
+use std::fs::File;
+use std::io::{self, BufRead, Read};
 use std::path::{Path, PathBuf};
 
 use image::{DynamicImage, GenericImageView, RgbaImage};
@@ -71,6 +72,11 @@ impl ResourceLoader {
     pub fn load_font_face(&self, resource_name: &str) -> Vec<u8> {
         let path = resource_name_to_path(&self.root_path, resource_name);
         fs::read(path).unwrap()
+    }
+
+    pub fn load_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>> {
+        let file = File::open(resource_name_to_path(&self.root_path, id)).unwrap();
+        io::BufReader::new(file).lines()
     }
 }
 

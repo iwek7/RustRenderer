@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufReader, Lines};
 use std::path::Path;
 use std::rc::Rc;
 
@@ -99,6 +101,11 @@ impl ResourceManager for CachingResourceManager {
         let raw_face = self.font_faces_cache.fetch(id, || self.resource_loader.load_font_face(id));
         let face = self.freetype_lib.new_memory_face(raw_face, 0).unwrap();
         Rc::new(SizedFont::new(&face))
+    }
+
+    fn read_file_lines(&self, id: &str) ->Lines<BufReader<File>> {
+        // todo: implement caching somehow
+        self.resource_loader.load_file_lines(id)
     }
 }
 

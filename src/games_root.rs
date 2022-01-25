@@ -23,9 +23,9 @@ impl GamesRoot {
         GamesRoot {
             games,
             camera: CameraGameObject::new(
-                glam::vec3(-10.0, -10.0, 20.0),
+                glam::vec3(-10.0, 10.0, 20.0),
                 glam::vec3(0.0, 1.0, 0.0),
-                glam::vec3(-10.0, -10.0, -1.0),
+                glam::vec3(-10.0, 10.0, -1.0),
             ),
         }
     }
