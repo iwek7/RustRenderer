@@ -1,4 +1,3 @@
-#![feature(duration_consts_2)]
 #![feature(drain_filter)]
 #![feature(const_fn_floating_point_arithmetic)]
 
