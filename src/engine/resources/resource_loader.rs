@@ -10,6 +10,15 @@ use soloud::*;
 use crate::engine::api::audio::AudioResource;
 use crate::engine::resources::rgba_image_data::RgbaImageData;
 
+/**
+    This class just loads resources in memory (or create hooks to them).
+    It is not meant to be used in game implementations.
+    To retrieve resources use ResourceManager
+ */
+// todo: adding new types here becomes cumbersome
+//  it should be split into smaller plugable loaders
+//  same approach should be applied to resource manager
+//  so that we can easily add new types without modifying those classes but extending their capabilities
 pub struct ResourceLoader {
     root_path: PathBuf,
 }
@@ -77,6 +86,10 @@ impl ResourceLoader {
     pub fn load_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>> {
         let file = File::open(resource_name_to_path(&self.root_path, id)).unwrap();
         io::BufReader::new(file).lines()
+    }
+
+    pub fn load_tiled_map(&self, id: &str) ->  Result<tiled::Map, tiled::TiledError> {
+        tiled::parse_file(resource_name_to_path(&self.root_path, id).as_path())
     }
 }
 

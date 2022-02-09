@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::{BufReader, Lines};
 use std::path::Path;
 use std::rc::Rc;
+use tiled::Map;
 
 use crate::engine::api::audio::AudioResource;
 use crate::engine::api::resource_manager::{ResourceManager};
@@ -14,7 +15,6 @@ use crate::engine::rendering::material::Material;
 use crate::engine::resources::fonts::SizedFont;
 use crate::engine::resources::resource_loader::ResourceLoader;
 
-// todo: this probably should not be here but be more generic class in engine
 pub struct CachingResourceManager {
     textures_cache: ResourceCache<Texture>,
     shaders_cache: ResourceCache<ShaderProgram>,
@@ -104,8 +104,12 @@ impl ResourceManager for CachingResourceManager {
     }
 
     fn read_file_lines(&self, id: &str) ->Lines<BufReader<File>> {
-        // todo: implement caching somehow
+        // todo: implement caching somehow (?)
         self.resource_loader.load_file_lines(id)
+    }
+
+    fn fetch_tiled_map(&self, id: &str) -> Map {
+        self.resource_loader.load_tiled_map(id).unwrap()
     }
 }
 

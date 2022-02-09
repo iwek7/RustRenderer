@@ -7,6 +7,7 @@ use crate::engine::rendering::material::Material;
 use crate::engine::rendering::ShaderProgram;
 use crate::engine::resources::fonts::SizedFont;
 
+// todo: this class should return results and let it clients handle failures
 pub trait ResourceManager {
     fn fetch_shader_program(&self, id: &str) -> Rc<ShaderProgram>;
     fn fetch_shader_material(&self, id: &str) -> Material;
@@ -15,4 +16,5 @@ pub trait ResourceManager {
     fn fetch_audio(&self, id: &str) -> Rc<AudioResource>;
     fn fetch_font(&self, id: &str) -> Rc<SizedFont>;
     fn read_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>>;
+    fn fetch_tiled_map(&self, id: &str) -> tiled::Map;
 }
