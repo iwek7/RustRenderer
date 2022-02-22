@@ -9,10 +9,10 @@ use crate::engine::api::texture::Sprite;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
-use crate::vertex::VertexShaderDataLayout;
+use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 
 pub struct Triangle<T: VertexShaderDataLayout> {
-    open_gl_context: ShapeDrawingComponent<T>,
+    shape_drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 3],
     indices: [i32; 3],
     material: Material,
@@ -30,7 +30,7 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
         );
 
         Triangle {
-            open_gl_context,
+            shape_drawing_component: open_gl_context,
             vertices,
             indices,
             material,
@@ -42,7 +42,7 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
 
 impl<'a, T: VertexShaderDataLayout> Drawable for Triangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.open_gl_context.render(
+        self.shape_drawing_component.render(
             self.indices.len() as i32,
             gl::TRIANGLES,
             *self.get_pos(),

@@ -104,8 +104,11 @@ impl ResourceManager for CachingResourceManager {
     }
 
     fn read_file_lines(&self, id: &str) ->Lines<BufReader<File>> {
-        // todo: implement caching somehow
         self.resource_loader.load_file_lines(id)
+    }
+
+    fn read_file(&self, id: &str) -> BufReader<File> {
+        self.resource_loader.load_file(id)
     }
 }
 

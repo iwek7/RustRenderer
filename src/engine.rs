@@ -6,3 +6,4 @@ mod renderer;
 pub mod opengl_context;
 pub mod glam_utils;
 mod resources;
+pub mod base_object;

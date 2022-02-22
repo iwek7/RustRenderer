@@ -9,7 +9,7 @@ use crate::engine::api::texture::Sprite;
 use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
-use crate::vertex::VertexShaderDataLayout;
+use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 
 // todo: reduce duplication https://users.rust-lang.org/t/how-to-implement-inheritance-like-feature-for-rust/31159
 pub struct Quadrangle<T> where T: VertexShaderDataLayout {

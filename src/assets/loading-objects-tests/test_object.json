@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "children": [],
+  "type": "quadrangle",
+  "vertices": [],
+  "indices": [],
+  "color": [],
+  "world_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "vertex_data_layout": "COLORED",
+  "material": "chess/shaders/triangle"
+}

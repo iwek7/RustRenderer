@@ -15,4 +15,5 @@ pub trait ResourceManager {
     fn fetch_audio(&self, id: &str) -> Rc<AudioResource>;
     fn fetch_font(&self, id: &str) -> Rc<SizedFont>;
     fn read_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>>;
+    fn read_file(&self, id: &str) -> io::BufReader<File>;
 }

@@ -11,8 +11,11 @@ use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
-use crate::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout};
+use crate::engine::api::maths::vertex::{ColoredVertexDataLayout, TexturedVertexDataLayout};
 
+/**
+    this is simulation of submarine movement from Advent Of Code 2021/3
+*/
 pub struct SubmarineGame {
     submarine: Submarine,
     engine_utilities: Rc<EngineUtilities>,

@@ -74,9 +74,13 @@ impl ResourceLoader {
         fs::read(path).unwrap()
     }
 
-    pub fn load_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>> {
+    pub fn load_file(&self, id: &str) -> io::BufReader<File> {
         let file = File::open(resource_name_to_path(&self.root_path, id)).unwrap();
-        io::BufReader::new(file).lines()
+        io::BufReader::new(file)
+    }
+
+    pub fn load_file_lines(&self, id: &str) -> io::Lines<io::BufReader<File>> {
+        self.load_file(id).lines()
     }
 }
 

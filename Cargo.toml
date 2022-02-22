@@ -16,6 +16,9 @@ rand = "0.8.4"
 soloud = "0.4"
 freetype-rs = "0.28.0"
 tiled = "0.9.5"
+# serialization
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
 
 [build-dependencies]
 walkdir = "2.3.2"

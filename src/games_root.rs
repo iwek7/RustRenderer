@@ -12,7 +12,6 @@ use crate::engine::opengl_context::OpenglContext;
 
 const CAMERA_SPEED: f32 = 0.3;
 
-
 pub struct GamesRoot {
     games: Vec<Box<dyn Drawable>>,
     camera: CameraGameObject, //todo: camera should be game object
