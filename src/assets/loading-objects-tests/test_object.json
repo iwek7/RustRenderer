@@ -1,7 +1,7 @@
 {
   "id": 1,
   "children": [],
-  "type": "quadrangle",
+  "object_type": "quadrangle",
   "vertices": [],
   "indices": [],
   "color": [],
