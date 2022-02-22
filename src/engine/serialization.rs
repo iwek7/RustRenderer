@@ -13,6 +13,8 @@ pub struct GameObjectDto {
     id: i32,
     object_type: String,
     material: String,
+    world_position: (f32, f32, f32),
+    color: (f32, f32, f32, f32)
 }
 
 
@@ -30,10 +32,10 @@ impl GameObjectMapper {
         let material = self.engine_utilities.get_resource_manager().fetch_shader_material(&dto.material);
         return
             Rectangle::new_colored(
-                &glam::vec3(0.0, 0.0, 0.0),
+                &dto.world_position.into(),
                 &glam::vec2(1.0, 1.0),
                 material,
-                (0.0, 0.741, 0.180, 1.0).into(),
+                dto.color.into(),
             );
     }
 }
