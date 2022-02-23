@@ -46,15 +46,13 @@ impl GameObjectMapper {
 
     pub fn map_dto_to_game_object(&self, dto: &GameObjectDto) -> Rectangle<ColoredVertexDataLayout> {
         let material = self.engine_utilities.get_resource_manager().fetch_shader_material(&dto.material);
-        let sizeX = dto.properties.get("sizeX").unwrap().parse::<f32>().unwrap();
-        let sizeY = dto.properties.get("sizeY").unwrap().parse::<f32>().unwrap();
-
-
+        let size_x = dto.properties.get("sizeX").unwrap().parse::<f32>().unwrap();
+        let size_y = dto.properties.get("sizeY").unwrap().parse::<f32>().unwrap();
 
         return
             Rectangle::new_colored(
                 &dto.world_position.into(),
-                &glam::vec2(sizeX, sizeY),
+                &glam::vec2(size_x, size_y),
                 material,
                 dto.color.into(),
             );
