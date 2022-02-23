@@ -1,18 +1,13 @@
-use std::ops::Add;
 use std::rc::Rc;
-use std::time::{Duration, Instant};
-
-use sdl2::event::Event;
-use sdl2::timer::Timer;
+use std::time::{Duration};
 
 use crate::engine::api::colour::{BLUE, Colour, GREEN, RED, TRANSPARENT, WHITE};
 use crate::engine::api::countdown_timer::CountdownTimer;
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::util::{lerp_v3, lerp_v4};
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
@@ -30,6 +25,7 @@ const EXPIRE_TIMER_DURATION: Duration = Duration::from_millis(400);
 const CLICK_WINDOW_LENGTH: Duration = Duration::from_millis(500);
 
 pub struct Ring {
+    base_game_object: BaseGameObject,
     hit_box: Circle,
     ring_rectangle: Rectangle<TexturedVertexDataLayout>,
     ring_border_rectangle: Rectangle<TexturedVertexDataLayout>,
@@ -70,6 +66,7 @@ impl Ring {
         );
 
         Ring {
+            base_game_object: BaseGameObject::new(),
             ring_rectangle,
             ring_border_rectangle,
             hit_box,
@@ -159,6 +156,10 @@ impl GameObject for Ring {
                 }
             }
         }
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

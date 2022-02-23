@@ -7,7 +7,7 @@ use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::move_logic::create_move_component;
 use crate::chess::move_logic::PieceMoveComponent;
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -16,6 +16,7 @@ use crate::engine::api::texture::{Sprite};
 use crate::engine::rendering::material::Material;
 
 pub struct Piece {
+    base_game_object: BaseGameObject,
     pub logic: PieceLogic,
     rect: Rectangle<TexturedVertexDataLayout>,
     initial_drag_pos_opengl: glam::Vec3,
@@ -24,6 +25,10 @@ pub struct Piece {
 impl GameObject for Piece {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rect.render(render_util)
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 
@@ -100,6 +105,7 @@ impl PieceFactory {
 
         let move_component = create_move_component(&piece_type);
         return Piece {
+            base_game_object: BaseGameObject::new(),
             logic: PieceLogic {
                 piece_type,
                 move_component,

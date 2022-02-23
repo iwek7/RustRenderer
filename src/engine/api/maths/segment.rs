@@ -2,15 +2,15 @@ use std::ops::Add;
 
 use glam::Vec3;
 
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
 pub struct Segment<T> where T: VertexShaderDataLayout {
+    base_game_object: BaseGameObject,
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 2],
     indices: [i32; 2],
@@ -42,6 +42,7 @@ impl<'a, T: VertexShaderDataLayout> Segment<T> {
         );
 
         Segment {
+            base_game_object: BaseGameObject::new(),
             drawing_component,
             vertices,
             indices,
@@ -63,6 +64,10 @@ impl<'a, T: VertexShaderDataLayout> GameObject for Segment<T> {
             self.scale.clone(),
             glam::vec3(0.0, 0.0, 0.0),
         )
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

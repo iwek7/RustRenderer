@@ -2,8 +2,8 @@ use std::rc::Rc;
 
 use glam::Vec3;
 
-use crate::engine::api::colour::{Colour, WHITE};
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::colour::{Colour};
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -12,6 +12,7 @@ use crate::engine::rendering::material::{Material, UniformKind};
 use crate::engine::resources::fonts::SizedFont;
 
 pub struct TextGameObject {
+    base_game_object: BaseGameObject,
     sized_font: Rc<SizedFont>,
     text: String,
     rects: Vec<Rectangle<TexturedVertexDataLayout>>,
@@ -27,6 +28,7 @@ pub struct TextGameObject {
 impl TextGameObject {
     pub fn new(sized_font: Rc<SizedFont>, text: &str, position: Vec3, material: Material, colour: Colour) -> TextGameObject {
         TextGameObject {
+            base_game_object: BaseGameObject::new(),
             sized_font: Rc::clone(&sized_font),
             text: String::from(text),
             rects: TextGameObject::init_rects(sized_font, text, position, material.clone(), &colour),
@@ -91,6 +93,10 @@ impl TextGameObject {
 impl GameObject for TextGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rects.iter_mut().for_each(|q| q.render(render_util))
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

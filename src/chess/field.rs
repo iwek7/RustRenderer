@@ -1,11 +1,12 @@
 use crate::chess::allowed_move::ActionType;
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::rendering::material::Material;
 
 pub struct Field {
+    base_game_object: BaseGameObject,
     // todo: those variables should not be mutable anyhow
     pub logic: FieldLogic,
     pub x: f32,
@@ -43,6 +44,7 @@ impl Field {
         );
 
         Field {
+            base_game_object: BaseGameObject::new(),
             logic: FieldLogic::from_coords(row, col),
             x: position.x,
             y: position.y,
@@ -85,6 +87,10 @@ impl GameObject for Field {
         } else if self.is_current_field {
             self.current_field_overlay.render(render_util)
         }
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

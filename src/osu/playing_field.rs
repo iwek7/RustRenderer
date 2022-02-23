@@ -7,7 +7,7 @@ use rand::prelude::*;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::Colour;
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
@@ -20,6 +20,7 @@ use crate::osu::ring::{Ring, RING_RADIUS, RingStateKind};
 const SPAWN_INTERVAL_MILLIS: u128 = 500;
 
 pub struct PlayingField {
+    base_game_object: BaseGameObject,
     background: Rectangle<TexturedVertexDataLayout>,
     rings: Vec<Ring>,
     fade_offs: Vec<Ring>,
@@ -43,6 +44,7 @@ impl PlayingField {
         );
 
         PlayingField {
+            base_game_object: BaseGameObject::new(),
             background,
             rings: vec!(),
             fade_offs: vec!(),
@@ -133,5 +135,9 @@ impl GameObject for PlayingField {
         }
 
         self.rings.iter_mut().for_each(|ring| ring.handle_event(event, context, update_context));
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }

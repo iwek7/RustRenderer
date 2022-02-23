@@ -5,13 +5,14 @@ use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::resource_manager::ResourceManager;
 
 pub struct Chessboard {
+    base_game_object: BaseGameObject,
     board: Rectangle<TexturedVertexDataLayout>,
     pieces: Vec<Piece>,
     piece_factory: PieceFactory,
@@ -59,6 +60,7 @@ impl Chessboard {
         }
 
         return Chessboard {
+            base_game_object: BaseGameObject::new(),
             board: rect,
             pieces: vec!(),
             piece_factory,
@@ -337,6 +339,10 @@ impl GameObject for Chessboard {
         self.board.render(render_util);
         self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.render(render_util)));
         self.pieces.iter_mut().for_each(|piece| { piece.render(render_util) });
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

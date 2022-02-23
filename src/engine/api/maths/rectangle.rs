@@ -2,7 +2,7 @@ use glam::Vec3;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::{Colour, WHITE};
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex;
@@ -15,6 +15,7 @@ use crate::engine::rendering::material::{Material, UniformKind};
 const RECT_INDICES: [i32; 6] = [0, 1, 3, 1, 2, 3];
 
 pub struct Rectangle<T> where T: VertexShaderDataLayout {
+    base_game_object: BaseGameObject,
     quad: Quadrangle<T>,
 }
 
@@ -23,6 +24,7 @@ impl Rectangle<ColoredVertexDataLayout> {
     pub fn new_colored(bottom_left: &glam::Vec3, size: &glam::Vec2, material: Material, clr: Colour) -> Rectangle<ColoredVertexDataLayout> {
         // todo assert that size is possitive
         Rectangle {
+            base_game_object: BaseGameObject::new(),
             quad: Quadrangle::new(
                 create_colored_vertex_data_layout(size, clr),
                 RECT_INDICES.clone(),
@@ -53,6 +55,7 @@ impl Rectangle<TexturedVertexDataLayout> {
         quad.set_scaling_point(glam::vec3(size.x / 2.0, size.y / 2.0, 0.0));
 
         Rectangle {
+            base_game_object: BaseGameObject::new(),
             quad
         }
     }
@@ -74,6 +77,7 @@ impl Rectangle<TexturedVertexDataLayout> {
         quad.set_scaling_point(glam::vec3(size.x / 2.0, size.y / 2.0, 0.0));
 
         Rectangle {
+            base_game_object: BaseGameObject::new(),
             quad
         }
     }
@@ -114,6 +118,10 @@ impl<T: VertexShaderDataLayout> GameObject for Rectangle<T> {
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
         self.quad.handle_event(event, context, update_context)
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

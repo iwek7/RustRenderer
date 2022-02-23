@@ -2,16 +2,16 @@ use std::ops::Add;
 
 use glam::Vec3;
 
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Sprite;
-use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 
 pub struct Triangle<T: VertexShaderDataLayout> {
+    base_game_object: BaseGameObject,
     shape_drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 3],
     indices: [i32; 3],
@@ -30,6 +30,7 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
         );
 
         Triangle {
+            base_game_object: BaseGameObject::new(),
             shape_drawing_component: open_gl_context,
             vertices,
             indices,
@@ -51,6 +52,10 @@ impl<'a, T: VertexShaderDataLayout> GameObject for Triangle<T> {
             self.scale.clone(),
             glam::vec3(0.0, 0.0, 0.0),
         )
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

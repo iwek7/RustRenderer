@@ -1,15 +1,10 @@
-use std::iter::Map;
 use std::rc::Rc;
 
-use sdl2::pixels::Color;
 use serde::{Deserialize, Serialize};
 
-use crate::engine::api::game_object::GameObject;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
-use crate::engine::api::maths::vertex::VertexShaderDataLayout;
-use crate::engine::rendering::material::Material;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectDto {

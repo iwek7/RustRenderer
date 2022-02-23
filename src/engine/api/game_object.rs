@@ -13,6 +13,7 @@ pub trait GameObject {
     fn update(&mut self, update_context: &UpdateContext) {}
     // todo: this should re turn some result so that event is not propagated further once consumed
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {}
+    fn base_game_object(&mut self) -> &mut BaseGameObject;
 }
 
 pub struct UpdateContext<> {
@@ -45,4 +46,34 @@ impl UpdateContext {
     }
 
     pub fn get_delta_time(&self) -> &Duration { &self.delta_time }
+}
+
+pub struct BaseGameObject {
+    children: Vec<Box<dyn GameObject>>,
+}
+
+impl BaseGameObject {
+    pub(crate) fn new() -> BaseGameObject {
+        BaseGameObject {
+            children: vec!()
+        }
+    }
+}
+
+impl GameObject for BaseGameObject {
+    fn render(&mut self, render_util: &RenderUtil) {
+        self.children.iter_mut().for_each(|child| child.render(render_util))
+    }
+
+    fn update(&mut self, update_context: &UpdateContext) {
+        self.children.iter_mut().for_each(|child| child.update(update_context))
+    }
+
+    fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
+        self.children.iter_mut().for_each(|child| child.handle_event(event, context, update_context))
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        self
+    }
 }

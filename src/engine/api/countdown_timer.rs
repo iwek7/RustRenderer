@@ -1,6 +1,5 @@
-use std::cmp::min;
 use std::ops::{Add, Sub};
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 
 pub struct CountdownTimer {
     duration: Duration,

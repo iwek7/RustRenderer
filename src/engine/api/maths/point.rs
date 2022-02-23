@@ -1,12 +1,11 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add};
 
 use glam::Vec3;
 
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
-use crate::engine::glam_utils::to_glam_vec;
 use crate::engine::rendering::material::Material;
 use crate::engine::rendering::shape_drawing_component::ShapeDrawingComponent;
 
@@ -21,6 +20,7 @@ Point::new(
         ```
  */
 pub struct Point<T> where T: VertexShaderDataLayout {
+    base_game_object: BaseGameObject,
     drawing_component: ShapeDrawingComponent<T>,
     vertices: [T; 1],
     material: Material,
@@ -35,6 +35,7 @@ impl<T: VertexShaderDataLayout> Point<T> {
             None,
         );
         return Point {
+            base_game_object: BaseGameObject::new(),
             drawing_component,
             vertices,
             material,
@@ -55,6 +56,10 @@ impl<T: VertexShaderDataLayout> GameObject for Point<T> {
             glam::vec3(0.0, 0.0, 0.0),
 
         )
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

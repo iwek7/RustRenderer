@@ -1,27 +1,21 @@
 use std::rc::Rc;
 use std::time::Duration;
 
-use glam::Vec3;
-use sdl2::audio::AudioCallback;
 use sdl2::event::Event;
 use sdl2::mouse::MouseButton;
-use soloud::*;
 
 use crate::engine::api::audio::AudioResource;
-use crate::engine::api::colour::{Colour, GREEN, WHITE};
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::colour::{GREEN, WHITE};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::maths::circle::Circle;
-use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
-use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::text_game_object::TextGameObject;
-use crate::engine::engine::Engine;
 use crate::engine::opengl_context::OpenglContext;
 use crate::osu::playing_field::PlayingField;
 
 pub struct OsuGame {
+    base_game_object: BaseGameObject,
     playing_field: PlayingField,
     score_label: TextGameObject,
     score_text: TextGameObject,
@@ -103,6 +97,7 @@ impl OsuGame {
         );
 
         OsuGame {
+            base_game_object: BaseGameObject::new(),
             playing_field,
             score_label,
             score_text,
@@ -163,11 +158,16 @@ impl<'a> GameObject for OsuGame {
             self.playing_field.handle_event(event, context, update_context)
         }
     }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
+    }
 }
 
 struct TimerGameObject {
     timer_text: TextGameObject,
     total_time_text: String,
+    base_game_object: BaseGameObject,
 }
 
 impl TimerGameObject {
@@ -175,6 +175,7 @@ impl TimerGameObject {
         let total_time_text = TimerGameObject::duration_to_pretty_string(total_duration);
         timer_text.set_text(format!("00:00 / {}", total_time_text));
         TimerGameObject {
+            base_game_object: BaseGameObject::new(),
             timer_text,
             total_time_text,
         }
@@ -210,5 +211,9 @@ impl GameObject for TimerGameObject {
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
         self.timer_text.handle_event(event, context, update_context)
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }

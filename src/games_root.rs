@@ -1,18 +1,17 @@
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::mouse::{MouseButton, MouseWheelDirection};
+use sdl2::mouse::{MouseWheelDirection};
 
 use crate::engine::api::camera::CameraGameObject;
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::game_api::{CameraConfig, GameController};
-use crate::engine::api::maths::quadrangle::Quadrangle;
-use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
 
 const CAMERA_SPEED: f32 = 0.3;
 
 pub struct GamesRoot {
+    base_game_object: BaseGameObject,
     games: Vec<Box<dyn GameObject>>,
     camera: CameraGameObject, //todo: camera should be game object
 }
@@ -20,6 +19,7 @@ pub struct GamesRoot {
 impl GamesRoot {
     pub fn new(games: Vec<Box<dyn GameObject>>) -> GamesRoot {
         GamesRoot {
+            base_game_object: BaseGameObject::new(),
             games,
             camera: CameraGameObject::new(
                 glam::vec3(-10.0, 10.0, 20.0),
@@ -76,6 +76,10 @@ impl GameObject for GamesRoot {
                 }
             }
         }
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

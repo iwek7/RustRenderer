@@ -4,7 +4,7 @@ use sdl2::event::Event;
 
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
-use crate::engine::api::game_object::{GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -14,6 +14,7 @@ use crate::engine::opengl_context::OpenglContext;
 use crate::engine::rendering::material::Material;
 
 pub struct ChessGame {
+    base_game_object: BaseGameObject,
     chessboard: Chessboard,
     black_win_banner: Rectangle<TexturedVertexDataLayout>,
     white_win_banner: Rectangle<TexturedVertexDataLayout>,
@@ -39,6 +40,7 @@ impl ChessGame {
         );
 
         ChessGame {
+            base_game_object: BaseGameObject::new(),
             chessboard,
             black_win_banner,
             white_win_banner,
@@ -90,6 +92,10 @@ impl GameObject for ChessGame {
                 }
             }
         }
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 

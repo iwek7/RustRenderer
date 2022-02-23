@@ -5,7 +5,7 @@ use std::ops::Add;
 use glam::Vec3;
 
 use crate::engine::api::colour::Colour;
-use crate::engine::api::game_object::GameObject;
+use crate::engine::api::game_object::{BaseGameObject, GameObject};
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -18,6 +18,7 @@ const NUM_VERTICES: i32 = 32;
 // we have n vertices that form n - 1 triangles. -1  because vertex in the middle is shared
 // therefore number indices is 3 * (n - 1)
 pub struct Circle {
+    base_game_object: BaseGameObject,
     drawing_component: ShapeDrawingComponent<ColoredVertexDataLayout>,
     vertices: [ColoredVertexDataLayout; 32],
     indices: [i32; 93],
@@ -42,6 +43,7 @@ impl Circle {
         );
 
         Circle {
+            base_game_object: BaseGameObject::new(),
             drawing_component,
             vertices: vertices.try_into().unwrap(),
             indices: indices.try_into().unwrap(),
@@ -110,6 +112,10 @@ impl GameObject for Circle {
             glam::vec3(0.0, 0.0, 0.0),
 
         )
+    }
+
+    fn base_game_object(&mut self) -> &mut BaseGameObject {
+        &mut self.base_game_object
     }
 }
 
