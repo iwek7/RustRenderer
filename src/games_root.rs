@@ -3,7 +3,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::mouse::{MouseButton, MouseWheelDirection};
 
 use crate::engine::api::camera::CameraGameObject;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::game_api::{CameraConfig, GameController};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
@@ -13,12 +13,12 @@ use crate::engine::opengl_context::OpenglContext;
 const CAMERA_SPEED: f32 = 0.3;
 
 pub struct GamesRoot {
-    games: Vec<Box<dyn Drawable>>,
+    games: Vec<Box<dyn GameObject>>,
     camera: CameraGameObject, //todo: camera should be game object
 }
 
 impl GamesRoot {
-    pub fn new(games: Vec<Box<dyn Drawable>>) -> GamesRoot {
+    pub fn new(games: Vec<Box<dyn GameObject>>) -> GamesRoot {
         GamesRoot {
             games,
             camera: CameraGameObject::new(
@@ -30,7 +30,7 @@ impl GamesRoot {
     }
 }
 
-impl Drawable for GamesRoot {
+impl GameObject for GamesRoot {
     fn render(&mut self, render_util: &RenderUtil) {
         self.games.iter_mut().for_each(|game| {game.render(render_util)});
     }

@@ -4,7 +4,7 @@ use std::ops::Mul;
 use std::rc::Rc;
 
 use crate::engine::api::colour::WHITE;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::rectangle::Rectangle;
@@ -40,7 +40,7 @@ impl SubmarineGame {
 }
 
 
-impl Drawable for SubmarineGame {
+impl GameObject for SubmarineGame {
     fn render(&mut self, render_util: &RenderUtil) {
         self.submarine.render(render_util)
     }
@@ -88,7 +88,7 @@ impl Submarine {
     }
 }
 
-impl Drawable for Submarine {
+impl GameObject for Submarine {
     fn render(&mut self, render_util: &RenderUtil) {
         self.submarine_sprite.render(render_util)
     }

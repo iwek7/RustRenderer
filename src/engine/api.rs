@@ -1,7 +1,7 @@
 pub mod audio;
 pub mod camera;
 pub mod coordinate_system;
-pub mod drawable;
+pub mod game_object;
 pub mod resource_manager;
 pub mod colour;
 pub mod texture;

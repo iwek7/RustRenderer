@@ -4,7 +4,7 @@ use std::rc::Rc;
 use sdl2::pixels::Color;
 use serde::{Deserialize, Serialize};
 
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;

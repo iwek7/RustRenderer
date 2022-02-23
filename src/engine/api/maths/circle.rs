@@ -5,7 +5,7 @@ use std::ops::Add;
 use glam::Vec3;
 
 use crate::engine::api::colour::Colour;
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -98,7 +98,7 @@ impl Circle {
     }
 }
 
-impl Drawable for Circle {
+impl GameObject for Circle {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             self.indices.len() as i32,

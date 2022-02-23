@@ -9,7 +9,7 @@ use soloud::*;
 
 use crate::engine::api::audio::AudioResource;
 use crate::engine::api::colour::{Colour, GREEN, WHITE};
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
@@ -115,7 +115,7 @@ impl OsuGame {
     }
 }
 
-impl<'a> Drawable for OsuGame {
+impl<'a> GameObject for OsuGame {
     fn render(&mut self, render_util: &RenderUtil) {
         self.playing_field.render(render_util);
         self.score_label.render(render_util);
@@ -199,7 +199,7 @@ impl TimerGameObject {
     }
 }
 
-impl Drawable for TimerGameObject {
+impl GameObject for TimerGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
         self.timer_text.render(render_util)
     }

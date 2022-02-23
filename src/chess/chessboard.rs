@@ -5,7 +5,7 @@ use crate::chess::allowed_move::{AccompanyingMove, ActionType};
 use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::piece::{Piece, PieceFactory, PieceLogic};
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -332,7 +332,7 @@ impl Chessboard {
     }
 }
 
-impl Drawable for Chessboard {
+impl GameObject for Chessboard {
     fn render(&mut self, render_util: &RenderUtil) {
         self.board.render(render_util);
         self.fields.iter_mut().for_each(|row| row.iter_mut().for_each(|field| field.render(render_util)));

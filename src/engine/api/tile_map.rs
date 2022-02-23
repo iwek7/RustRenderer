@@ -1,4 +1,4 @@
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::render_util::RenderUtil;
 
 pub struct TileMap {
@@ -11,7 +11,7 @@ impl TileMap {
     }
 }
 
-impl Drawable for TileMap {
+impl GameObject for TileMap {
     fn render(&mut self, render_util: &RenderUtil) {
     }
 }

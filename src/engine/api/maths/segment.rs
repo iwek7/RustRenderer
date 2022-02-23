@@ -2,7 +2,7 @@ use std::ops::Add;
 
 use glam::Vec3;
 
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -52,7 +52,7 @@ impl<'a, T: VertexShaderDataLayout> Segment<T> {
     }
 }
 
-impl<'a, T: VertexShaderDataLayout> Drawable for Segment<T> {
+impl<'a, T: VertexShaderDataLayout> GameObject for Segment<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             self.indices.len() as i32,

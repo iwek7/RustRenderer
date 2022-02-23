@@ -7,7 +7,7 @@ use rand::prelude::*;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::Colour;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
@@ -66,7 +66,7 @@ impl PlayingField {
     }
 }
 
-impl Drawable for PlayingField {
+impl GameObject for PlayingField {
     fn render(&mut self, render_util: &RenderUtil) {
         self.background.render(render_util);
         self.rings.iter_mut().for_each(|ring| ring.render(render_util));

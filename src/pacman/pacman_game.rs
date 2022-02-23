@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::render_util::RenderUtil;
 
@@ -21,7 +21,7 @@ impl PacmanGame {
 
 }
 
-impl Drawable for PacmanGame {
+impl GameObject for PacmanGame {
     fn render(&mut self, render_util: &RenderUtil) {
 
     }

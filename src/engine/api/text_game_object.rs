@@ -3,7 +3,7 @@ use std::rc::Rc;
 use glam::Vec3;
 
 use crate::engine::api::colour::{Colour, WHITE};
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -88,7 +88,7 @@ impl TextGameObject {
     }
 }
 
-impl Drawable for TextGameObject {
+impl GameObject for TextGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rects.iter_mut().for_each(|q| q.render(render_util))
     }

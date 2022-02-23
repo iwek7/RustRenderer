@@ -7,7 +7,7 @@ use sdl2::timer::Timer;
 
 use crate::engine::api::colour::{BLUE, Colour, GREEN, RED, TRANSPARENT, WHITE};
 use crate::engine::api::countdown_timer::CountdownTimer;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::maths::circle::Circle;
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::rectangle::Rectangle;
@@ -112,7 +112,7 @@ impl Ring {
     }
 }
 
-impl Drawable for Ring {
+impl GameObject for Ring {
     fn render(&mut self, render_util: &RenderUtil) {
         if self.state.kind == RingStateKind::ALIVE {
             self.ring_border_rectangle.render(render_util);

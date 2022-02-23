@@ -1,4 +1,4 @@
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::game_api::CameraConfig;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
@@ -21,7 +21,7 @@ impl Renderer {
         }
     }
 
-    pub fn render(&mut self, objects: &mut [&mut dyn Drawable], active_camera_config: &CameraConfig, context: &OpenglContext) {
+    pub fn render(&mut self, objects: &mut [&mut dyn GameObject], active_camera_config: &CameraConfig, context: &OpenglContext) {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }

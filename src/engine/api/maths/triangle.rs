@@ -2,7 +2,7 @@ use std::ops::Add;
 
 use glam::Vec3;
 
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Sprite;
@@ -40,7 +40,7 @@ impl<'a, T: VertexShaderDataLayout> Triangle<T> {
     }
 }
 
-impl<'a, T: VertexShaderDataLayout> Drawable for Triangle<T> {
+impl<'a, T: VertexShaderDataLayout> GameObject for Triangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.shape_drawing_component.render(
             self.indices.len() as i32,

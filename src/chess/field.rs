@@ -1,5 +1,5 @@
 use crate::chess::allowed_move::ActionType;
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -76,7 +76,7 @@ impl Field {
     }
 }
 
-impl Drawable for Field {
+impl GameObject for Field {
     fn render(&mut self, render_util: &RenderUtil) {
         if self.is_possible_move {
             self.possible_move_overlay.render(render_util)

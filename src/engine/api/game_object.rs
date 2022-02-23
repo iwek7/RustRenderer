@@ -8,8 +8,7 @@ use crate::engine::api::game_api::CameraConfig;
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
 
-// todo rename
-pub trait Drawable {
+pub trait GameObject {
     fn render(&mut self, render_util: &RenderUtil);
     fn update(&mut self, update_context: &UpdateContext) {}
     // todo: this should re turn some result so that event is not propagated further once consumed

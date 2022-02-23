@@ -2,7 +2,7 @@ use std::ops::{Add, Sub};
 
 use glam::Vec3;
 
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::VertexShaderDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -43,7 +43,7 @@ impl<T: VertexShaderDataLayout> Point<T> {
     }
 }
 
-impl<T: VertexShaderDataLayout> Drawable for Point<T> {
+impl<T: VertexShaderDataLayout> GameObject for Point<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             1,

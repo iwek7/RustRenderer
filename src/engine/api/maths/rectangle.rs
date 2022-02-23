@@ -2,7 +2,7 @@ use glam::Vec3;
 use sdl2::event::Event;
 
 use crate::engine::api::colour::{Colour, WHITE};
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::maths::quadrangle::Quadrangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex;
@@ -103,7 +103,7 @@ fn create_textured_vertex_data_layout(size: &glam::Vec2, sprite_coords: &Texture
     ];
 }
 
-impl<T: VertexShaderDataLayout> Drawable for Rectangle<T> {
+impl<T: VertexShaderDataLayout> GameObject for Rectangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.quad.render(render_util)
     }

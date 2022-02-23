@@ -8,7 +8,7 @@ use sdl2::mouse::MouseButton;
 use crate::engine::api::audio::AudioManager;
 use crate::engine::api::colour::WHITE;
 use crate::engine::api::coordinate_system::CoordinateSystem;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::game_api::GameController;
 use crate::engine::api::maths::point::Point;

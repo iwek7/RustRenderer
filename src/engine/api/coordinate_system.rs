@@ -1,5 +1,5 @@
 use crate::engine::api::colour::WHITE;
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::segment::Segment;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 use crate::engine::api::render_util::RenderUtil;
@@ -50,7 +50,7 @@ impl CoordinateSystem {
     }
 }
 
-impl Drawable for CoordinateSystem {
+impl GameObject for CoordinateSystem {
     fn render(&mut self, render_util: &RenderUtil) {
         self.x_axis.render(render_util);
         self.y_axis.render(render_util);

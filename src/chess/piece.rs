@@ -7,7 +7,7 @@ use crate::chess::field::{Field, FieldLogic};
 use crate::chess::infrastructure::{PieceType, Side};
 use crate::chess::move_logic::create_move_component;
 use crate::chess::move_logic::PieceMoveComponent;
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -21,7 +21,7 @@ pub struct Piece {
     initial_drag_pos_opengl: glam::Vec3,
 }
 
-impl Drawable for Piece {
+impl GameObject for Piece {
     fn render(&mut self, render_util: &RenderUtil) {
         self.rect.render(render_util)
     }

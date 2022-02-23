@@ -2,7 +2,7 @@ use std::ops::{Add, Sub};
 
 use glam::Vec3;
 
-use crate::engine::api::drawable::Drawable;
+use crate::engine::api::game_object::GameObject;
 use crate::engine::api::maths::shapes_common::{Area, is_point_within_convex_polygon};
 use crate::engine::api::render_util::RenderUtil;
 use crate::engine::api::texture::Sprite;
@@ -58,7 +58,7 @@ impl<T: VertexShaderDataLayout> Quadrangle<T> {
     }
 }
 
-impl<T: VertexShaderDataLayout> Drawable for Quadrangle<T> {
+impl<T: VertexShaderDataLayout> GameObject for Quadrangle<T> {
     fn render(&mut self, render_util: &RenderUtil) {
         self.drawing_component.render(
             self.indices.len() as i32,

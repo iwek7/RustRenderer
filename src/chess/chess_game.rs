@@ -4,7 +4,7 @@ use sdl2::event::Event;
 
 use crate::chess::chessboard::Chessboard;
 use crate::chess::infrastructure::Side;
-use crate::engine::api::drawable::{Drawable, UpdateContext};
+use crate::engine::api::game_object::{GameObject, UpdateContext};
 use crate::engine::api::engine_utilities::EngineUtilities;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::TexturedVertexDataLayout;
@@ -55,7 +55,7 @@ impl ChessGame {
     }
 }
 
-impl Drawable for ChessGame {
+impl GameObject for ChessGame {
     fn render(&mut self, render_util: &RenderUtil) {
         match self.chessboard.get_winner().clone() {
             None => { self.chessboard.render(render_util) }
