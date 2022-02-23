@@ -18,7 +18,11 @@
         0.0
       ],
       "vertex_data_layout": "COLORED",
-      "material": "chess/shaders/triangle"
+      "material": "chess/shaders/triangle",
+      "properties": {
+        "sizeX": "1.0",
+        "sizeY": "1.0"
+      }
     },
     {
       "id": 2,
@@ -38,7 +42,11 @@
         0.0
       ],
       "vertex_data_layout": "COLORED",
-      "material": "chess/shaders/triangle"
+      "material": "chess/shaders/triangle",
+      "properties": {
+        "sizeX": "0.5",
+        "sizeY": "0.5"
+      }
     }
   ]
 }
