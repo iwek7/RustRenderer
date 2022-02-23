@@ -28,10 +28,10 @@ fn main() {
     let loading_object_tests = LoadingObjectsTests::new(engine.get_engine_utilities());
     let games_root = GamesRoot::new(
         vec![
-            Box::new(osu_game),
-            Box::new(chess_game),
-            Box::new(submarine_game),
-            Box::new(pacman_game),
+            // Box::new(osu_game),
+            // Box::new(chess_game),
+            // Box::new(submarine_game),
+            // Box::new(pacman_game),
             Box::new(loading_object_tests)
         ]
     );

@@ -1,20 +1,44 @@
 {
-  "id": 1,
-  "children": [],
-  "object_type": "quadrangle",
-  "vertices": [],
-  "indices": [],
-  "color": [
-    0.5,
-    0.5,
-    0.5,
-    1.0
-  ],
-  "world_position": [
-    -5.0,
-    2.0,
-    0.0
-  ],
-  "vertex_data_layout": "COLORED",
-  "material": "chess/shaders/triangle"
+  "objects": [
+    {
+      "id": 1,
+      "children": [],
+      "object_type": "rectangle",
+      "vertices": [],
+      "indices": [],
+      "color": [
+        0.5,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "world_position": [
+        -5.0,
+        2.0,
+        0.0
+      ],
+      "vertex_data_layout": "COLORED",
+      "material": "chess/shaders/triangle"
+    },
+    {
+      "id": 2,
+      "children": [],
+      "object_type": "rectangle",
+      "vertices": [],
+      "indices": [],
+      "color": [
+        1.0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "world_position": [
+        -5.0,
+        3.0,
+        0.0
+      ],
+      "vertex_data_layout": "COLORED",
+      "material": "chess/shaders/triangle"
+    }
+  ]
 }

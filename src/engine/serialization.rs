@@ -9,6 +9,18 @@ use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::vertex::ColoredVertexDataLayout;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ProjectDto {
+    objects: Vec<GameObjectDto>
+}
+
+impl ProjectDto {
+    pub fn get_objects(&self) -> &Vec<GameObjectDto> {
+        &self.objects
+    }
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct GameObjectDto {
     id: i32,
     object_type: String,
@@ -28,7 +40,7 @@ impl GameObjectMapper {
         GameObjectMapper { engine_utilities }
     }
 
-    pub fn map_dto_to_game_object(&self, dto: GameObjectDto) -> Rectangle<ColoredVertexDataLayout> {
+    pub fn map_dto_to_game_object(&self, dto: &GameObjectDto) -> Rectangle<ColoredVertexDataLayout> {
         let material = self.engine_utilities.get_resource_manager().fetch_shader_material(&dto.material);
         return
             Rectangle::new_colored(
