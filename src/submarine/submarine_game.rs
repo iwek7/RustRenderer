@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 use crate::engine::api::colour::WHITE;
 use crate::engine::api::engine_utilities::EngineUtilities;
-use crate::engine::api::game_object::{BaseGameObject, GameObject, UpdateContext};
+use crate::engine::api::game_object::{BaseGameObject, GameObject, GameObjectId, UpdateContext};
 use crate::engine::api::maths::point::Point;
 use crate::engine::api::maths::rectangle::Rectangle;
 use crate::engine::api::maths::shapes_common::Area;
@@ -18,7 +18,6 @@ this is simulation of submarine movement from Advent Of Code 2021/3
  */
 pub struct SubmarineGame {
     base_game_object: BaseGameObject,
-    submarine: Submarine,
     engine_utilities: Rc<EngineUtilities>,
     lines: io::Lines<io::BufReader<File>>,
 }
@@ -34,17 +33,20 @@ impl SubmarineGame {
             submarine_tx,
         );
 
-        let submarine = Submarine::new(submarine_sprite);
         let lines = engine_utilities.get_resource_manager().read_file_lines("submarine/commands.txt");
-        SubmarineGame { base_game_object: BaseGameObject::new(), submarine, engine_utilities, lines }
+        let mut base_game_object =  BaseGameObject::new();
+        base_game_object.add_child(GameObjectId::new("Submarine"), Box::new(Submarine::new(submarine_sprite)));
+        SubmarineGame {
+            base_game_object,
+            engine_utilities,
+            lines,
+        }
     }
 }
 
 
 impl GameObject for SubmarineGame {
-    fn render(&mut self, render_util: &RenderUtil) {
-        self.submarine.render(render_util)
-    }
+
 
     fn update(&mut self, update_context: &UpdateContext) {
         if let Some(line) = self.lines.next() {

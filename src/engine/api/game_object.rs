@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+use std::iter::Map;
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -9,7 +12,7 @@ use crate::engine::api::render_util::RenderUtil;
 use crate::engine::opengl_context::OpenglContext;
 
 pub trait GameObject {
-    fn render(&mut self, render_util: &RenderUtil);
+    fn render(&mut self, render_util: &RenderUtil) {}
     fn update(&mut self, update_context: &UpdateContext) {}
     // todo: this should re turn some result so that event is not propagated further once consumed
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {}
@@ -48,29 +51,48 @@ impl UpdateContext {
     pub fn get_delta_time(&self) -> &Duration { &self.delta_time }
 }
 
+#[derive(Eq, PartialEq, Hash)]
+pub struct GameObjectId {
+    id: String,
+}
+
+impl GameObjectId {
+    pub(crate) fn new(id: &str) -> GameObjectId {
+        GameObjectId { id: String::from(id) }
+    }
+}
+
 pub struct BaseGameObject {
-    children: Vec<Box<dyn GameObject>>,
+    children: HashMap<GameObjectId, Box<dyn GameObject>>,
 }
 
 impl BaseGameObject {
     pub(crate) fn new() -> BaseGameObject {
         BaseGameObject {
-            children: vec!()
+            children: HashMap::new()
         }
+    }
+
+    pub fn add_child(&mut self, id: GameObjectId, child: Box<dyn GameObject>) {
+        self.children.insert(id, child);
+    }
+
+    pub fn get_child<R>(&self, id: &GameObjectId) -> &R {
+        return &(*(self.children.get(&id).unwrap()) as R)
     }
 }
 
 impl GameObject for BaseGameObject {
     fn render(&mut self, render_util: &RenderUtil) {
-        self.children.iter_mut().for_each(|child| child.render(render_util))
+        self.children.iter_mut().for_each(|entry| entry.1.render(render_util))
     }
 
     fn update(&mut self, update_context: &UpdateContext) {
-        self.children.iter_mut().for_each(|child| child.update(update_context))
+        self.children.iter_mut().for_each(|entry| entry.1.update(update_context))
     }
 
     fn handle_event(&mut self, event: &Event, context: &OpenglContext, update_context: &UpdateContext) {
-        self.children.iter_mut().for_each(|child| child.handle_event(event, context, update_context))
+        self.children.iter_mut().for_each(|entry| entry.1.handle_event(event, context, update_context))
     }
 
     fn base_game_object(&mut self) -> &mut BaseGameObject {
